@@ -1,6 +1,5 @@
 #include "irc.hpp"
 
-const int MAX_EVENTS = 10;
 
 int main() {
     int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
