@@ -4,8 +4,8 @@
 int	server()
 {
 	// creation et setup du socket
-	int socketfd = socket(PF_INET, SOCK_STREAM, 0);
-	if (socketfd == -1)
+	int socketServer = socket(PF_INET, SOCK_STREAM, 0);
+	if (socketServer == -1)
 	{
         std::cerr << "Error : Cannot create socket." << std::endl;
 		return (1);
@@ -18,8 +18,8 @@ int	server()
     serverAddress.sin_addr.s_addr = INADDR_ANY;
     serverAddress.sin_port = htons(6667);
 
-	// link le socketfd et la struct du server
-	int retBind = bind(socketfd, (struct sockaddr*)&serverAddress, sizeof(serverAddress));
+	// link le socketServer et la struct du server
+	int retBind = bind(socketServer, (struct sockaddr*)&serverAddress, sizeof(serverAddress));
 	if (retBind == -1)
 	{
 		// std::cerr << "Error : Cannot link socket." << std::endl;
@@ -28,7 +28,7 @@ int	server()
 	}
 
 	// setup socket pour accepter demandes de connexions
-	int retListen = listen(socketfd, 10); // verifier dernier parametre
+	int retListen = listen(socketServer, 10); // verifier dernier parametre
 	if (retListen == -1)
 	{
 		std::cerr << "Error : Socket listen status failed." << std::endl;
@@ -47,10 +47,10 @@ int	server()
 	// creation du groupe d'event epoll et set socket fd
 	epoll_event event;
 	event.events = EPOLLIN; // listen event
-	event.data.fd = socketfd;
+	event.data.fd = socketServer;
 
 	// ajout du socket au groupe epoll
-	int retEpollctl = epoll_ctl(epollfd, EPOLL_CTL_ADD, socketfd, &event);
+	int retEpollctl = epoll_ctl(epollfd, EPOLL_CTL_ADD, socketServer, &event);
 	if (retEpollctl == -1)
 	{
 		std::cerr << "Error : Cannot add socket in epoll group." << std::endl;
@@ -58,6 +58,7 @@ int	server()
 	}
 
 	epoll_event events[MAX_EVENTS];
+	std::string str;
 
 	while (true)
 	{
@@ -67,11 +68,11 @@ int	server()
             std::cerr << "Error : Unable to wait for events." << std::endl;
             return (1);
         }
-        for (int i = 0; i < numEvents; i++)
+        for (int i = 0; i < numEvents; ++i)
 		{
-            if (events[i].data.fd == socketfd) // nouvelle connexion en attente
+            if (events[i].data.fd == socketServer) // nouvelle connexion en attente
 			{
-                int clientSocket = accept(socketfd, NULL, NULL); // connexion entrante accepté et creation de socket client
+                int clientSocket = accept(socketServer, NULL, NULL); // connexion entrante accepté et creation de socket client
 																	// changer deuxieme param pour recup info du client et troisieme pour taille de struct
                 if (clientSocket == -1)
 				{
@@ -79,13 +80,22 @@ int	server()
                     continue;
                 }
                 fcntl(clientSocket, F_SETFL, O_NONBLOCK); // change les attributs de clientSocket
-                event.events = EPOLLIN | EPOLLET; // EPOLLET : notifie uniquement lorsque etat du socket change
+                event.events = EPOLLIN; // | EPOLLET; // EPOLLET : notifie uniquement lorsque etat du socket change
                 event.data.fd = clientSocket;
                 if (epoll_ctl(epollfd, EPOLL_CTL_ADD, clientSocket, &event) == -1)
 				{
 					std::cerr << "Error : Cannot add client socket in epoll group." << std::endl;
                     return (1);
                 }
+
+				std::string welcomeMessage = "001 YourNickname :Welcome to the IRC Server! Your connection has been established successfully.\r\n";
+
+				int bytesSent = send(clientSocket, welcomeMessage.c_str(), welcomeMessage.size(), 0);
+				if (bytesSent == -1)
+				{
+				    std::cerr << "Error sending welcome message." << std::endl;
+				    // Gérer l'erreur selon vos besoins.
+				}
                 std::cout << "New client connected." << std::endl;
             }
 			else // client deja connecte qui envoi des données
@@ -101,14 +111,13 @@ int	server()
 				else
 				{
                     buffer[bytesRead] = '\0';
-					if (strstr(buffer, "/join") != NULL)
-						std::cout << "Commande join recus" << std::endl;
+					std::cout << buffer << std::endl;
                 }
             }
         }
     }
 
-    close(socketfd);
+    close(socketServer);
     close(epollfd);
 
 	return (0);
