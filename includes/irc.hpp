@@ -13,6 +13,7 @@ const int MAX_EVENTS = 10; // test server
 
 # include <stdio.h> // pour utilisation de perror
 
+# include "client.hpp"
 
 
 

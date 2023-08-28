@@ -45,7 +45,7 @@ int	server()
 
 
 	// creation du groupe d'event epoll et set socket fd
-	epoll_event event;
+	epoll_event event; // classe server
 	event.events = EPOLLIN; // listen event
 	event.data.fd = socketServer;
 
@@ -57,9 +57,11 @@ int	server()
 		return (1);
 	}
 
-	epoll_event events[MAX_EVENTS];
-	std::string str;
+	epoll_event events[MAX_EVENTS]; // classe client
 
+
+	epoll_event eventClient;
+	eventClient.events = EPOLLIN; // listen event
 	while (true)
 	{
         int numEvents = epoll_wait(epollfd, events, MAX_EVENTS, -1); // attend evenement jusqu'a ce que au moin 1 evenement se produise
@@ -80,9 +82,9 @@ int	server()
                     continue;
                 }
                 fcntl(clientSocket, F_SETFL, O_NONBLOCK); // change les attributs de clientSocket
-                event.events = EPOLLIN; // | EPOLLET; // EPOLLET : notifie uniquement lorsque etat du socket change
-                event.data.fd = clientSocket;
-                if (epoll_ctl(epollfd, EPOLL_CTL_ADD, clientSocket, &event) == -1)
+                // event.events = EPOLLIN; // | EPOLLET; // EPOLLET : notifie uniquement lorsque etat du socket change
+                eventClient.data.fd = clientSocket;
+                if (epoll_ctl(epollfd, EPOLL_CTL_ADD, clientSocket, &eventClient) == -1)
 				{
 					std::cerr << "Error : Cannot add client socket in epoll group." << std::endl;
                     return (1);
@@ -105,10 +107,10 @@ int	server()
                 if (bytesRead <= 0)
 				{
                     close(events[i].data.fd);
-                    epoll_ctl(epollfd, EPOLL_CTL_DEL, events[i].data.fd, &event);
-                    std::cout << "Client disconnected." << std::endl;
+                    epoll_ctl(epollfd, EPOLL_CTL_DEL, events[i].data.fd, &eventClient);
+                    std::cout << "Client disconnected." <<std::endl;
                 }
-				else
+				else 
 				{
                     buffer[bytesRead] = '\0';
 					std::cout << buffer << std::endl;

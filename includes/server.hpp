@@ -6,5 +6,14 @@
 
 int	server();
 
+class server
+{
+	private:
+	int			socketServer;
+	sockaddr_in	serverAddress;
+	int			epollfd;
+	epoll_event eventServer;
+	public:
+};
 
 # endif
