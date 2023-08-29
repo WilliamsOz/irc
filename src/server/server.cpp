@@ -1,5 +1,4 @@
 # include "irc.hpp"
-# include "server.hpp"
 
 int	server()
 {
@@ -22,8 +21,7 @@ int	server()
 	int retBind = bind(socketServer, (struct sockaddr*)&serverAddress, sizeof(serverAddress));
 	if (retBind == -1)
 	{
-		// std::cerr << "Error : Cannot link socket." << std::endl;
-		perror("Error binding socket");
+		std::cerr << "Error : Cannot link socket." << std::endl;
 		return (1);
 	}
 
@@ -45,7 +43,7 @@ int	server()
 
 
 	// creation du groupe d'event epoll et set socket fd
-	epoll_event event; // classe server
+	epoll_event event;
 	event.events = EPOLLIN; // listen event
 	event.data.fd = socketServer;
 
@@ -62,7 +60,7 @@ int	server()
 
 	epoll_event eventClient;
 	eventClient.events = EPOLLIN; // listen event
-	while (true)
+	while (true) // remplacer true par global
 	{
         int numEvents = epoll_wait(epollfd, events, MAX_EVENTS, -1); // attend evenement jusqu'a ce que au moin 1 evenement se produise
         if (numEvents == -1)

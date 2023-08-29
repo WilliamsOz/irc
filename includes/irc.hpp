@@ -1,19 +1,23 @@
 #ifndef IRC_HPP
 # define IRC_HPP
 
+
+// CONST
+const int MAX_EVENTS = 10;
+
+// LIB
+# include <sys/epoll.h>
+# include <sys/socket.h>
+# include <fcntl.h>
+# include <unistd.h>
+# include <arpa/inet.h>
+# include <cstring>
 # include <iostream>
 
-# include "server.hpp" // test server
-const int MAX_EVENTS = 10; // test server
-# include <sys/epoll.h> // test server
-# include <fcntl.h> // test server
-# include <unistd.h> // test server
-# include <arpa/inet.h> // test server
-# include <cstring> // test server
-
-# include <stdio.h> // pour utilisation de perror
-
-# include "client.hpp"
+// CLASS
+# include "ServerClass.hpp"
+# include "UserClass.hpp"
+# include "ChannelClass.hpp"
 
 
 
