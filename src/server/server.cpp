@@ -1,5 +1,12 @@
 # include "irc.hpp"
 
+bool g_signal = false;
+
+void	Server::signal_handling(int)
+{
+	g_signal = true;
+}
+
 int	server()
 {
 	// creation et setup du socket
@@ -60,7 +67,8 @@ int	server()
 
 	epoll_event eventClient;
 	eventClient.events = EPOLLIN; // listen event
-	while (true) // remplacer true par global
+	signal(SIGINT, Server::signal_handling);
+	while (!g_signal) // remplacer true par global
 	{
         int numEvents = epoll_wait(epollfd, events, MAX_EVENTS, -1); // attend evenement jusqu'a ce que au moin 1 evenement se produise
         if (numEvents == -1)
@@ -87,9 +95,7 @@ int	server()
 					std::cerr << "Error : Cannot add client socket in epoll group." << std::endl;
                     return (1);
                 }
-
 				std::string welcomeMessage = "001 YourNickname :Welcome to the IRC Server! Your connection has been established successfully.\r\n";
-
 				int bytesSent = send(clientSocket, welcomeMessage.c_str(), welcomeMessage.size(), 0);
 				if (bytesSent == -1)
 				{

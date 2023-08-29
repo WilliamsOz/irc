@@ -8,7 +8,7 @@ class Server
 	public:
 	Server();
 	~Server();
-	// signal handler
+	static void signal_handling(int);
 
 	private:
 	int			socketServer;
