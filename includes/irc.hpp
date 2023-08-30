@@ -13,6 +13,7 @@ const int MAX_EVENTS = 10;
 # include <arpa/inet.h>
 # include <cstring>
 # include <iostream>
+# include <signal.h>
 
 // CLASS
 # include "ServerClass.hpp"
