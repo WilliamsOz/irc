@@ -14,7 +14,6 @@ const int MAX_EVENTS = 10;
 # include <iostream>
 # include <csignal>
 
-
 // CLASS
 # include "ServerClass.hpp"
 # include "UserClass.hpp"
