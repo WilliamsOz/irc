@@ -12,7 +12,6 @@ class User
 
 	private:
 	// reference de tout les channels auquels le user est connecte
-	int			clientSocket;
 	
 
 };

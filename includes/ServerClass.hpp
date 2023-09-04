@@ -6,14 +6,24 @@ int	server();
 class Server
 {
 	public:
-	Server();
-	~Server();
-	static void signal_handling(int);
+
+	Server(int port, char *password);
+	// ~Server();
+
+	void	launchServer();
+
+	static void signal_handler(int);
 
 	private:
-	int			socketServer;
-	sockaddr_in	serverAddress;
-	int			epollfd;
+
+	int			_port;
+	std::string	_password;
+	int			_socketServer;
+	sockaddr_in	_serverAddress;
+	int			_epollfd;
+	epoll_event	_serverEvent;
+	epoll_event	_clientEvent;
+	epoll_event _events[MAX_EVENTS];
 };
 
 # endif
