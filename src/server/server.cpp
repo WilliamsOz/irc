@@ -1,7 +1,5 @@
 # include "irc.hpp"
 
-bool g_signal = false;
-
 void	Server::signal_handling(int)
 {
 	g_signal = true;
@@ -123,6 +121,7 @@ int	server()
         }
     }
 
+	// devra etre supprimer lorsque les destructeurs seront codé
     close(socketServer);
     close(epollfd);
 
