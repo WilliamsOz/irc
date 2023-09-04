@@ -12,6 +12,7 @@ Server::Server(int port, char *password): _port(port), _password(password)
 
 void	Server::LaunchServer()
 {
+	int optionVal = 1;
 	// creation et setup du socket
 	this->_socketServer = socket(PF_INET, SOCK_STREAM, 0);
 	if (this->_socketServer == -1)
@@ -19,15 +20,24 @@ void	Server::LaunchServer()
         std::cerr << "Error :\tCannot create socket." << std::endl;
 		return ;
 	}
+	// setup du socket pour etre reutilisable apres un redemarrage rapide
+	int retSock = setsockopt(this->_socketServer, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &optionVal, sizeof(optionVal))
+	if (retSock == -1)
+	(
+		std::cerr << "Error :\tCannot create socket." << std::endl;
+		return ;
+	)
+	std::cout << "Socket server successfully created." << std::endl;
+
 
 	// setup du server (struct)
     std::memset(&this->_serverAddress, 0, sizeof(this->_serverAddress));
     this->_serverAddress.sin_family = AF_INET;
     this->_serverAddress.sin_addr.s_addr = INADDR_ANY;
-    this->_serverAddress.sin_port = htons(static_cast<uint16_t>(_port));
+    this->_serverAddress.sin_port = htons(static_cast<uint16_t>(this->_port));
 
 	// link le socketServer et la struct du server
-	int retBind = bind(this->_socketServer, (struct sockaddr*)&this->_serverAddress, sizeof(_serverAddress));
+	int retBind = bind(this->_socketServer, (struct sockaddr*)&this->_serverAddress, sizeof(this->_serverAddress));
 	if (retBind == -1)
 	{
 		std::cerr << "Error :\tCannot link socket." << std::endl;
