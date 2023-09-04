@@ -62,6 +62,7 @@ void	Server::LaunchServer()
 		close(this->_socketServer);
 		return ;
 	}
+	memset(this->_serverEvent, 0, sizeof(this->_serverEvent));
 
 	// creation du groupe d'event epoll et set socket fd
 	this->_serverEvent.events = EPOLLIN; // listen event
@@ -77,19 +78,20 @@ void	Server::LaunchServer()
 		return ;
 	}
 
-	this->_clientEvent.events = EPOLLIN; // listen event
 	signal(SIGINT, Server::signal_handler);
 
-
+	this->_clientEvent.events = EPOLLIN; // listen event
+	int numEvents;
 	while (!g_signal) // remplacer true par global
 	{
-        int numEvents = epoll_wait(this->_epollfd, this->_events, MAX_EVENTS, -1); // attend evenement jusqu'a ce que au moin 1 evenement se produise
+        numEvents = epoll_wait(this->_epollfd, this->_events, MAX_EVENTS, -1); // attend evenement jusqu'a ce que au moin 1 evenement se produise
         if (numEvents == -1)
 		{
             std::cerr << "Error : Unable to wait for events." << std::endl;
+			// ajouter close des fd ouverts
             return ;
         }
-        for (int i = 0; i < numEvents; ++i)
+        for (int i = 0; i < numEvents; i++)
 		{
             if (this->_events[i].data.fd == this->_socketServer) // nouvelle connexion en attente
 			{
