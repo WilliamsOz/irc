@@ -1,7 +1,6 @@
 #ifndef IRC_HPP
 # define IRC_HPP
 
-
 // CONST
 const int MAX_EVENTS = 10;
 
@@ -13,13 +12,16 @@ const int MAX_EVENTS = 10;
 # include <arpa/inet.h>
 # include <cstring>
 # include <iostream>
-# include <signal.h>
+# include <csignal>
+#include <string.h>
 
 // CLASS
 # include "ServerClass.hpp"
 # include "UserClass.hpp"
 # include "ChannelClass.hpp"
 
+// GLOBAL
+extern volatile sig_atomic_t g_signal;
 
 
 #endif
