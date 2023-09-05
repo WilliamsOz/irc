@@ -17,6 +17,7 @@ bool g_signal;
 # include <iostream>
 # include <signal.h>
 # include <csignal>
+#include <bits/stdc++.h>  
 
 // CLASS
 # include "ServerClass.hpp"
