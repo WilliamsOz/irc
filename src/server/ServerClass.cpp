@@ -123,7 +123,8 @@ void	Server::LaunchServer()
 			{
                 char buffer[1024];
                 int bytesRead = recv(this->_events[i].data.fd, buffer, sizeof(buffer), 0); // read depuis fd du client
-                if (bytesRead <= 0)
+                // fonction createUser(this->_events[i].data.fd, ...)
+				if (bytesRead <= 0)
 				{
                     close(this->_events[i].data.fd);
                     epoll_ctl(this->_epollfd, EPOLL_CTL_DEL, this->_events[i].data.fd, &this->_clientEvent);
