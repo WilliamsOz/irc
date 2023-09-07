@@ -4,9 +4,6 @@
 // CONST
 const int MAX_EVENTS = 10;
 
-// GLOBAL
-volatile sig_atomic_t g_signal = false;
-
 // LIB
 # include <sys/epoll.h>
 # include <sys/socket.h>
@@ -17,8 +14,9 @@ volatile sig_atomic_t g_signal = false;
 # include <iostream>
 # include <signal.h>
 # include <csignal>
-#include <bits/stdc++.h>  
+# include <bits/stdc++.h>  
 # include <csignal>
+# include <signal.h>
 # include <string.h>
 # include <map>
 # include <vector>
