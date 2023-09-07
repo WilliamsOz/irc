@@ -2,7 +2,7 @@
 
 void	Server::signal_handler(int)
 {
-	// g_signal = true;
+	g_signal = true;
 }
 
 Server::Server(int port, char *password): _port(port), _password(password)
@@ -10,7 +10,7 @@ Server::Server(int port, char *password): _port(port), _password(password)
 	return ;
 }
 
-void	Server::launchServer()
+void	Server::LaunchServer()
 {
 	// creation et setup du socket
 	this->_socketServer = socket(PF_INET, SOCK_STREAM, 0);
@@ -19,15 +19,24 @@ void	Server::launchServer()
         std::cerr << "Error :\tCannot create socket." << std::endl;
 		return ;
 	}
+	// setup du socket pour etre reutilisable apres un redemarrage rapide
+	int retSock = setsockopt(this->_socketServer, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &optionVal, sizeof(optionVal));
+	if (retSock == -1)
+	{
+		std::cerr << "Error :\tCannot create socket." << std::endl;
+		return ;
+	}
+	std::cout << "Socket server successfully created." << std::endl;
+
 
 	// setup du server (struct)
     std::memset(&this->_serverAddress, 0, sizeof(this->_serverAddress));
     this->_serverAddress.sin_family = AF_INET;
     this->_serverAddress.sin_addr.s_addr = INADDR_ANY;
-    this->_serverAddress.sin_port = htons(static_cast<uint16_t>(_port));
+    this->_serverAddress.sin_port = htons(static_cast<uint16_t>(this->_port));
 
 	// link le socketServer et la struct du server
-	int retBind = bind(this->_socketServer, (struct sockaddr*)&this->_serverAddress, sizeof(_serverAddress));
+	int retBind = bind(this->_socketServer, (struct sockaddr*)&this->_serverAddress, sizeof(this->_serverAddress));
 	if (retBind == -1)
 	{
 		std::cerr << "Error :\tCannot link socket." << std::endl;
@@ -52,6 +61,7 @@ void	Server::launchServer()
 		close(this->_socketServer);
 		return ;
 	}
+	// memset(this->_serverEvent, 0, sizeof(this->_serverEvent)); // ne compile pas 
 
 	// creation du groupe d'event epoll et set socket fd
 	this->_serverEvent.events = EPOLLIN; // listen event
@@ -67,24 +77,25 @@ void	Server::launchServer()
 		return ;
 	}
 
-	this->_clientEvent.events = EPOLLIN; // listen event
 	signal(SIGINT, Server::signal_handler);
 
-
+	this->_clientEvent.events = EPOLLIN; // listen event
+	int numEvents;
 	while (!g_signal) // remplacer true par global
 	{
-        int numEvents = epoll_wait(this->_epollfd, this->_events, MAX_EVENTS, -1); // attend evenement jusqu'a ce que au moin 1 evenement se produise
+        numEvents = epoll_wait(this->_epollfd, this->_events, MAX_EVENTS, -1); // attend evenement jusqu'a ce que au moin 1 evenement se produise
         if (numEvents == -1)
 		{
             std::cerr << "Error : Unable to wait for events." << std::endl;
+			// ajouter close des fd ouverts
             return ;
         }
-        for (int i = 0; i < numEvents; ++i)
+        for (int i = 0; i < numEvents; i++)
 		{
             if (this->_events[i].data.fd == this->_socketServer) // nouvelle connexion en attente
 			{
                 int clientSocket = accept(this->_socketServer, NULL, NULL); // connexion entrante accepté et creation de socket client
-				// changer deuxieme param pour recup info du client et troisieme pour taille de struct -> struct sockaddr *_Nullable restrict addr, socklen_t *_Nullable restrict addrlen
+																	// changer deuxieme param pour recup info du client et troisieme pour taille de struct
                 if (clientSocket == -1)
 				{
                     std::cerr << "Error : Unable to accept new client." << std::endl;
@@ -93,7 +104,6 @@ void	Server::launchServer()
                 fcntl(clientSocket, F_SETFL, O_NONBLOCK); // change les attributs de clientSocket
                 // event.events = EPOLLIN; // | EPOLLET; // EPOLLET : notifie uniquement lorsque etat du socket change
                 this->_clientEvent.data.fd = clientSocket;
-				// parser les infos du client
                 if (epoll_ctl(this->_epollfd, EPOLL_CTL_ADD, clientSocket, &this->_clientEvent) == -1)
 				{
 					std::cerr << "Error : Cannot add client socket in epoll group." << std::endl;
@@ -112,7 +122,8 @@ void	Server::launchServer()
 			{
                 char buffer[1024];
                 int bytesRead = recv(this->_events[i].data.fd, buffer, sizeof(buffer), 0); // read depuis fd du client
-                if (bytesRead <= 0)
+                // fonction createUser(this->_events[i].data.fd, ...)
+				if (bytesRead <= 0)
 				{
                     close(this->_events[i].data.fd);
                     epoll_ctl(this->_epollfd, EPOLL_CTL_DEL, this->_events[i].data.fd, &this->_clientEvent);
@@ -121,7 +132,6 @@ void	Server::launchServer()
 				else 
 				{
                     buffer[bytesRead] = '\0';
-					// parser buffer qui doit contenir les commandes
 					std::cout << buffer << std::endl;
                 }
             }

@@ -5,7 +5,7 @@
 const int MAX_EVENTS = 10;
 
 // GLOBAL
-bool g_signal;
+volatile sig_atomic_t g_signal = false;
 
 // LIB
 # include <sys/epoll.h>
@@ -18,11 +18,17 @@ bool g_signal;
 # include <signal.h>
 # include <csignal>
 #include <bits/stdc++.h>  
+# include <csignal>
+# include <string.h>
+# include <map>
+# include <vector>
 
 // CLASS
 # include "ServerClass.hpp"
 # include "UserClass.hpp"
 # include "ChannelClass.hpp"
 
+// GLOBAL
+extern volatile sig_atomic_t g_signal;
 
 #endif

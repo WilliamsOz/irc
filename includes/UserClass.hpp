@@ -12,8 +12,13 @@ class User
 
 	private:
 	// reference de tout les channels auquels le user est connecte
-	
-
+	std::string	_nickname;
+	std::string	_userName;
+	std::string	_hostName;
+	std::string	_serverName;
+	std::string	_realName;
+	std::string	_mode;
+	int			_fd;
 };
 
 #endif

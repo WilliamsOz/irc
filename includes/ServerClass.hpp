@@ -1,6 +1,8 @@
 #ifndef SERVERCLASS_HPP
 # define SERVERCLASS_HPP
 
+#include "irc.hpp"
+
 int	server();
 
 class Server
@@ -10,7 +12,7 @@ class Server
 	Server(int port, char *password);
 	// ~Server();
 
-	void	launchServer();
+	void	LaunchServer();
 
 	static void signal_handler(int);
 
