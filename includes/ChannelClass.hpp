@@ -8,6 +8,8 @@ class Channel
 	~Channel();
 
 	private:
+	std::vector<std::string>	_clients;
+	std::string					_mode;
 	// reference de tout les users present dans le channel
 };
 

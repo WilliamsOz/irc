@@ -13,8 +13,9 @@ const int MAX_EVENTS = 10;
 # include <cstring>
 # include <iostream>
 # include <csignal>
-
-# include <signal.h>
+# include <string.h>
+# include <map>
+# include <vector>
 
 // CLASS
 # include "ServerClass.hpp"
