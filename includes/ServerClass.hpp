@@ -11,6 +11,7 @@ class Server
 	// ~Server();
 
 	void	LaunchServer();
+	void	AddUser();
 
 	static void signal_handler(int);
 

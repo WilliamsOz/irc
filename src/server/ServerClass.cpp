@@ -10,6 +10,37 @@ Server::Server(int port, char *password): _port(port), _password(password)
 	return ;
 }
 
+void	Server::AddUser()
+{
+	User	newUser;
+	sockaddr_in   addr_client; // struct qui contient addresse ip et port du client notamment
+	socklen_t     addr_size = sizeof(addr_client);
+
+	newUser.SetFd(accept(this->_socketServer, reinterpret_cast<sockaddr*>(&addr_client), &addr_size));
+	if (newUser.GetFd() == -1)
+	{
+        std::cerr << "Error : Unable to accept new client." << std::endl;
+		return ;
+	}
+	this->_clientEvent.data.fd = newUser.GetFd();
+	this->_clientEvent.events = EPOLLIN;
+	fcntl(newUser.GetFd(), F_SETFL, O_NONBLOCK);
+	int retEpollCtl = epoll_ctl(this->_epollfd, EPOLL_CTL_ADD, newUser.GetFd(), &this->_clientEvent);
+	if (retEpollCtl == -1)
+	{
+		std::cerr << "Error : Cannot add client socket in epoll group." << std::endl;
+        return ;
+	}
+	std::string welcomeMessage = "001 YourNickname :Welcome to the IRC Server! Your connection has been established successfully.\r\n";
+	int bytesSent = send(newUser.GetFd(), welcomeMessage.c_str(), welcomeMessage.size(), 0);
+	if (bytesSent == -1)
+	{
+	    std::cerr << "Error sending welcome message." << std::endl;
+	    return ;
+	}
+    std::cout << "New client connected." << std::endl;
+}
+
 void	Server::LaunchServer()
 {
 	int optionVal = 1;
@@ -95,29 +126,7 @@ void	Server::LaunchServer()
 		{
             if (this->_events[i].data.fd == this->_socketServer) // nouvelle connexion en attente
 			{
-                int clientSocket = accept(this->_socketServer, NULL, NULL); // connexion entrante accepté et creation de socket client
-																	// changer deuxieme param pour recup info du client et troisieme pour taille de struct
-                if (clientSocket == -1)
-				{
-                    std::cerr << "Error : Unable to accept new client." << std::endl;
-                    continue;
-                }
-                fcntl(clientSocket, F_SETFL, O_NONBLOCK); // change les attributs de clientSocket
-                // event.events = EPOLLIN; // | EPOLLET; // EPOLLET : notifie uniquement lorsque etat du socket change
-                this->_clientEvent.data.fd = clientSocket;
-                if (epoll_ctl(this->_epollfd, EPOLL_CTL_ADD, clientSocket, &this->_clientEvent) == -1)
-				{
-					std::cerr << "Error : Cannot add client socket in epoll group." << std::endl;
-                    return ;
-                }
-				std::string welcomeMessage = "001 YourNickname :Welcome to the IRC Server! Your connection has been established successfully.\r\n";
-				int bytesSent = send(clientSocket, welcomeMessage.c_str(), welcomeMessage.size(), 0);
-				if (bytesSent == -1)
-				{
-				    std::cerr << "Error sending welcome message." << std::endl;
-				    // Gérer l'erreur selon vos besoins.
-				}
-                std::cout << "New client connected." << std::endl;
+				this->AddUser();
             }
 			else // client deja connecte qui envoi des données
 			{

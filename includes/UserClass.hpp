@@ -8,10 +8,15 @@ class User
 {
 	public:
 	User();
-	~User();
+	// ~User();
+
+	int		GetFd();
+
+	void	SetFd(int fd);
 
 	private:
 	// reference de tout les channels auquels le user est connecte
+
 	std::string	_nickname;
 	std::string	_userName;
 	std::string	_hostName;
