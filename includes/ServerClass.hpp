@@ -12,6 +12,7 @@ class Server
 
 	void	LaunchServer();
 	void	AddUser();
+	void	ParseInput(std::string input, int clientFd);
 
 	static void signal_handler(int);
 

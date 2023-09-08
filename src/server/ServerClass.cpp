@@ -10,6 +10,44 @@ Server::Server(int port, char *password): _port(port), _password(password)
 	return ;
 }
 
+void	Server::ParseInput(std::string input, int clientFd)
+{
+	// message.substr(0, 4) == "PING"
+	if (input.find("JOIN") != std::string::npos)
+	{
+		std::cout << "JOIN COMMAND" << std::endl;
+	}
+	else if (input.find("PING") != std::string::npos)
+	{
+		std::cout << input << std::endl;
+		std::string token = input.substr(5);
+		std::string pongMessage = "PONG :" + token + "\r\n";
+		send(clientFd, pongMessage.c_str(), pongMessage.size(), 0);
+	}
+	else
+		std::cout << "Unknow command : " << input << std::endl;
+	// else if (input.find("INVITE") != std::string::npos)
+	// {
+
+	// }
+	// else if (input.find("TOPIC") != std::string::npos)
+	// {
+		
+	// }
+	// else if (input.find("MODE") != std::string::npos)
+	// {
+		
+	// }
+	// else if (input.find("KICK") != std::string::npos)
+	// {
+		
+	// }
+	// else if (input.find("PRIVMSG") != std::string::npos)
+	// {
+		
+	// }
+}
+
 void	Server::AddUser()
 {
 	User	newUser;
@@ -32,6 +70,7 @@ void	Server::AddUser()
         return ;
 	}
 	std::string welcomeMessage = "001 YourNickname :Welcome to the IRC Server! Your connection has been established successfully.\r\n";
+	// remplacer YourNickname par le pseudo de l'utilisateur
 	int bytesSent = send(newUser.GetFd(), welcomeMessage.c_str(), welcomeMessage.size(), 0);
 	if (bytesSent == -1)
 	{
@@ -93,8 +132,6 @@ void	Server::LaunchServer()
 		close(this->_socketServer);
 		return ;
 	}
-	// memset(this->_serverEvent, 0, sizeof(this->_serverEvent)); // ne compile pas 
-
 	// creation du groupe d'event epoll et set socket fd
 	this->_serverEvent.events = EPOLLIN; // listen event
 	this->_serverEvent.data.fd = this->_socketServer;
@@ -115,7 +152,8 @@ void	Server::LaunchServer()
 	int numEvents;
 	while (!g_signal) // remplacer true par global
 	{
-        numEvents = epoll_wait(this->_epollfd, this->_events, MAX_EVENTS, -1); // attend evenement jusqu'a ce que au moin 1 evenement se produise
+        // numEvents = epoll_wait(this->_epollfd, this->_events, MAX_EVENTS, -1); // attend evenement jusqu'a ce que au moin 1 evenement se produise
+        numEvents = epoll_wait(this->_epollfd, this->_events, 1, -1); // traite evenement 1 par 1
         if (numEvents == -1)
 		{
             std::cerr << "Error : Unable to wait for events." << std::endl;
@@ -132,17 +170,19 @@ void	Server::LaunchServer()
 			{
                 char buffer[1024];
                 int bytesRead = recv(this->_events[i].data.fd, buffer, sizeof(buffer), 0); // read depuis fd du client
-                // fonction createUser(this->_events[i].data.fd, ...)
-				if (bytesRead <= 0)
+				if (bytesRead <= 0) // fermer proprement tout les fd + revoir epoll_ctl 3e argument
 				{
                     close(this->_events[i].data.fd);
                     epoll_ctl(this->_epollfd, EPOLL_CTL_DEL, this->_events[i].data.fd, &this->_clientEvent);
-                    std::cout << "Client disconnected." <<std::endl;
+                    std::cout << "Client disconnected." << std::endl;
                 }
-				else 
+				else // interpreter ici les input du client
 				{
                     buffer[bytesRead] = '\0';
-					std::cout << buffer << std::endl;
+					std::string input = buffer;
+					this->ParseInput(input, this->_events[i].data.fd);
+					// creer fonction membre qui va interpreter l'input et executer la bonne commande
+					// creer le parsing de chaque commande avec chaque parametre
                 }
             }
         }
