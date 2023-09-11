@@ -1,25 +1,25 @@
 ﻿#include "irc.hpp"
 
-//client
-// Le nickname du client doit être non NULL et doit respecter les restrictions suivantes :
+client
+Le nickname du client doit être non NULL et doit respecter les restrictions suivantes :
 
-// - Ne doit pas contenir les caractères suivants : “ ,*?!@”
-// - Ne doit pas commencer par les caractères suivants : “$:#&”
-// - Ne devrait pas contenir le caractère '.'
+- Ne doit pas contenir les caractères suivants : “ ,*?!@”
+- Ne doit pas commencer par les caractères suivants : “$:#&”
+- Ne devrait pas contenir le caractère '.'
 
-// int parseNickNameUser(std::string newUser)
-// {
-// 	if (newUser[0] == "$" || newUser[0] == ":" || newUser[0] == "#" newUser[0] == "&")
-// 		return (-1);
-// 	for (int i = 0; newUser[i]; i++)
-// 	{
-// 		if (newUser[0] == " " || newUser[0] == "," || newUser[0] == "*" newUser[0] == "?"
-// 			|| newUser[0] == "!" || newUser[0] == "@")
-// 			return (-1);
-// 	}
-// 	// creer une instanciation etc...
-// 	return (1);
-// }
+int parseNickNameUser(std::string newUser)
+{
+	if (newUser[0] == "$" || newUser[0] == ":" || newUser[0] == "#" newUser[0] == "&")
+		return (-1);
+	for (int i = 0; newUser[i]; i++)
+	{
+		if (newUser[0] == " " || newUser[0] == "," || newUser[0] == "*" newUser[0] == "?"
+			|| newUser[0] == "!" || newUser[0] == "@")
+			return (-1);
+	}
+	// creer une instanciation etc...
+	return (1);
+}
 
 
 //channel

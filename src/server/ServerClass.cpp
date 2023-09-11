@@ -12,6 +12,7 @@ Server::Server(int port, char *password): _port(port), _password(password)
 
 void	Server::LaunchServer()
 {
+	int optionVal = 1;	
 	// creation et setup du socket
 	this->_socketServer = socket(PF_INET, SOCK_STREAM, 0);
 	if (this->_socketServer == -1)
