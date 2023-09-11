@@ -180,7 +180,7 @@ void	Server::LaunchServer()
 				{
                     buffer[bytesRead] = '\0';
 					std::string input = buffer;
-					this->ParseInput(input, this->_events[i].data.fd);
+					this->ParseInput(input, this->_events[i].data.fd); // amodifier
 					// creer fonction membre qui va interpreter l'input et executer la bonne commande
 					// creer le parsing de chaque commande avec chaque parametre
                 }
