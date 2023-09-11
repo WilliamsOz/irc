@@ -7,8 +7,8 @@
 class Command
 {
 private:
-	std::string					_cmd_name;
-	std::vector<std::string>	_parameters;
+	std::string					_CmdName;
+	std::vector<std::string>	_Parameters;
 	//exec_cmd()
 public:
 	std::string	GetCmdName();

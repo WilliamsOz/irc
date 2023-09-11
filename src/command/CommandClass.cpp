@@ -1,4 +1,4 @@
-﻿# include "../../includes/irc.hpp"
+﻿# include "irc.hpp"
 
 Command::Command(std::string src)
 {
@@ -7,7 +7,7 @@ Command::Command(std::string src)
 
 	if (src.empty())
 	{
-		_cmd_name = "";
+		_CmdName = "";
 		return ;
 	}
 	while (pos != std::string::npos)
@@ -15,38 +15,42 @@ Command::Command(std::string src)
 		pos = src.find(' ');
 		if (first == true)
 		{
-			_cmd_name = src.substr(0, pos);
+			_CmdName = src.substr(0, pos);
 			first = false;
-			std::cout << "in cmd name -> " << _cmd_name << std::endl;
 		}
 		else
-			_parameters.push_back(src.substr(0, pos));
+		{
+			std::cout << src.substr(0, pos) << std::endl;
+			_Parameters.push_back(src.substr(0, pos));
+		}
 		src = src.erase(0, pos + 1);
 	}
 }
 
 Command::~Command()
 {
-	// truc à free ?
-	// substr?
 }
 
 std::string	Command::GetCmdName()
 {
-	return(this->_cmd_name);
+	return(this->_CmdName);
 }
 
 std::vector<std::string>	Command::GetParameters()
 {
-	return (this->_parameters);
+	return (this->_Parameters);
 }
 
-int main(int ac, char **av)
-{
-	Command		cmd(av[1]);
+// int main(int ac, char **av)
+// {
+//     Command cmd(av[1]);
 
-	std::cout << cmd.GetCmdName() << std::endl;
-	for (std::vector<std::string>::iterator it = cmd.GetParameters().begin(); it != cmd.GetParameters().end(); it++)
-		std::cout  << *it << std::endl;
-	return (0);
-}
+//     std::cout << cmd.GetCmdName() << std::endl;
+
+//     std::vector<std::string> parameters = cmd.GetParameters(); // Stocker la valeur dans une variable
+
+//     for (std::vector<std::string>::iterator it = parameters.begin(); it != parameters.end(); it++)
+//         std::cout << "->" << *it << std::endl;
+
+//     return (0);
+// }
