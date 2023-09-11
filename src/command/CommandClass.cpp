@@ -1,17 +1,5 @@
 ﻿# include "../../includes/irc.hpp"
 
-std::string	Command::GetCmdName()
-{
-	return(this->_cmd_name);
-}
-
-std::string Command::GetParameter(int i)
-{
-	std::cout << "in get paramter " << this->_parameters[i] << std::endl;
-	return (this->_parameters[i]);
-	// tester avec un chiffre aui depasse
-}
-
 Command::Command(std::string src)
 {
 	size_t	pos = 0;
@@ -43,15 +31,22 @@ Command::~Command()
 	// substr?
 }
 
+std::string	Command::GetCmdName()
+{
+	return(this->_cmd_name);
+}
+
+std::vector<std::string>	Command::GetParameters()
+{
+	return (this->_parameters);
+}
+
 int main(int ac, char **av)
 {
 	Command		cmd(av[1]);
 
-	std::cout << cmd.getCmdName() << std::endl;
-	for (int i = 0; cmd.getParameter(i) != ""; i++)
-	{
-		std::cout << "for i = " << i << " " << cmd.getParameter(i) << std::endl;
-
-	}
+	std::cout << cmd.GetCmdName() << std::endl;
+	for (std::vector<std::string>::iterator it = cmd.GetParameters().begin(); it != cmd.GetParameters().end(); it++)
+		std::cout  << *it << std::endl;
 	return (0);
 }

@@ -12,7 +12,7 @@ private:
 	//exec_cmd()
 public:
 	std::string	GetCmdName();
-	std::string GetParameter(int i);
+	std::vector<std::string>	GetParameters();
 	Command(std::string src);
 	~Command();
 };
