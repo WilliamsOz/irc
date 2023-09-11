@@ -1,11 +1,11 @@
 ﻿# include "../../includes/irc.hpp"
 
-std::string	Command::getCmdName()
+std::string	Command::GetCmdName()
 {
 	return(this->_cmd_name);
 }
 
-std::string Command::getParameter(int i)
+std::string Command::GetParameter(int i)
 {
 	std::cout << "in get paramter " << this->_parameters[i] << std::endl;
 	return (this->_parameters[i]);

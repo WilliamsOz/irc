@@ -11,8 +11,8 @@ private:
 	std::vector<std::string>	_parameters;
 	//exec_cmd()
 public:
-	std::string	getCmdName();
-	std::string getParameter(int i);
+	std::string	GetCmdName();
+	std::string GetParameter(int i);
 	Command(std::string src);
 	~Command();
 };
