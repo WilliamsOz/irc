@@ -69,6 +69,7 @@ void	Server::AddUser()
 		std::cerr << "Error : Cannot add client socket in epoll group." << std::endl;
         return ;
 	}
+	//
 	std::string welcomeMessage = "001 YourNickname :Welcome to the IRC Server! Your connection has been established successfully.\r\n";
 	// remplacer YourNickname par le pseudo de l'utilisateur
 	int bytesSent = send(newUser.GetFd(), welcomeMessage.c_str(), welcomeMessage.size(), 0);
@@ -150,7 +151,7 @@ void	Server::LaunchServer()
 
 	this->_clientEvent.events = EPOLLIN; // listen event
 	int numEvents;
-	while (!g_signal) // remplacer true par global
+	while (!g_signal)
 	{
         // numEvents = epoll_wait(this->_epollfd, this->_events, MAX_EVENTS, -1); // attend evenement jusqu'a ce que au moin 1 evenement se produise
         numEvents = epoll_wait(this->_epollfd, this->_events, 1, -1); // traite evenement 1 par 1
