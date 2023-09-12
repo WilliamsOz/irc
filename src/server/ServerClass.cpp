@@ -10,6 +10,7 @@ Server::Server(int port, char *password): _port(port), _password(password)
 	return ;
 }
 
+// nessrine
 void	Server::ParseInput(std::string input, int clientFd)
 {
 	// message.substr(0, 4) == "PING"
@@ -69,7 +70,6 @@ void	Server::AddUser()
 		std::cerr << "Error : Cannot add client socket in epoll group." << std::endl;
         return ;
 	}
-	//
 	std::string welcomeMessage = "001 YourNickname :Welcome to the IRC Server! Your connection has been established successfully.\r\n";
 	// remplacer YourNickname par le pseudo de l'utilisateur
 	int bytesSent = send(newUser.GetFd(), welcomeMessage.c_str(), welcomeMessage.size(), 0);
@@ -173,15 +173,26 @@ void	Server::LaunchServer()
                 int bytesRead = recv(this->_events[i].data.fd, buffer, sizeof(buffer), 0); // read depuis fd du client
 				if (bytesRead <= 0) // fermer proprement tout les fd + revoir epoll_ctl 3e argument
 				{
+					// supprimer user du container
                     close(this->_events[i].data.fd);
                     epoll_ctl(this->_epollfd, EPOLL_CTL_DEL, this->_events[i].data.fd, &this->_clientEvent);
                     std::cout << "Client disconnected." << std::endl;
                 }
-				else // interpreter ici les input du client
+				else // interpreter ici les input du client ->nessrine
 				{
                     buffer[bytesRead] = '\0';
 					std::string input = buffer;
-					this->ParseInput(input, this->_events[i].data.fd); // amodifier
+					// this->ParseInput(input, this->_events[i].data.fd); // amodifier
+					// boucle while pour recuperer toutes les infos du nouvel user qui se connecte
+					size_t pos = 0;
+					while ((pos = input.find('\n')) != std::string::npos)
+					{
+						Command cmd(input.substr(0, pos - 1));
+						// if(execute_cmd() == 0)
+						// 	x = 0;
+						input.erase(0, pos + 1);
+					}
+
 					// creer fonction membre qui va interpreter l'input et executer la bonne commande
 					// creer le parsing de chaque commande avec chaque parametre
                 }
