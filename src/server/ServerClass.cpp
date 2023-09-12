@@ -10,46 +10,8 @@ Server::Server(int port, char *password): _port(port), _password(password)
 	return ;
 }
 
-// nessrine
-void	Server::ParseInput(std::string input, int clientFd)
-{
-	// message.substr(0, 4) == "PING"
-	if (input.find("JOIN") != std::string::npos)
-	{
-		std::cout << "JOIN COMMAND" << std::endl;
-	}
-	else if (input.find("PING") != std::string::npos)
-	{
-		std::cout << input << std::endl;
-		std::string token = input.substr(5);
-		std::string pongMessage = "PONG :" + token + "\r\n";
-		send(clientFd, pongMessage.c_str(), pongMessage.size(), 0);
-	}
-	else
-		std::cout << "Unknow command : " << input << std::endl;
-	// else if (input.find("INVITE") != std::string::npos)
-	// {
 
-	// }
-	// else if (input.find("TOPIC") != std::string::npos)
-	// {
-		
-	// }
-	// else if (input.find("MODE") != std::string::npos)
-	// {
-		
-	// }
-	// else if (input.find("KICK") != std::string::npos)
-	// {
-		
-	// }
-	// else if (input.find("PRIVMSG") != std::string::npos)
-	// {
-		
-	// }
-}
-
-void	Server::AddUser()
+User *Server::AddUser()
 {
 	User	newUser;
 	sockaddr_in   addr_client; // struct qui contient addresse ip et port du client notamment
@@ -79,11 +41,12 @@ void	Server::AddUser()
 	    return ;
 	}
     std::cout << "New client connected." << std::endl;
+	return (&newUser);
 }
 
 void	Server::LaunchServer()
 {
-	int optionVal = 1;
+	int optionVal = 1;	
 	// creation et setup du socket
 	this->_socketServer = socket(PF_INET, SOCK_STREAM, 0);
 	if (this->_socketServer == -1)
@@ -165,7 +128,7 @@ void	Server::LaunchServer()
 		{
             if (this->_events[i].data.fd == this->_socketServer) // nouvelle connexion en attente
 			{
-				this->AddUser();
+				User *newUser = this->AddUser();
             }
 			else // client deja connecte qui envoi des données
 			{
@@ -188,13 +151,9 @@ void	Server::LaunchServer()
 					while ((pos = input.find('\n')) != std::string::npos)
 					{
 						Command cmd(input.substr(0, pos - 1));
-						// if(execute_cmd() == 0)
-						// 	x = 0;
+						cmd.ExecCommand(this->_events[i].data.fd, newUser);
 						input.erase(0, pos + 1);
 					}
-
-					// creer fonction membre qui va interpreter l'input et executer la bonne commande
-					// creer le parsing de chaque commande avec chaque parametre
                 }
             }
         }
