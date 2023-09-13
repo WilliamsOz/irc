@@ -54,7 +54,7 @@ void	Command::PASS(int clientFd, User *user, Server *server)
 {
 	if (this->_param[0] != server->GetServerPassword())
 	{
-		// supprimer user du container channel et server
+		// supprimer user du container (class)channel et (class)server
 		close(user->GetFd());
         epoll_ctl(server->GetEpollFd(), EPOLL_CTL_DEL, user->GetFd(), &server->GetClientEvent());
 	}
