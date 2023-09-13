@@ -25,6 +25,7 @@ class Command
 	void						JOIN(int clientFd, User *user, Server *server);
 	void						PING(int clientFd, User *user, Server *server);
 	void						OPER(int clientFd, User *user, Server *server);
+	void						PASS(int clientFd, User *user, Server *server);
 
 	Command(std::string src);
 	~Command();

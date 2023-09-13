@@ -38,6 +38,7 @@ Command::Command(std::string src)
 void	Command::SetUpCommandsContainer()
 {
 	// _commands["JOIN"] = &Command::JOIN;
+    _commands["PASS"] = &Command::PASS;
     _commands["PING"] = &Command::PING;
     _commands["OPER"] = &Command::OPER;
     // _commands["USER"] = &Command::USER;
@@ -48,6 +49,16 @@ void	Command::SetUpCommandsContainer()
 // {
 
 // }
+
+void	Command::PASS(int clientFd, User *user, Server *server)
+{
+	if (this->_param[0] != server->GetServerPassword())
+	{
+		// supprimer user du container channel et server
+		close(user->GetFd());
+        epoll_ctl(server->GetEpollFd(), EPOLL_CTL_DEL, user->GetFd(), &server->GetClientEvent());
+	}
+}
 
 void	Command::PING(int clientFd, User *user, Server *server)
 {
