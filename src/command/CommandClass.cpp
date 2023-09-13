@@ -3,9 +3,11 @@
 void	Command::ExecCommand(int clientFd, User *user)
 {
 	if (this->_commands.find(this->_name) != _commands.end())
-		this->_commands[this->_name](clientFd, user);
+	{
+		(this->*this->_commands[this->_name])(clientFd, user);
+	}
 	else
-		std::cout << "Unknown command\n";
+		std::cout << "Unknown command -> " << this->_name << "\n";
 }
 
 Command::Command(std::string src)
@@ -27,32 +29,26 @@ Command::Command(std::string src)
 			first = false;
 		}
 		else
-		{
-			std::cout << src.substr(0, pos) << std::endl;
 			_param.push_back(src.substr(0, pos));
-		}
 		src = src.erase(0, pos + 1);
 	}
 	this->SetUpCommandsContainer();
 }
 
-void Command::addCommand(const std::string& commandName, std::function<void(int, User)> commandFunction)
-{
-        _commands[commandName] = commandFunction;
-}
-
 void	Command::SetUpCommandsContainer()
 {
-	addCommand("JOIN",  [this](int clientFd, User user) { JOIN(clientFd, user); });
-	addCommand("PING",  [this](int clientFd, User user) { PING(clientFd, user); });
+	// _commands["JOIN"] = &Command::JOIN;
+    _commands["PING"] = &Command::PING;
+    // _commands["USER"] = &Command::USER;
+	//etc
 }
 
-void	Command::JOIN(int clientFd, User user)
-{
+// void	Command::JOIN(int clientFd, User *user)
+// {
 
-}
+// }
 
-void	Command::PING(int clientFd, User user)
+void	Command::PING(int clientFd, User *user)
 {
 	(void)user;
 
