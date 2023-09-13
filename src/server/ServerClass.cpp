@@ -10,6 +10,16 @@ Server::Server(int port, char *password): _port(port), _password(password)
 	return ;
 }
 
+int	Server::GetEpollFd()
+{
+	return (this->_epollfd);
+}
+
+epoll_event	Server::GetClientEvent()
+{
+	return (this->_clientEvent);
+}
+
 
 User *Server::AddUser()
 {

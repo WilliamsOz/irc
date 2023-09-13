@@ -19,6 +19,9 @@ class Server
 	static void signal_handler(int);
 	// void	ParseInput(std::string input, int clientFd);
 	std::string	GetServerPassword( void ) { return(this->_password); }
+	int			GetEpollFd();
+	epoll_event	GetClientEvent();
+
 	private:
 
 	int								_port;
