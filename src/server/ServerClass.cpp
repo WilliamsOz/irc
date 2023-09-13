@@ -154,7 +154,7 @@ void	Server::LaunchServer()
 					while ((pos = input.find('\n')) != std::string::npos)
 					{
 						Command cmd(input.substr(0, pos - 1));
-						cmd.ExecCommand(this->_events[i].data.fd, newUser);
+						cmd.ExecCommand(this->_events[i].data.fd, newUser, this);
 						input.erase(0, pos + 1);
 					}
                 }
