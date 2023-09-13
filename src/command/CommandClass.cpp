@@ -48,6 +48,27 @@ void	Command::SetUpCommandsContainer()
 
 // }
 
+void	Command::CAP(int clientFd, User *user)
+{
+	if (this->GetParameters()[0] == "LS") // liste les capacités disponible pour les clients
+	{
+		std::string response = "CAP * LS :multi-prefix\r\n";
+		send(user->GetFd(), response.c_str(), response.length(), 0);
+		std::cout<<"response : "<<response<<std::endl;
+	}
+	if (!(this->GetParameters()[0].compare("REQ"))) // demande l'obtemtion d'une capacité
+	{
+		std::string response = "CAP * ACK multi-prefix\r\n";
+		send(user->GetFd(), response.c_str(), response.length(), 0);
+		std::cout<<"response : "<<response<<std::endl;
+    }
+	if (!(this->GetParameters()[0].compare("END"))) // peut-etre ajouter des infos supplementaires
+	{
+		std::string response = "001 " +(user->GetNickName())+": Bienvenue sur le serveur Irc\r\n";
+		send(user->GetFd(), response.c_str(), response.length(), 0);
+	}
+}
+
 void	Command::PING(int clientFd, User *user)
 {
 	(void)user;

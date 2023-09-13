@@ -22,6 +22,7 @@ class Command
 	void						SetUpCommandsContainer();
 	// void addCommand(const std::string& commandName, std::function<void(int, User *)> commandFunction);
 	// toutes les commandes
+	void						CAP(int clientFd, User *user);
 	void						JOIN(int clientFd, User *user);
 	void						PING(int clientFd, User *user);
 	
