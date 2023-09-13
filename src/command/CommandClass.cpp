@@ -61,15 +61,16 @@ void	Command::PING(int clientFd, User *user, Server *server)
 
 void	Command::OPER(int clientFd, User *user, Server *server)
 {
+	std::string	success_msg = "381 :You are now an IRC operator\r\n";
 	(void)clientFd;
 	if (this->GetParameters()[1] == server->GetServerPassword())
 	{
 		if (user->GetOperator() == true)
-			std::cout << "You are already an operator user." << std::endl; //utiliser Send() avec numeric replace
+			std::cout << "xdddddddddddd" << std::endl;
 		else
 		{
 			user->SetOperator(true);
-			std::cout << "You are now an operator user." << std::endl; // utiliser Send avec numeric replace
+			send(user->GetFd(), success_msg.c_str(), success_msg.size(), 0);
 		}
 	}
 	else
