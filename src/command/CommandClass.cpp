@@ -7,7 +7,7 @@ void	Command::ExecCommand(int clientFd, User *user)
 		(this->*this->_commands[this->_name])(clientFd, user);
 	}
 	else
-		std::cout << "Unknown command\n";
+		std::cout << "Unknown command -> " << this->_name << "\n";
 }
 
 Command::Command(std::string src)
@@ -29,10 +29,7 @@ Command::Command(std::string src)
 			first = false;
 		}
 		else
-		{
-			std::cout << src.substr(0, pos) << std::endl;
 			_param.push_back(src.substr(0, pos));
-		}
 		src = src.erase(0, pos + 1);
 	}
 	this->SetUpCommandsContainer();

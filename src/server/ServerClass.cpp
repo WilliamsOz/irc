@@ -13,7 +13,8 @@ Server::Server(int port, char *password): _port(port), _password(password)
 
 User *Server::AddUser()
 {
-	User	*newUser = NULL;
+	// User	*newUser = NULL;
+	User *newUser = new User();
 	sockaddr_in   addr_client; // struct qui contient addresse ip et port du client notamment
 	socklen_t     addr_size = sizeof(addr_client);
 
