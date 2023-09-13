@@ -1,15 +1,30 @@
 #ifndef IRC_HPP
 # define IRC_HPP
 
+// CONST
+const int MAX_EVENTS = 10;
+
+// LIB
+# include <sys/epoll.h>
+# include <sys/socket.h>
+# include <fcntl.h>
+# include <unistd.h>
+# include <arpa/inet.h>
+# include <cstring>
 # include <iostream>
+# include <csignal>
+# include <string.h>
+# include <map>
+# include <vector>
 
-const int MAX_EVENTS = 10; // test server
-# include <sys/epoll.h> // test server
-# include <fcntl.h> // test server
-# include <unistd.h> // test server
-# include <arpa/inet.h> // test server
-# include <cstring> // test server
+// CLASS
+# include "ServerClass.hpp"
+# include "UserClass.hpp"
+# include "ChannelClass.hpp"
+# include "CommandClass.hpp"
 
+// GLOBAL
+extern volatile sig_atomic_t g_signal;
 
 
 #endif
