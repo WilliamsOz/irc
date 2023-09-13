@@ -12,7 +12,7 @@ class Server
 	public:
 
 	Server(int port, char *password);
-	~Server();
+	// ~Server();
 
 	User	*AddUser();
 	void	LaunchServer();

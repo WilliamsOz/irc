@@ -13,40 +13,42 @@ Server::Server(int port, char *password): _port(port), _password(password)
 
 User *Server::AddUser()
 {
-	User	newUser;
+	User	*newUser = NULL;
 	sockaddr_in   addr_client; // struct qui contient addresse ip et port du client notamment
 	socklen_t     addr_size = sizeof(addr_client);
 
-	newUser.SetFd(accept(this->_socketServer, reinterpret_cast<sockaddr*>(&addr_client), &addr_size));
-	if (newUser.GetFd() == -1)
+	newUser->SetFd(accept(this->_socketServer, reinterpret_cast<sockaddr*>(&addr_client), &addr_size));
+	if (newUser->GetFd() == -1)
 	{
         std::cerr << "Error : Unable to accept new client." << std::endl;
-		return ;
+		return (NULL);
 	}
-	this->_clientEvent.data.fd = newUser.GetFd();
+	this->_clientEvent.data.fd = newUser->GetFd();
 	this->_clientEvent.events = EPOLLIN;
-	fcntl(newUser.GetFd(), F_SETFL, O_NONBLOCK);
-	int retEpollCtl = epoll_ctl(this->_epollfd, EPOLL_CTL_ADD, newUser.GetFd(), &this->_clientEvent);
+	fcntl(newUser->GetFd(), F_SETFL, O_NONBLOCK);
+	int retEpollCtl = epoll_ctl(this->_epollfd, EPOLL_CTL_ADD, newUser->GetFd(), &this->_clientEvent);
 	if (retEpollCtl == -1)
 	{
 		std::cerr << "Error : Cannot add client socket in epoll group." << std::endl;
-        return ;
+        return  (NULL);
 	}
 	std::string welcomeMessage = "001 YourNickname :Welcome to the IRC Server! Your connection has been established successfully.\r\n";
 	// remplacer YourNickname par le pseudo de l'utilisateur
-	int bytesSent = send(newUser.GetFd(), welcomeMessage.c_str(), welcomeMessage.size(), 0);
+	int bytesSent = send(newUser->GetFd(), welcomeMessage.c_str(), welcomeMessage.size(), 0);
 	if (bytesSent == -1)
 	{
 	    std::cerr << "Error sending welcome message." << std::endl;
-	    return ;
+	    return  (NULL);
 	}
     std::cout << "New client connected." << std::endl;
-	return (&newUser);
+	return (newUser);
 }
 
 void	Server::LaunchServer()
 {
 	int optionVal = 1;	
+	User *newUser;
+	
 	// creation et setup du socket
 	this->_socketServer = socket(PF_INET, SOCK_STREAM, 0);
 	if (this->_socketServer == -1)
@@ -128,7 +130,7 @@ void	Server::LaunchServer()
 		{
             if (this->_events[i].data.fd == this->_socketServer) // nouvelle connexion en attente
 			{
-				User *newUser = this->AddUser();
+				newUser = this->AddUser();
             }
 			else // client deja connecte qui envoi des données
 			{
