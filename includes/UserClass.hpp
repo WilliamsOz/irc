@@ -11,7 +11,7 @@ class User
 	// ~User();
 
 	int		GetFd();
-
+	std::string	GetNickName();
 	void	SetFd(int fd);
 
 	private:
