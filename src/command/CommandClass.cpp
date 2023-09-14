@@ -29,7 +29,10 @@ Command::Command(std::string src)
 			first = false;
 		}
 		else
+		{
+			// check la longueur du message ?
 			_param.push_back(src.substr(0, pos));
+		}
 		src = src.erase(0, pos + 1);
 	}
 	this->SetUpCommandsContainer();
@@ -37,40 +40,40 @@ Command::Command(std::string src)
 
 void	Command::SetUpCommandsContainer()
 {
-	// _commands["JOIN"] = &Command::JOIN;
     _commands["PING"] = &Command::PING;
     _commands["OPER"] = &Command::OPER;
+    _commands["CAP"] = &Command::CAP;
+	// _commands["PRIVMSG"] =&Command::PRIVMSG;
+	// _commands["JOIN"] = &Command::JOIN;
     // _commands["USER"] = &Command::USER;
-	//etc
 }
 
-// void	Command::JOIN(int clientFd, User *user)
-// {
 
-// }
 
-void	Command::CAP(int clientFd, User *user)
+void	Command::CAP(int clientFd, User *user, Server *server)
 {
+	(void)server;
+
 	if (this->GetParameters()[0] == "LS") // liste les capacités disponible pour les clients
 	{
 		std::string response = "CAP * LS :multi-prefix\r\n";
 		send(user->GetFd(), response.c_str(), response.length(), 0);
 		std::cout<<"response : "<<response<<std::endl;
 	}
-	if (!(this->GetParameters()[0].compare("REQ"))) // demande l'obtemtion d'une capacité
+	if (!(this->GetParameters()[0].compare("REQ"))) // demande l'obtention d'une capacité
 	{
 		std::string response = "CAP * ACK multi-prefix\r\n";
 		send(user->GetFd(), response.c_str(), response.length(), 0);
 		std::cout<<"response : "<<response<<std::endl;
     }
-	if (!(this->GetParameters()[0].compare("END"))) // peut-etre ajouter des infos supplementaires
+	if (!(this->GetParameters()[0].compare("END"))) // peut-etre ajouter des infos supplementaires?
 	{
 		std::string response = "001 " +(user->GetNickName())+": Bienvenue sur le serveur Irc\r\n";
 		send(user->GetFd(), response.c_str(), response.length(), 0);
 	}
 }
 
-void	Command::PING(int clientFd, User *user)
+void	Command::PING(int clientFd, User *user, Server *server)
 {
 	(void)server;
 	(void)user;

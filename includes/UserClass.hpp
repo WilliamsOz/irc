@@ -10,6 +10,7 @@ class User
 	User();
 	// ~User();
 
+	std::string	GetNickName();
 	int		GetFd();
 	void	SetFd(int fd);
 	bool	GetOperator( void );
