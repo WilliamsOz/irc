@@ -10,6 +10,16 @@ Server::Server(int port, char *password): _port(port), _password(password)
 	return ;
 }
 
+int	Server::GetEpollFd()
+{
+	return (this->_epollfd);
+}
+
+epoll_event	Server::GetClientEvent()
+{
+	return (this->_clientEvent);
+}
+
 
 User *Server::AddUser()
 {
@@ -154,7 +164,7 @@ void	Server::LaunchServer()
 					while ((pos = input.find('\n')) != std::string::npos)
 					{
 						Command cmd(input.substr(0, pos - 1));
-						cmd.ExecCommand(this->_events[i].data.fd, newUser);
+						cmd.ExecCommand(this->_events[i].data.fd, newUser, this);
 						input.erase(0, pos + 1);
 					}
                 }

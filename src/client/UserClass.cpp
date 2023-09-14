@@ -1,6 +1,6 @@
 # include "irc.hpp"
 
-User::User()
+User::User() : _isOperator(false)
 {
 	return ;
 }
@@ -18,5 +18,17 @@ std::string		User::GetNickName()
 void	User::SetFd(int fd)
 {
 	this->_fd = fd;
+	return ;
+}
+
+bool	User::GetOperator( void )
+{
+	return(this->_isOperator);
+}
+
+void	User::SetOperator(bool newStatus)
+{
+	if (newStatus == true && this->_isOperator != newStatus)
+		this->_isOperator = newStatus;
 	return ;
 }
