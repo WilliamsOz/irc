@@ -10,53 +10,61 @@ Server::Server(int port, char *password): _port(port), _password(password)
 	return ;
 }
 
-// nessrine
-void	Server::ParseInput(std::string input)
+int	Server::GetEpollFd()
 {
-	if (input.find("USER") != std::string::npos)
-	{
-		User user;
-		Command cmd;
-		cmd.USER(user);
-	}
-	
+	return (this->_epollfd);
+}
+
+epoll_event	Server::GetClientEvent()
+{
+	return (this->_clientEvent);
+}
+
+User*	Server::GetUserByFd(int fd)
+{
+	User *userFound;
+	userFound = this->_users.find(fd)->second;
+	return userFound;
 }
 
 void	Server::AddUser()
 {
-	User	newUser;
+	User *newUser = new User();
 	sockaddr_in   addr_client; // struct qui contient addresse ip et port du client notamment
 	socklen_t     addr_size = sizeof(addr_client);
 
-	newUser.SetFd(accept(this->_socketServer, reinterpret_cast<sockaddr*>(&addr_client), &addr_size));
-	if (newUser.GetFd() == -1)
+	newUser->SetFd(accept(this->_socketServer, reinterpret_cast<sockaddr*>(&addr_client), &addr_size));
+	if (newUser->GetFd() == -1)
 	{
         std::cerr << "Error : Unable to accept new client." << std::endl;
 		return ;
 	}
-	this->_clientEvent.data.fd = newUser.GetFd();
+	this->_clientEvent.data.fd = newUser->GetFd();
 	this->_clientEvent.events = EPOLLIN;
-	fcntl(newUser.GetFd(), F_SETFL, O_NONBLOCK);
-	int retEpollCtl = epoll_ctl(this->_epollfd, EPOLL_CTL_ADD, newUser.GetFd(), &this->_clientEvent);
+	fcntl(newUser->GetFd(), F_SETFL, O_NONBLOCK);
+	int retEpollCtl = epoll_ctl(this->_epollfd, EPOLL_CTL_ADD, newUser->GetFd(), &this->_clientEvent);
 	if (retEpollCtl == -1)
 	{
 		std::cerr << "Error : Cannot add client socket in epoll group." << std::endl;
         return ;
 	}
-	std::string welcomeMessage = "001 YourNickname :Welcome to the IRC Server! Your connection has been established successfully.\r\n";
+	std::string welcomeMessage = "001 YourNickname :Welcome to the IR`C Server! Your connection has been established successfully.\r\n";
 	// remplacer YourNickname par le pseudo de l'utilisateur
-	int bytesSent = send(newUser.GetFd(), welcomeMessage.c_str(), welcomeMessage.size(), 0);
+	int bytesSent = send(newUser->GetFd(), welcomeMessage.c_str(), welcomeMessage.size(), 0);
 	if (bytesSent == -1)
 	{
 	    std::cerr << "Error sending welcome message." << std::endl;
 	    return ;
 	}
+	_users.insert(std::make_pair(newUser->GetFd(), newUser));
     std::cout << "New client connected." << std::endl;
+	return ;
 }
 
 void	Server::LaunchServer()
 {
-	int optionVal = 1;
+	int optionVal = 1;	
+	
 	// creation et setup du socket
 	this->_socketServer = socket(PF_INET, SOCK_STREAM, 0);
 	if (this->_socketServer == -1)
@@ -155,7 +163,15 @@ void	Server::LaunchServer()
 				{
                     buffer[bytesRead] = '\0';
 					std::string input = buffer;
-					this->ParseInput(input);
+					// this->ParseInput(input, this->_events[i].data.fd); // amodifier
+					// boucle while pour recuperer toutes les infos du nouvel user qui se connecte
+					size_t pos = 0;
+					while ((pos = input.find('\n')) != std::string::npos)
+					{
+						Command cmd(input.substr(0, pos - 1));
+						cmd.ExecCommand(this->_events[i].data.fd, this);
+						input.erase(0, pos + 1);
+					}
                 }
             }
         }

@@ -10,13 +10,16 @@ class User
 	User();
 	// ~User();
 
-	int		GetFd();
-
-	void	SetFd(int fd);
-	void	SetUsername(std::string username);
-	void	SetHostname(std::string hostname);
-	void	SetServername(std::string servername);
-	void	SetRealname(std::string realname);
+	int			GetFd();
+	void		SetFd(int fd);
+	bool		GetOperator( void );
+	void		SetOperator( bool );
+	void		SetUsername(std::string username);
+	void		SetHostname(std::string hostname);
+	void		SetServername(std::string servername);
+	void		SetRealname(std::string realname);
+	std::string	GetNickname( void );
+	void		SetNickname( std::string nickname );
 
 	private:
 	// reference de tout les channels auquels le user est connecte
@@ -28,6 +31,7 @@ class User
 	std::string	_realName;
 	std::string	_mode;
 	int			_fd;
+	bool		_isOperator;
 };
 
 #endif
