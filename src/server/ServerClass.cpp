@@ -20,9 +20,11 @@ epoll_event	Server::GetClientEvent()
 	return (this->_clientEvent);
 }
 
-User	*Server::GetSpecificUser(int fd)
+User*	Server::GetUserByFd(int fd)
 {
-	return (this->_users[fd]);
+	User *cc;
+	cc = this->_users.find(fd)->second;
+	return cc;
 }
 
 

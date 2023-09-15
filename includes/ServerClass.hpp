@@ -19,7 +19,7 @@ class Server
 	std::string	GetServerPassword( void ) { return(this->_password); }
 	int			GetEpollFd();
 	epoll_event	GetClientEvent();
-	User		*GetSpecificUser(int fd);
+	User*		GetUserByFd(int fd);
 
 	private:
 
