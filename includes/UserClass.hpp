@@ -14,7 +14,7 @@ class User
 	void	SetFd(int fd);
 	bool	GetOperator( void );
 	void	SetOperator( bool );
-	std::string	GetUser( void ) { return(this->_nickname); }
+	std::string	GetUserNickname( void ) { return(this->_nickname); }
 
 	private:
 	// reference de tout les channels auquels le user est connecte

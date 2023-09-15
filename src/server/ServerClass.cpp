@@ -33,7 +33,7 @@ User *Server::AddUser()
 		std::cerr << "Error : Cannot add client socket in epoll group." << std::endl;
         return  (NULL);
 	}
-	std::string welcomeMessage = "001 YourNickname :Welcome to the IRC Server! Your connection has been established successfully.\r\n";
+	std::string welcomeMessage = "001 YourNickname :Welcome to the IR`C Server! Your connection has been established successfully.\r\n";
 	// remplacer YourNickname par le pseudo de l'utilisateur
 	int bytesSent = send(newUser->GetFd(), welcomeMessage.c_str(), welcomeMessage.size(), 0);
 	if (bytesSent == -1)

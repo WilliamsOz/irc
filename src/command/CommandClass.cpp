@@ -61,20 +61,17 @@ void	Command::PING(int clientFd, User *user, Server *server)
 
 void	Command::OPER(int clientFd, User *user, Server *server)
 {
-	std::string	success_msg = "381 :You are now an IRC operator\r\n";
+	std::string	success_msg = "381 " + user->GetUserNickname() + " :You are now an IRC operator\r\n";
+	std::string	failure_msg = "464 " + user->GetUserNickname() + " :Password incorrect\r\n";
+
 	(void)clientFd;
 	if (this->GetParameters()[1] == server->GetServerPassword())
 	{
-		if (user->GetOperator() == true)
-			std::cout << "xdddddddddddd" << std::endl;
-		else
-		{
-			user->SetOperator(true);
-			send(user->GetFd(), success_msg.c_str(), success_msg.size(), 0);
-		}
+		user->SetOperator(true);
+		send(user->GetFd(), success_msg.c_str(), success_msg.size(), 0);
 	}
 	else
-		std::cout << "Server password is incorrect, please try again." << std::endl;
+		send(user->GetFd(), failure_msg.c_str(), failure_msg.size(), 0);
 	return ;
 }
 
