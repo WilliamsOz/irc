@@ -5,8 +5,6 @@
 
 class User;
 
-int	server();
-
 class Server
 {
 	public:
@@ -14,13 +12,14 @@ class Server
 	Server(int port, char *password);
 	// ~Server();
 
-	User	*AddUser();
+	void	AddUser();
 	void	LaunchServer();
 	static void signal_handler(int);
-	// void	ParseInput(std::string input, int clientFd);
+
 	std::string	GetServerPassword( void ) { return(this->_password); }
 	int			GetEpollFd();
 	epoll_event	GetClientEvent();
+	User		*GetSpecificUser(int fd);
 
 	private:
 
@@ -32,7 +31,7 @@ class Server
 	epoll_event						_serverEvent;
 	epoll_event						_clientEvent;
 	epoll_event 					_events[MAX_EVENTS];
-	std::map<std::string, User *>	_users;
+	std::map<int, User *>			_users;
 };
 
 # endif

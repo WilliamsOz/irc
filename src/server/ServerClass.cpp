@@ -20,10 +20,14 @@ epoll_event	Server::GetClientEvent()
 	return (this->_clientEvent);
 }
 
-
-User *Server::AddUser()
+User	*Server::GetSpecificUser(int fd)
 {
-	// User	*newUser = NULL;
+	return (this->_users[fd]);
+}
+
+
+void	Server::AddUser()
+{
 	User *newUser = new User();
 	sockaddr_in   addr_client; // struct qui contient addresse ip et port du client notamment
 	socklen_t     addr_size = sizeof(addr_client);
@@ -32,7 +36,7 @@ User *Server::AddUser()
 	if (newUser->GetFd() == -1)
 	{
         std::cerr << "Error : Unable to accept new client." << std::endl;
-		return (NULL);
+		return ;
 	}
 	this->_clientEvent.data.fd = newUser->GetFd();
 	this->_clientEvent.events = EPOLLIN;
@@ -41,7 +45,7 @@ User *Server::AddUser()
 	if (retEpollCtl == -1)
 	{
 		std::cerr << "Error : Cannot add client socket in epoll group." << std::endl;
-        return  (NULL);
+        return ;
 	}
 	std::string welcomeMessage = "001 YourNickname :Welcome to the IRC Server! Your connection has been established successfully.\r\n";
 	// remplacer YourNickname par le pseudo de l'utilisateur
@@ -49,16 +53,16 @@ User *Server::AddUser()
 	if (bytesSent == -1)
 	{
 	    std::cerr << "Error sending welcome message." << std::endl;
-	    return  (NULL);
+	    return ;
 	}
+	_users.insert(std::make_pair(newUser->GetFd(), newUser));
     std::cout << "New client connected." << std::endl;
-	return (newUser);
+	return ;
 }
 
 void	Server::LaunchServer()
 {
 	int optionVal = 1;	
-	User *newUser;
 	
 	// creation et setup du socket
 	this->_socketServer = socket(PF_INET, SOCK_STREAM, 0);
@@ -141,7 +145,7 @@ void	Server::LaunchServer()
 		{
             if (this->_events[i].data.fd == this->_socketServer) // nouvelle connexion en attente
 			{
-				newUser = this->AddUser();
+				this->AddUser();
             }
 			else // client deja connecte qui envoi des données
 			{
@@ -164,7 +168,7 @@ void	Server::LaunchServer()
 					while ((pos = input.find('\n')) != std::string::npos)
 					{
 						Command cmd(input.substr(0, pos - 1));
-						cmd.ExecCommand(this->_events[i].data.fd, newUser, this);
+						cmd.ExecCommand(this->_events[i].data.fd, this);
 						input.erase(0, pos + 1);
 					}
                 }
