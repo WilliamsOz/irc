@@ -1,47 +1,19 @@
 ﻿#include "irc.hpp"
 
-Command::Command()
-{
-	return ;
-}
-
-Command::~Command()
-{
-	return ;
-}
-
-std::string	Command::GetParam(int which)
-{
-	switch(which)
-	{
-		case 1:
-			return (this->_param[0]);
-			break;
-		case 2:
-			return (this->_param[1]);
-			break;
-		case 3:
-			return (this->_param[2]);
-			break;
-		case 4:
-			return (this->_param[3]);
-			break;
-	}
-}
-
-void	Command::USER(User user)
-{
-	user.SetUsername(this->GetParam(1));
-	user.SetHostname(this->GetParam(2));
-	user.SetServername(this->GetParam(3));
-	user.SetRealname(this->GetParam(4));
-}
+// Command::~Command()
+// {
+// 	return ;
+// }
 
 void	Command::ExecCommand(int clientFd, Server *server)
 {
 	if (this->_commands.find(this->_name) != _commands.end())
 	{
 		(this->*this->_commands[this->_name])(server->GetUserByFd(clientFd), server);
+		std::cout << server->GetUserByFd(clientFd)->GetUsername() << std::endl;
+		std::cout << server->GetUserByFd(clientFd)->GetHostname() << std::endl;
+		std::cout << server->GetUserByFd(clientFd)->GetServername() << std::endl;
+		std::cout << server->GetUserByFd(clientFd)->GetRealname() << std::endl;
 	}
 	else
 		std::cout << "Unknown command -> " << this->_name << "\n";
@@ -77,7 +49,7 @@ void	Command::SetUpCommandsContainer()
 	// _commands["JOIN"] = &Command::JOIN;
     _commands["PING"] = &Command::PING;
     _commands["NICK"] = &Command::NICK;
-    // _commands["USER"] = &Command::USER;
+    _commands["USER"] = &Command::USER;
 	//etc
 }
 
@@ -106,6 +78,16 @@ void	Command::SetUpCommandsContainer()
 // 		send(user->GetFd(), response.c_str(), response.length(), 0);
 // 	}
 // }
+
+void	Command::USER(User *user, Server *server)
+{
+	(void)server;
+
+	user->SetUsername(this->_param[0]);
+	user->SetHostname(this->_param[1]);
+	user->SetServername(this->_param[2]);
+	user->SetRealname(this->_param[3]);
+}
 
 void	Command::NICK(User *user, Server *server)
 {
@@ -143,22 +125,3 @@ std::string	Command::GetCmdName()
 {
 	return(this->_name);
 }
-
-std::vector<std::string>	Command::GetParameters()
-{
-	return (this->_param);
-}
-
-// int main(int ac, char **av)
-// {
-//     Command cmd(av[1]);
-
-//     std::cout << cmd.GetCmdName() << std::endl;
-
-//     std::vector<std::string> parameters = cmd.GetParameters(); // Stocker la valeur dans une variable
-
-//     for (std::vector<std::string>::iterator it = parameters.begin(); it != parameters.end(); it++)
-//         std::cout << "->" << *it << std::endl;
-
-//     return (0);
-// }
