@@ -1,30 +1,40 @@
 ﻿#include "irc.hpp"
 
-void	privmsg(Command command, std::string parameter, std::string user)
+// void	Command::SendToChannel()
+// {
+	
+// }
+
+void	Command::SendToUser(Server *server)
 {
-	if (parameter == "#") // alors c un msg pour un channel
-		sendToChannel(command);
-	else 
+	if (server.GetFdByUser(GetParameters()[0])) // le user est connu
 	{
-		if (_users.find(user) != _users.end()) // le user est connu
-		{
-			std::string	response = ":" + user.getNickName() + " " + command.getNumericReply() + " " + command.getMsg() + "\r\n";
-			send(...);
-			std::cout << "response =>" << response << std::endl;
-		}
-		else // le user est inconnu
-		{
-			std::string	response = ":localhost 401" + user.getNickName() + " : No such NickName\r\n";
-			send(...);
-			std::cout << "response =>" << response << std::endl;
-		}
+		std::string	response = ":" + user.getNickName() + " " + command.getNumericReply() + " " + command.getMsg() + "\r\n";
+		send();
+		std::cout << "response =>" << response << std::endl;
+	}
+	else // le user est inconnu
+	{
+		std::string	response = ":localhost 401" + user.getNickName() + " : No such NickName\r\n";
+		send(...);
+		std::cout << "response =>" << response << std::endl;
 	}
 }
 
-/!
-Remember to handle the case where the params string does not contain a space, which means 
-that the PRIVMSG command is missing required parameters. In this case,
- you should return an appropriate error message to the user.
+void	Command::PRIVMSG(int clientFd, User *user, Server *server)
+{
+	void(int);
+
+	if (this->GetParameters()[0][0] == "#")
+		this->SendToChannel();
+	else 
+		this->SendToUser();
+}
+
+// /!
+// Remember to handle the case where the params string does not contain a space, which means 
+// that the PRIVMSG command is missing required parameters. In this case,
+//  you should return an appropriate error message to the user.
 
 void	privmsg(Command command, std::string parameter, std::string user)
 {
@@ -40,9 +50,7 @@ void	privmsg(Command command, std::string parameter, std::string user)
 		}
 		else // le user est inconnu
 		{
-			std::string	response = ":localhost 401" + user.getNickName() + " : No such NickName\r\n";
-			send(...);
-			std::cout << "response =>" << response << std::endl;
+			
 		}
 	}
 }
@@ -70,7 +78,7 @@ void handle_privmsg(std::string params, irc_reply_data* hostd, IRC* irc_conn)
     // Here you would use your data structures that keep track of users and channels
     
     // Example code for sending the message to the user
-    irc_input_send_user_message(target, message, hostd, irc_conn);
+    // irc_input_send_user_message(target, message, hostd, irc_conn);
 }
 
 void irc_input_send_user_message(std::string target, std::string message, irc_reply_data* hostd, IRC* irc_conn)

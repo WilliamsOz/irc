@@ -11,8 +11,9 @@ class Server
 	// ~Server();
 
 	void	LaunchServer();
-
-	static void signal_handler(int);
+	// User	*GetUserByFd();
+	int		GetFdbyUser();
+	static void SignalHandler(int);
 
 	private:
 
