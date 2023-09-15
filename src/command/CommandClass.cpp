@@ -7,7 +7,7 @@ void	Command::ExecCommand(int clientFd, Server *server)
 		(this->*this->_commands[this->_name])(server->GetUserByFd(clientFd), server);
 	}
 	else
-		std::cout << "Unknown command -> " << this->_name << this->_param[0] << "\n";
+		std::cout << "Unknown command -> " << this->_name << "\n";
 }
 
 Command::Command(std::string src)
@@ -40,6 +40,7 @@ void	Command::SetUpCommandsContainer()
 	// _commands["JOIN"] = &Command::JOIN;
     _commands["PING"] = &Command::PING;
     _commands["OPER"] = &Command::OPER;
+    _commands["NICK"] = &Command::NICK;
     // _commands["USER"] = &Command::USER;
 	//etc
 }
@@ -69,6 +70,11 @@ void	Command::SetUpCommandsContainer()
 // 		send(user->GetFd(), response.c_str(), response.length(), 0);
 // 	}
 // }
+
+void	Command::NICK(User *user, Server *server)
+{
+	
+}
 
 void	Command::PING(User *user, Server *server)
 {
