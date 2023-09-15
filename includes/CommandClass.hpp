@@ -21,8 +21,8 @@ class Command
 	void						ExecCommand(int clientFd, User *user, Server *server);
 	void						SetUpCommandsContainer();
 	// utils
-	void 						SendToChannel(Server *server);
-	void 						SendToUser(Server *server);
+	void 						SendToChannel(User *user, Server *server);
+	void 						SendToUser(User *user, Server *server);
 	// toutes les commandes
 	void						JOIN(int clientFd, User *user, Server *server);
 	void						PING(int clientFd, User *user, Server *server);
