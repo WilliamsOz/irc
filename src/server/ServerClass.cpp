@@ -22,11 +22,10 @@ epoll_event	Server::GetClientEvent()
 
 User*	Server::GetUserByFd(int fd)
 {
-	User *cc;
-	cc = this->_users.find(fd)->second;
-	return cc;
+	User *userFound;
+	userFound = this->_users.find(fd)->second;
+	return userFound;
 }
-
 
 void	Server::AddUser()
 {
