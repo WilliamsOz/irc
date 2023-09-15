@@ -75,6 +75,18 @@ void	Command::OPER(int clientFd, User *user, Server *server)
 	return ;
 }
 
+// void	Command::NOTICE(int clientFd, User *user, Server *server)
+// {
+	//envoyer des notif entre utilisateur && || canaux
+	//notice == privmsg, sauf que aucune reponse auto ou erreurs
+	//ne doit etre envoyer en reponse a notice
+
+	// (void)clientFd;
+
+	// return ;
+// }
+
+
 Command::~Command()
 {
 }
