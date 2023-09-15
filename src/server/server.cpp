@@ -1,6 +1,6 @@
 # include "irc.hpp"
 
-void	Server::signal_handling(int)
+void	Server::SignalHandler(int)
 {
 	g_signal = true;
 }
