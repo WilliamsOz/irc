@@ -24,7 +24,6 @@ class Command
 	// toutes les commandes
 	void						JOIN(User *user, Server *server);
 	void						PING(User *user, Server *server);
-	void						OPER(User *user, Server *server);
 	void						NICK(User *user, Server *server);
 
 	Command(std::string src);

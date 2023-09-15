@@ -10,11 +10,12 @@ class User
 	User();
 	// ~User();
 
-	int		GetFd();
-	void	SetFd(int fd);
-	bool	GetOperator( void );
-	void	SetOperator( bool );
-	std::string	GetUserNickname( void );
+	int			GetFd();
+	void		SetFd(int fd);
+	bool		GetOperator( void );
+	void		SetOperator( bool );
+	std::string	GetNickname( void );
+	void		SetNickname( std::string nickname );
 
 	private:
 	// reference de tout les channels auquels le user est connecte

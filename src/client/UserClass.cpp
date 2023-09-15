@@ -10,9 +10,15 @@ int		User::GetFd()
 	return (this->_fd);
 }
 
-std::string		User::GetUserNickname()
+std::string		User::GetNickname()
 {
 	return (this->_nickname);
+}
+
+void		User::SetNickname(std::string nickname)
+{
+	this->_nickname = nickname;
+	return ;
 }
 
 void	User::SetFd(int fd)
