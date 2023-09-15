@@ -10,10 +10,6 @@ void	Command::ExecCommand(int clientFd, Server *server)
 	if (this->_commands.find(this->_name) != _commands.end())
 	{
 		(this->*this->_commands[this->_name])(server->GetUserByFd(clientFd), server);
-		std::cout << server->GetUserByFd(clientFd)->GetUsername() << std::endl;
-		std::cout << server->GetUserByFd(clientFd)->GetHostname() << std::endl;
-		std::cout << server->GetUserByFd(clientFd)->GetServername() << std::endl;
-		std::cout << server->GetUserByFd(clientFd)->GetRealname() << std::endl;
 	}
 	else
 		std::cout << "Unknown command -> " << this->_name << "\n";
