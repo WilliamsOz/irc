@@ -20,6 +20,7 @@ class Server
 	int			GetEpollFd();
 	epoll_event*	GetClientEvent();
 	User*		GetUserByFd(int fd);
+	std::map<int, User *>&	GetUsers();
 
 	private:
 

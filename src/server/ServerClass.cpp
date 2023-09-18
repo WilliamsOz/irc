@@ -27,6 +27,11 @@ User*	Server::GetUserByFd(int fd)
 	return userFound;
 }
 
+std::map<int, User *>&	Server::GetUsers()
+{
+	return (this->_users);
+}
+
 void	Server::AddUser()
 {
 	User *newUser = new User();
@@ -48,15 +53,8 @@ void	Server::AddUser()
 		std::cerr << "Error : Cannot add client socket in epoll group." << std::endl;
         return ;
 	}
-	std::string welcomeMessage = "001 YourNickname :Welcome to the IR`C Server! Your connection has been established successfully.\r\n";
-	// remplacer YourNickname par le pseudo de l'utilisateur
-	int bytesSent = send(newUser->GetFd(), welcomeMessage.c_str(), welcomeMessage.size(), 0);
-	if (bytesSent == -1)
-	{
-	    std::cerr << "Error sending welcome message." << std::endl;
-	    return ;
-	}
-	_users.insert(std::make_pair(newUser->GetFd(), newUser));
+	_users[newUser->GetFd()] = newUser;
+	// _users.insert(std::make_pair(newUser->GetFd(), newUser));
     std::cout << "New client connected." << std::endl;
 	return ;
 }

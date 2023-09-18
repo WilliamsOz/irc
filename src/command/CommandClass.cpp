@@ -61,15 +61,29 @@ void	Command::PASS(User *user, Server *server)
 	{
 		if (this->_param[0] != server->GetServerPassword())
 		{
-			// supprimer user du container (class)channel et (class)server
+			std::map<int, User*>::iterator it = (server->GetUsers()).find(user->GetFd());
+			(server->GetUsers()).erase(it);
+			std::string message = "464 :Password incorrect.\r\n";
+			send(user->GetFd(), message.c_str(), message.size(), 0);
+            epoll_ctl(server->GetEpollFd(), EPOLL_CTL_DEL, user->GetFd(), server->GetClientEvent());
 			close(user->GetFd());
-    	    epoll_ctl(server->GetEpollFd(), EPOLL_CTL_DEL, user->GetFd(), server->GetClientEvent());
-			std::cout << user->GetNickname() << " wrong password" << std::endl;
 		}
 		else
 		{
+			// int retEpollCtl = epoll_ctl(server->GetEpollFd(), EPOLL_CTL_ADD, user->GetFd(), server->GetClientEvent());
+			// if (retEpollCtl == -1)
+			// {
+			// 	std::cerr << "Error : Cannot add client socket in epoll group." << std::endl;
+    		//     return ;
+			// }
+			std::string welcomeMessage = "001 :Welcome to the IR`C Server! Your connection has been established successfully.\r\n";
+			int bytesSent = send(user->GetFd(), welcomeMessage.c_str(), welcomeMessage.size(), 0);
+			if (bytesSent == -1)
+			{
+			    std::cerr << "Error sending welcome message." << std::endl;
+			    return ;
+			}
 			user->SetAuth(true);
-			std::cout << user->GetNickname() << " good password" << std::endl;
 		}
 	}
 }
