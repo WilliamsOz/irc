@@ -10,9 +10,72 @@ Server::Server(int port, char *password): _port(port), _password(password)
 	return ;
 }
 
+int	Server::GetEpollFd()
+{
+	return (this->_epollfd);
+}
+
+epoll_event	Server::GetClientEvent()
+{
+	return (this->_clientEvent);
+}
+
+User*	Server::GetUserByFd(int fd)
+{
+	User *userFound;
+	userFound = this->_users.find(fd)->second;
+	return userFound;
+}
+
+int		Server::GetFdByNickName(std::string nickName) 
+{
+	for (std::map<int, User *>::iterator it =_users.begin(); it != _users.end(); it++)
+	{
+		if (it->second->GetNickName() == nickName)
+			return (it->second->GetFd());
+	}
+	return (-1);
+}
+
+
+void	Server::AddUser()
+{
+	User *newUser = new User();
+	sockaddr_in   addr_client; // struct qui contient addresse ip et port du client notamment
+	socklen_t     addr_size = sizeof(addr_client);
+
+	newUser->SetFd(accept(this->_socketServer, reinterpret_cast<sockaddr*>(&addr_client), &addr_size));
+	if (newUser->GetFd() == -1)
+	{
+        std::cerr << "Error : Unable to accept new client." << std::endl;
+		return ;
+	}
+	this->_clientEvent.data.fd = newUser->GetFd();
+	this->_clientEvent.events = EPOLLIN;
+	fcntl(newUser->GetFd(), F_SETFL, O_NONBLOCK);
+	int retEpollCtl = epoll_ctl(this->_epollfd, EPOLL_CTL_ADD, newUser->GetFd(), &this->_clientEvent);
+	if (retEpollCtl == -1)
+	{
+		std::cerr << "Error : Cannot add client socket in epoll group." << std::endl;
+        return ;
+	}
+	std::string welcomeMessage = "001 YourNickname :Welcome to the IRC Server! Your connection has been established successfully.\r\n";
+	// remplacer YourNickname par le pseudo de l'utilisateur
+	int bytesSent = send(newUser->GetFd(), welcomeMessage.c_str(), welcomeMessage.size(), 0);
+	if (bytesSent == -1)
+	{
+	    std::cerr << "Error sending welcome message." << std::endl;
+	    return ;
+	}
+	_users.insert(std::make_pair(newUser->GetFd(), newUser));
+    std::cout << "New client connected." << std::endl;
+	return ;
+}
+
 void	Server::LaunchServer()
 {
-	int optionVal = 1;
+	int optionVal = 1;	
+	
 	// creation et setup du socket
 	this->_socketServer = socket(PF_INET, SOCK_STREAM, 0);
 	if (this->_socketServer == -1)
@@ -62,8 +125,6 @@ void	Server::LaunchServer()
 		close(this->_socketServer);
 		return ;
 	}
-	// memset(this->_serverEvent, 0, sizeof(this->_serverEvent)); // ne compile pas 
-
 	// creation du groupe d'event epoll et set socket fd
 	this->_serverEvent.events = EPOLLIN; // listen event
 	this->_serverEvent.data.fd = this->_socketServer;
@@ -82,9 +143,10 @@ void	Server::LaunchServer()
 
 	this->_clientEvent.events = EPOLLIN; // listen event
 	int numEvents;
-	while (!g_signal) // remplacer true par global
+	while (!g_signal)
 	{
-        numEvents = epoll_wait(this->_epollfd, this->_events, MAX_EVENTS, -1); // attend evenement jusqu'a ce que au moin 1 evenement se produise
+        // numEvents = epoll_wait(this->_epollfd, this->_events, MAX_EVENTS, -1); // attend evenement jusqu'a ce que au moin 1 evenement se produise
+        numEvents = epoll_wait(this->_epollfd, this->_events, 1, -1); // traite evenement 1 par 1
         if (numEvents == -1)
 		{
             std::cerr << "Error : Unable to wait for events." << std::endl;
@@ -95,45 +157,32 @@ void	Server::LaunchServer()
 		{
             if (this->_events[i].data.fd == this->_socketServer) // nouvelle connexion en attente
 			{
-                int clientSocket = accept(this->_socketServer, NULL, NULL); // connexion entrante accepté et creation de socket client
-																	// changer deuxieme param pour recup info du client et troisieme pour taille de struct
-                if (clientSocket == -1)
-				{
-                    std::cerr << "Error : Unable to accept new client." << std::endl;
-                    continue;
-                }
-                fcntl(clientSocket, F_SETFL, O_NONBLOCK); // change les attributs de clientSocket
-                // event.events = EPOLLIN; // | EPOLLET; // EPOLLET : notifie uniquement lorsque etat du socket change
-                this->_clientEvent.data.fd = clientSocket;
-                if (epoll_ctl(this->_epollfd, EPOLL_CTL_ADD, clientSocket, &this->_clientEvent) == -1)
-				{
-					std::cerr << "Error : Cannot add client socket in epoll group." << std::endl;
-                    return ;
-                }
-				std::string welcomeMessage = "001 YourNickname :Welcome to the IRC Server! Your connection has been established successfully.\r\n";
-				int bytesSent = send(clientSocket, welcomeMessage.c_str(), welcomeMessage.size(), 0);
-				if (bytesSent == -1)
-				{
-				    std::cerr << "Error sending welcome message." << std::endl;
-				    // Gérer l'erreur selon vos besoins.
-				}
-                std::cout << "New client connected." << std::endl;
+				this->AddUser();
             }
 			else // client deja connecte qui envoi des données
 			{
                 char buffer[1024];
                 int bytesRead = recv(this->_events[i].data.fd, buffer, sizeof(buffer), 0); // read depuis fd du client
-                // fonction createUser(this->_events[i].data.fd, ...)
-				if (bytesRead <= 0)
+				if (bytesRead <= 0) // fermer proprement tout les fd + revoir epoll_ctl 3e argument
 				{
+					// supprimer user du container
                     close(this->_events[i].data.fd);
                     epoll_ctl(this->_epollfd, EPOLL_CTL_DEL, this->_events[i].data.fd, &this->_clientEvent);
-                    std::cout << "Client disconnected." <<std::endl;
+                    std::cout << "Client disconnected." << std::endl;
                 }
-				else 
+				else // interpreter ici les input du client ->nessrine
 				{
                     buffer[bytesRead] = '\0';
-					std::cout << buffer << std::endl;
+					std::string input = buffer;
+					// this->ParseInput(input, this->_events[i].data.fd); // amodifier
+					// boucle while pour recuperer toutes les infos du nouvel user qui se connecte
+					size_t pos = 0;
+					while ((pos = input.find('\n')) != std::string::npos)
+					{
+						Command cmd(input.substr(0, pos - 1));
+						cmd.ExecCommand(this->_events[i].data.fd, this);
+						input.erase(0, pos + 1);
+					}
                 }
             }
         }

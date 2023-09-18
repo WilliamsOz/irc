@@ -12,7 +12,11 @@ const int MAX_EVENTS = 10;
 # include <arpa/inet.h>
 # include <cstring>
 # include <iostream>
+# include <signal.h>
 # include <csignal>
+# include <bits/stdc++.h>  
+# include <csignal>
+# include <signal.h>
 # include <string.h>
 # include <map>
 # include <vector>
@@ -21,9 +25,9 @@ const int MAX_EVENTS = 10;
 # include "ServerClass.hpp"
 # include "UserClass.hpp"
 # include "ChannelClass.hpp"
+# include "CommandClass.hpp"
 
 // GLOBAL
 extern volatile sig_atomic_t g_signal;
-
 
 #endif

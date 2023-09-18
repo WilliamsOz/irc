@@ -6,7 +6,7 @@
 
 class Command;
 
-typedef void (Command::*CommandFunctionPointer)(int, User *, Server *);
+typedef void (Command::*CommandFunctionPointer)(User *, Server *);
 
 class Command
 {
@@ -18,20 +18,19 @@ class Command
 	public:
 	std::string					GetCmdName();
 	std::vector<std::string>	GetParameters();
-	void						ExecCommand(int clientFd, User *user, Server *server);
+	void						ExecCommand(int clientFd, Server *server);
 	void						SetUpCommandsContainer();
 	// utils
 	void 						SendToChannel(User *user, Server *server);
 	void 						SendToUser(User *user, Server *server);
 	// toutes les commandes
-	void						JOIN(int clientFd, User *user, Server *server);
-	void						PING(int clientFd, User *user, Server *server);
-	void						OPER(int clientFd, User *user, Server *server);
-	void						CAP(int clientFd, User *user, Server *server);
-	void						PRIVMSG(int clientFd, User *user, Server *server);
+	void						JOIN(User *user, Server *server);
+	void						PING(User *user, Server *server);
+	void						OPER(User *user, Server *server);
+	void						CAP(User *user, Server *server);
+	void						PRIVMSG(User *user, Server *server);
 	Command(std::string src);
 	~Command();
 };
-
 
 #endif
