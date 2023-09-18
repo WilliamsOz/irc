@@ -20,9 +20,19 @@ epoll_event	Server::GetClientEvent()
 	return (this->_clientEvent);
 }
 
-User	*Server::GetSpecificUser(int fd)
+User	*Server::GetUserByFd(int fd)
 {
 	return (this->_users[fd]);
+}
+
+int		Server::GetFdByNickName(std::string nickName) 
+{
+	for (std::map<int, User *>::iterator it =_users.begin(); it != _users.end(); it++)
+	{
+		if (it->second->GetNickName() == nickName)
+			return (it->second->GetFd());
+	}
+	return (-1);
 }
 
 
