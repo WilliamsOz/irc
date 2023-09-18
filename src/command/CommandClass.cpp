@@ -4,10 +4,10 @@ void	Command::ExecCommand(int clientFd, Server *server)
 {
 	if (this->_commands.find(this->_name) != _commands.end())
 	{
-		(this->*this->_commands[this->_name])(server.GetUserByFd(clientFd), server);
+		(this->*this->_commands[this->_name])(server->GetUserByFd(clientFd), server);
 	}
 	else
-		std::cout << "Unknown command -> " << this->_name << "\n";
+		std::cout << "Unknown command -> " << this->_name << this->_param[0] << "\n";
 }
 
 Command::Command(std::string src)

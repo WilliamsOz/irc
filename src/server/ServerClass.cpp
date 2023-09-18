@@ -20,9 +20,11 @@ epoll_event	Server::GetClientEvent()
 	return (this->_clientEvent);
 }
 
-User	*Server::GetUserByFd(int fd)
+User*	Server::GetUserByFd(int fd)
 {
-	return (this->_users[fd]);
+	User *userFound;
+	userFound = this->_users.find(fd)->second;
+	return userFound;
 }
 
 int		Server::GetFdByNickName(std::string nickName) 
