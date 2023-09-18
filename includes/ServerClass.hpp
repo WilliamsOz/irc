@@ -12,12 +12,13 @@ class Server
 	Server(int port, char *password);
 	// ~Server();
 
-	void	AddUser();
-	void	LaunchServer();
+	void		AddUser();
+	void		LaunchServer();
 	static void SignalHandler(int);
 
 	int			GetFdByNickName(std::string nickName);
 	User		*GetUserByFd(int fd);
+	
 	std::string	GetServerPassword( void ) { return(this->_password); }
 	int			GetEpollFd();
 	epoll_event	GetClientEvent();

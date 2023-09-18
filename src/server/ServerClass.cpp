@@ -1,6 +1,6 @@
 # include "irc.hpp"
 
-void	Server::signal_handler(int)
+void	Server::SignalHandler(int)
 {
 	g_signal = true;
 }
@@ -139,7 +139,7 @@ void	Server::LaunchServer()
 		return ;
 	}
 
-	signal(SIGINT, Server::signal_handler);
+	signal(SIGINT, Server::SignalHandler);
 
 	this->_clientEvent.events = EPOLLIN; // listen event
 	int numEvents;
