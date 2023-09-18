@@ -57,11 +57,20 @@ void	Command::SetUpCommandsContainer()
 
 void	Command::PASS(User *user, Server *server)
 {
-	if (this->_param[0] != server->GetServerPassword())
+	if (user->GetAuth() == false)
 	{
-		// supprimer user du container (class)channel et (class)server
-		close(user->GetFd());
-        epoll_ctl(server->GetEpollFd(), EPOLL_CTL_DEL, user->GetFd(), server->GetClientEvent());
+		if (this->_param[0] != server->GetServerPassword())
+		{
+			// supprimer user du container (class)channel et (class)server
+			close(user->GetFd());
+    	    epoll_ctl(server->GetEpollFd(), EPOLL_CTL_DEL, user->GetFd(), server->GetClientEvent());
+			std::cout << user->GetNickname() << " wrong password" << std::endl;
+		}
+		else
+		{
+			user->SetAuth(true);
+			std::cout << user->GetNickname() << " good password" << std::endl;
+		}
 	}
 }
 

@@ -5,11 +5,6 @@ User::User() : _isAuth(false)
 	return ;
 }
 
-int		User::GetFd()
-{
-	return (this->_fd);
-}
-
 void	User::SetUsername(std::string username)
 {
 	this->_username = username;
@@ -44,6 +39,21 @@ void	User::SetFd(int fd)
 {
 	this->_fd = fd;
 	return ;
+}
+
+void	User::SetAuth(bool status)
+{
+	this->_isAuth = status;
+}
+
+bool	User::GetAuth()
+{
+	return (this->_isAuth);
+}
+
+int		User::GetFd()
+{
+	return (this->_fd);
 }
 
 std::string		User::GetNickname()

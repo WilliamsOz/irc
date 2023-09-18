@@ -16,6 +16,8 @@ class User
 	void		SetServername(std::string servername);
 	void		SetRealname(std::string realname);
 	void		SetNickname( std::string nickname );
+	void		SetAuth(bool status);
+	bool		GetAuth();
 	int			GetFd();
 	std::string	GetNickname( void );
 	std::string	GetUsername(void);
