@@ -16,6 +16,7 @@ class Server
 	void		LaunchServer();
 	static void SignalHandler(int);
 
+	void        SendMessagetoClient(User* recipient, std::string msg);
 	int			GetFdByNickName(std::string nickName);
 	User		*GetUserByFd(int fd);
 	

@@ -31,7 +31,7 @@ int		Server::GetFdByNickName(std::string nickName)
 {
 	for (std::map<int, User *>::iterator it =_users.begin(); it != _users.end(); it++)
 	{
-		if (it->second->GetNickName() == nickName)
+		if (it->second->GetNickname() == nickName)
 			return (it->second->GetFd());
 	}
 	return (-1);
@@ -59,7 +59,7 @@ void	Server::AddUser()
 		std::cerr << "Error : Cannot add client socket in epoll group." << std::endl;
         return ;
 	}
-	std::string welcomeMessage = "001 YourNickname :Welcome to the IRC Server! Your connection has been established successfully.\r\n";
+	std::string welcomeMessage = "001 YourNickname :Welcome to the IR`C Server! Your connection has been established successfully.\r\n";
 	// remplacer YourNickname par le pseudo de l'utilisateur
 	int bytesSent = send(newUser->GetFd(), welcomeMessage.c_str(), welcomeMessage.size(), 0);
 	if (bytesSent == -1)
@@ -193,4 +193,16 @@ void	Server::LaunchServer()
     close(this->_epollfd);
 
 	return ;
+}
+
+
+void        Server::SendMessagetoClient(User* recipient, std::string msg)
+{
+	int			bytes_sent;
+	int 		len = msg.size();
+
+	if ((bytes_sent = send(recipient->GetFd(), msg.c_str(), len, 0 )) != len)
+		return ;
+		// throw std::invalid_argument("send");
+	// client->setLastActiveTime();
 }

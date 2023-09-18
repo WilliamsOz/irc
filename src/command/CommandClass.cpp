@@ -1,4 +1,4 @@
-﻿# include "irc.hpp"
+﻿#include "irc.hpp"
 
 void	Command::ExecCommand(int clientFd, Server *server)
 {
@@ -7,7 +7,7 @@ void	Command::ExecCommand(int clientFd, Server *server)
 		(this->*this->_commands[this->_name])(server->GetUserByFd(clientFd), server);
 	}
 	else
-		std::cout << "Unknown command -> " << this->_name << this->_param[0] << "\n";
+		std::cout << "Unknown command -> " << this->_name << "\n";
 }
 
 Command::Command(std::string src)
@@ -66,7 +66,7 @@ void	Command::CAP(User *user, Server *server)
     }
 	if (!(this->GetParameters()[0].compare("END"))) // peut-etre ajouter des infos supplementaires?
 	{
-		std::string response = "001 " +(user->GetNickName())+": Bienvenue sur le serveur Irc\r\n";
+		std::string response = "001 " +(user->GetNickname())+": Bienvenue sur le serveur Irc\r\n";
 		send(user->GetFd(), response.c_str(), response.length(), 0);
 	}
 }
@@ -79,6 +79,7 @@ void	Command::PING(User *user, Server *server)
 	std::string pongMessage = "PONG :" + this->_name + "\r\n";
 	send(user->GetFd(), pongMessage.c_str(), pongMessage.size(), 0);
 }
+
 
 void	Command::OPER(User *user, Server *server)
 {
@@ -110,12 +111,12 @@ void	Command::SendToUser(User *user, Server *server)
 
 	if (recipientFd != -1) // si le user appartient bien au server
 	{
-		std::string	response = ":" + user->GetNickName() + " " + _param[1] + "\r\n";
+		std::string	response = ":" + user->GetNickname() + " " + _param[1] + "\r\n";
 		send(recipientFd, response.c_str(), response.length(), 0);
 	}
 	else // le user est inconnu
 	{
-		std::string	response = ":localhost 401" + user->GetNickName() + " : No such NickName\r\n";
+		std::string	response = ":localhost 401" + user->GetNickname() + " : No such NickName\r\n";
 		// si ca fail -> message d'erreur  ERR_CANNOTSENDTOCHAN (404)
 		send(user->GetFd(), response.c_str(), response.length(), 0);
 	}
@@ -123,12 +124,11 @@ void	Command::SendToUser(User *user, Server *server)
 
 void	Command::PRIVMSG(User *user, Server *server)
 {
-	if (_param.size() < 2)
-		// SendMessagetoClient(user, ERR_NEEDMOREPARAMS(user->GetNickName(), this->_name));
-	if (this->GetParameters()[0][0] == '#')
-		this->SendToChannel(user, server);
-	else 
-		this->SendToUser(user, server);
+	// if (_param.size() < 2)
+	// 	// SendMessagetoClient(user, ERR_NEEDMOREPARAMS(user->GetNickName(), this->_name));
+	// if (this->GetParameters()[0][0] == '#')
+	// 	this->SendToChannel(user, server);
+	this->SendToUser(user, server);
 }
 
 Command::~Command()
@@ -144,17 +144,3 @@ std::vector<std::string>	Command::GetParameters()
 {
 	return (this->_param);
 }
-
-// int main(int ac, char **av)
-// {
-//     Command cmd(av[1]);
-
-//     std::cout << cmd.GetCmdName() << std::endl;
-
-//     std::vector<std::string> parameters = cmd.GetParameters(); // Stocker la valeur dans une variable
-
-//     for (std::vector<std::string>::iterator it = parameters.begin(); it != parameters.end(); it++)
-//         std::cout << "->" << *it << std::endl;
-
-//     return (0);
-// }
