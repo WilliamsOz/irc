@@ -15,9 +15,9 @@ int	Server::GetEpollFd()
 	return (this->_epollfd);
 }
 
-epoll_event	Server::GetClientEvent()
+epoll_event*	Server::GetClientEvent()
 {
-	return (this->_clientEvent);
+	return (&(this->_clientEvent));
 }
 
 User*	Server::GetUserByFd(int fd)

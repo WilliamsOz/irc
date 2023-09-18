@@ -22,6 +22,7 @@ class Command
 	void						PING(User *user, Server *server);
 	void						NICK(User *user, Server *server);
 	void						USER(User *user, Server *server);
+	void						PASS(User *user, Server *server);
 
 	private:
 	std::string									_name;

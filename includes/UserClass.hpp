@@ -11,14 +11,12 @@ class User
 	// ~User();
 
 	void		SetFd(int fd);
-	void		SetOperator( bool );
 	void		SetUsername(std::string username);
 	void		SetHostname(std::string hostname);
 	void		SetServername(std::string servername);
 	void		SetRealname(std::string realname);
 	void		SetNickname( std::string nickname );
 	int			GetFd();
-	bool		GetOperator( void );
 	std::string	GetNickname( void );
 	std::string	GetUsername(void);
 	std::string	GetHostname(void);
@@ -35,7 +33,7 @@ class User
 	std::string	_realname;
 	std::string	_mode;
 	int			_fd;
-	bool		_isOperator;
+	bool		_isAuth;
 };
 
 #endif

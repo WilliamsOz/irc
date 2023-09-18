@@ -55,36 +55,36 @@ void	Command::SetUpCommandsContainer()
 
 // }
 
-void	Command::PASS(int clientFd, User *user, Server *server)
+void	Command::PASS(User *user, Server *server)
 {
 	if (this->_param[0] != server->GetServerPassword())
 	{
 		// supprimer user du container (class)channel et (class)server
 		close(user->GetFd());
-        epoll_ctl(server->GetEpollFd(), EPOLL_CTL_DEL, user->GetFd(), &server->GetClientEvent());
+        epoll_ctl(server->GetEpollFd(), EPOLL_CTL_DEL, user->GetFd(), server->GetClientEvent());
 	}
 }
 
-void	Command::CAP(int clientFd, User *user)
-{
-	if (this->GetParameters()[0] == "LS") // liste les capacités disponible pour les clients
-	{
-		std::string response = "CAP * LS :multi-prefix\r\n";
-		send(user->GetFd(), response.c_str(), response.length(), 0);
-		std::cout<<"response : "<<response<<std::endl;
-	}
-	if (!(this->GetParameters()[0].compare("REQ"))) // demande l'obtemtion d'une capacité
-	{
-		std::string response = "CAP * ACK multi-prefix\r\n";
-		send(user->GetFd(), response.c_str(), response.length(), 0);
-		std::cout<<"response : "<<response<<std::endl;
-    }
-	if (!(this->GetParameters()[0].compare("END"))) // peut-etre ajouter des infos supplementaires
-	{
-		std::string response = "001 " +(user->GetNickName())+": Bienvenue sur le serveur Irc\r\n";
-		send(user->GetFd(), response.c_str(), response.length(), 0);
-	}
-}
+// void	Command::CAP(int clientFd, User *user)
+// {
+// 	if (this->GetParameters()[0] == "LS") // liste les capacités disponible pour les clients
+// 	{
+// 		std::string response = "CAP * LS :multi-prefix\r\n";
+// 		send(user->GetFd(), response.c_str(), response.length(), 0);
+// 		std::cout<<"response : "<<response<<std::endl;
+// 	}
+// 	if (!(this->GetParameters()[0].compare("REQ"))) // demande l'obtemtion d'une capacité
+// 	{
+// 		std::string response = "CAP * ACK multi-prefix\r\n";
+// 		send(user->GetFd(), response.c_str(), response.length(), 0);
+// 		std::cout<<"response : "<<response<<std::endl;
+//     }
+// 	if (!(this->GetParameters()[0].compare("END"))) // peut-etre ajouter des infos supplementaires
+// 	{
+// 		std::string response = "001 " +(user->GetNickName())+": Bienvenue sur le serveur Irc\r\n";
+// 		send(user->GetFd(), response.c_str(), response.length(), 0);
+// 	}
+// }
 
 void	Command::USER(User *user, Server *server)
 {
@@ -111,18 +111,6 @@ void	Command::PING(User *user, Server *server)
 	std::string pongMessage = "PONG :" + this->_name + "\r\n";
 	send(user->GetFd(), pongMessage.c_str(), pongMessage.size(), 0);
 }
-
-// void	Command::NOTICE(int clientFd, User *user, Server *server)
-// {
-	//envoyer des notif entre utilisateur && || canaux
-	//notice == privmsg, sauf que aucune reponse auto ou erreurs
-	//ne doit etre envoyer en reponse a notice
-
-	// (void)clientFd;
-
-	// return ;
-// }
-
 
 Command::~Command()
 {
