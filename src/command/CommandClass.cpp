@@ -1,10 +1,10 @@
 ﻿# include "irc.hpp"
 
-void	Command::ExecCommand(int clientFd, User *user, Server *server)
+void	Command::ExecCommand(int clientFd, Server *server)
 {
 	if (this->_commands.find(this->_name) != _commands.end())
 	{
-		(this->*this->_commands[this->_name])(clientFd, user, server);
+		(this->*this->_commands[this->_name])(server.GetUserByFd(clientFd), server);
 	}
 	else
 		std::cout << "Unknown command -> " << this->_name << "\n";
@@ -50,6 +50,7 @@ void	Command::SetUpCommandsContainer()
 
 
 
+<<<<<<< HEAD
 void	Command::CAP(int clientFd, User *user, Server *server)
 {
 	(void)server;
@@ -74,19 +75,41 @@ void	Command::CAP(int clientFd, User *user, Server *server)
 }
 
 void	Command::PING(int clientFd, User *user, Server *server)
+=======
+// void	Command::CAP(int clientFd, User *user)
+// {
+// 	if (this->GetParameters()[0] == "LS") // liste les capacités disponible pour les clients
+// 	{
+// 		std::string response = "CAP * LS :multi-prefix\r\n";
+// 		send(user->GetFd(), response.c_str(), response.length(), 0);
+// 		std::cout<<"response : "<<response<<std::endl;
+// 	}
+// 	if (!(this->GetParameters()[0].compare("REQ"))) // demande l'obtemtion d'une capacité
+// 	{
+// 		std::string response = "CAP * ACK multi-prefix\r\n";
+// 		send(user->GetFd(), response.c_str(), response.length(), 0);
+// 		std::cout<<"response : "<<response<<std::endl;
+//     }
+// 	if (!(this->GetParameters()[0].compare("END"))) // peut-etre ajouter des infos supplementaires
+// 	{
+// 		std::string response = "001 " +(user->GetNickName())+": Bienvenue sur le serveur Irc\r\n";
+// 		send(user->GetFd(), response.c_str(), response.length(), 0);
+// 	}
+// }
+
+void	Command::PING(User *user, Server *server)
+>>>>>>> 186ec1c18688e3b19f1b9adf93bef130ca5249fe
 {
 	(void)server;
-	(void)user;
 
 	std::cout << this->_name << std::endl;
 	std::string pongMessage = "PONG :" + this->_name + "\r\n";
-	send(clientFd, pongMessage.c_str(), pongMessage.size(), 0);
+	send(user->GetFd(), pongMessage.c_str(), pongMessage.size(), 0);
 }
 
-void	Command::OPER(int clientFd, User *user, Server *server)
+void	Command::OPER(User *user, Server *server)
 {
 	std::string	success_msg = "381 :You are now an IRC operator\r\n";
-	(void)clientFd;
 	if (this->GetParameters()[1] == server->GetServerPassword())
 	{
 		if (user->GetOperator() == true)
