@@ -8,7 +8,7 @@ class User
 {
 	public:
 	User();
-	// ~User();
+	~User();
 
 	void		SetFd(int fd);
 	void		SetUsername(std::string username);

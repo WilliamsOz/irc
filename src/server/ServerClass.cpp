@@ -64,7 +64,6 @@ void	Server::AddUser()
         return ;
 	}
 	_users[newUser->GetFd()] = newUser;
-    // std::cout << "New client connected." << std::endl;
 	return ;
 }
 

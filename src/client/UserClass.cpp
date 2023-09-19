@@ -5,10 +5,10 @@ User::User() : _isAuth(false)
 	return ;
 }
 
-// User::~User()
-// {
-// 	return ;
-// }
+User::~User()
+{
+	return ;
+}
 
 void	User::SetUsername(std::string username)
 {

@@ -1,15 +1,5 @@
 ﻿#include "irc.hpp"
 
-void	Command::ExecCommand(int clientFd, Server *server)
-{
-	if (this->_commands.find(this->_name) != _commands.end())
-	{
-		(this->*this->_commands[this->_name])(server->GetUserByFd(clientFd), server);
-	}
-	else
-		std::cout << "Unknown command -> " << this->_name << "\n";
-}
-
 Command::Command(std::string src)
 {
 	size_t	pos = 0;
@@ -36,6 +26,21 @@ Command::Command(std::string src)
 		src = src.erase(0, pos + 1);
 	}
 	this->SetUpCommandsContainer();
+}
+
+Command::~Command()
+{
+	return ;
+}
+
+void	Command::ExecCommand(int clientFd, Server *server)
+{
+	if (this->_commands.find(this->_name) != _commands.end())
+	{
+		(this->*this->_commands[this->_name])(server->GetUserByFd(clientFd), server);
+	}
+	else
+		std::cout << "Unknown command -> " << this->_name << "\n";
 }
 
 void	Command::SetUpCommandsContainer()
@@ -139,11 +144,6 @@ void	Command::PING(User *user, Server *server)
 }
 
 
-// void	Command::SendToChannel()
-// {
-		// verifie que le chan existe
-		// // que le user n'est banne du channel
-// }
 
 void	Command::SendToUser(User *user, Server *server)
 {
@@ -171,10 +171,6 @@ void	Command::PRIVMSG(User *user, Server *server)
 	this->SendToUser(user, server);
 }
 
-Command::~Command()
-{
-}
-
 std::string	Command::GetCmdName()
 {
 	return(this->_name);
@@ -184,3 +180,9 @@ std::vector<std::string>	Command::GetParameters()
 {
 	return (this->_param);
 }
+
+// void	Command::SendToChannel()
+// {
+		// verifie que le chan existe
+		// // que le user n'est banne du channel
+// }
