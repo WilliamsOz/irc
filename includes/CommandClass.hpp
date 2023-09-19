@@ -1,4 +1,4 @@
-#ifndef COMMANDCLASS_HPP
+﻿#ifndef COMMANDCLASS_HPP
 # define COMMANDCLASS_HPP
 
 #include "irc.hpp"
@@ -13,22 +13,28 @@ class Command
 	Command(std::string src);
 	~Command();
 
+	//getter
+	std::vector<std::string>	GetParameters();
 	std::string					GetCmdName();
+
+	// utils
 	void						ExecCommand(int clientFd, Server *server);
 	void						SetUpCommandsContainer();
-	// void addCommand(const std::string& commandName, std::function<void(int, User *)> commandFunction);
+	// void 						SendToChannel(User *user, Server *server);
+	void 						SendToUser(User *user, Server *server);
 	// toutes les commandes
 	void						JOIN(User *user, Server *server);
 	void						PING(User *user, Server *server);
 	void						NICK(User *user, Server *server);
 	void						USER(User *user, Server *server);
 	void						PASS(User *user, Server *server);
+	void						CAP(User *user, Server *server);
+	void						PRIVMSG(User *user, Server *server);
 
 	private:
 	std::string									_name;
 	std::vector<std::string>					_param;
 	std::map<std::string, CommandFunctionPointer>	_commands;
 };
-
 
 #endif

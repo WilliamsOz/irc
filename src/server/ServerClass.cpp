@@ -1,6 +1,6 @@
 # include "irc.hpp"
 
-void	Server::signal_handler(int)
+void	Server::SignalHandler(int)
 {
 	g_signal = true;
 }
@@ -26,6 +26,17 @@ User*	Server::GetUserByFd(int fd)
 	userFound = this->_users.find(fd)->second;
 	return userFound;
 }
+
+int		Server::GetFdByNickName(std::string nickName) 
+{
+	for (std::map<int, User *>::iterator it =_users.begin(); it != _users.end(); it++)
+	{
+		if (it->second->GetNickname() == nickName)
+			return (it->second->GetFd());
+	}
+	return (-1);
+}
+
 
 void	Server::AddUser()
 {
@@ -128,7 +139,7 @@ void	Server::LaunchServer()
 		return ;
 	}
 
-	signal(SIGINT, Server::signal_handler);
+	signal(SIGINT, Server::SignalHandler);
 
 	this->_clientEvent.events = EPOLLIN; // listen event
 	int numEvents;
@@ -182,4 +193,16 @@ void	Server::LaunchServer()
     close(this->_epollfd);
 
 	return ;
+}
+
+
+void        Server::SendMessagetoClient(User* recipient, std::string msg)
+{
+	int			bytes_sent;
+	int 		len = msg.size();
+
+	if ((bytes_sent = send(recipient->GetFd(), msg.c_str(), len, 0 )) != len)
+		return ;
+		// throw std::invalid_argument("send");
+	// client->setLastActiveTime();
 }
