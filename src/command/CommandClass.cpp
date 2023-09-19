@@ -50,7 +50,7 @@ void	Command::SetUpCommandsContainer()
     _commands["CAP"] = &Command::CAP;
 	_commands["PRIVMSG"] =&Command::PRIVMSG;
     _commands["USER"] = &Command::USER;
-	_commads["NICK"] = &Command::USER;
+	_commands["NICK"] = &Command::USER;
 	// _commands["JOIN"] = &Command::JOIN;
 }
 
