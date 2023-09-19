@@ -22,6 +22,7 @@ class Server
 	std::string	GetServerPassword( void ) { return(this->_password); }
 	int			GetEpollFd();
 	epoll_event*	GetClientEvent();
+	std::map<int, User *>&	GetUsers();
 
 	private:
 

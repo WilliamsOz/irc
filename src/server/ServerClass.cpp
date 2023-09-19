@@ -37,6 +37,10 @@ int		Server::GetFdByNickName(std::string nickName)
 	return (-1);
 }
 
+std::map<int, User *>&	Server::GetUsers()
+{
+	return (this->_users);
+}
 
 void	Server::AddUser()
 {
@@ -59,16 +63,8 @@ void	Server::AddUser()
 		std::cerr << "Error : Cannot add client socket in epoll group." << std::endl;
         return ;
 	}
-	std::string welcomeMessage = "001 YourNickname :Welcome to the IR`C Server! Your connection has been established successfully.\r\n";
-	// remplacer YourNickname par le pseudo de l'utilisateur
-	int bytesSent = send(newUser->GetFd(), welcomeMessage.c_str(), welcomeMessage.size(), 0);
-	if (bytesSent == -1)
-	{
-	    std::cerr << "Error sending welcome message." << std::endl;
-	    return ;
-	}
-	_users.insert(std::make_pair(newUser->GetFd(), newUser));
-    std::cout << "New client connected." << std::endl;
+	_users[newUser->GetFd()] = newUser;
+    // std::cout << "New client connected." << std::endl;
 	return ;
 }
 
@@ -91,7 +87,6 @@ void	Server::LaunchServer()
 		return ;
 	}
 	std::cout << "Socket server successfully created." << std::endl;
-
 
 	// setup du server (struct)
     std::memset(&this->_serverAddress, 0, sizeof(this->_serverAddress));
@@ -125,6 +120,7 @@ void	Server::LaunchServer()
 		close(this->_socketServer);
 		return ;
 	}
+
 	// creation du groupe d'event epoll et set socket fd
 	this->_serverEvent.events = EPOLLIN; // listen event
 	this->_serverEvent.data.fd = this->_socketServer;
@@ -141,11 +137,10 @@ void	Server::LaunchServer()
 
 	signal(SIGINT, Server::SignalHandler);
 
-	this->_clientEvent.events = EPOLLIN; // listen event
+	this->_clientEvent.events = EPOLLIN;
 	int numEvents;
 	while (!g_signal)
 	{
-        // numEvents = epoll_wait(this->_epollfd, this->_events, MAX_EVENTS, -1); // attend evenement jusqu'a ce que au moin 1 evenement se produise
         numEvents = epoll_wait(this->_epollfd, this->_events, 1, -1); // traite evenement 1 par 1
         if (numEvents == -1)
 		{
@@ -155,14 +150,14 @@ void	Server::LaunchServer()
         }
         for (int i = 0; i < numEvents; i++)
 		{
-            if (this->_events[i].data.fd == this->_socketServer) // nouvelle connexion en attente
+            if (this->_events[i].data.fd == this->_socketServer)
 			{
 				this->AddUser();
             }
-			else // client deja connecte qui envoi des données
+			else
 			{
                 char buffer[1024];
-                int bytesRead = recv(this->_events[i].data.fd, buffer, sizeof(buffer), 0); // read depuis fd du client
+                int bytesRead = recv(this->_events[i].data.fd, buffer, sizeof(buffer), 0);
 				if (bytesRead <= 0) // fermer proprement tout les fd + revoir epoll_ctl 3e argument
 				{
 					// supprimer user du container
@@ -170,12 +165,10 @@ void	Server::LaunchServer()
                     epoll_ctl(this->_epollfd, EPOLL_CTL_DEL, this->_events[i].data.fd, &this->_clientEvent);
                     std::cout << "Client disconnected." << std::endl;
                 }
-				else // interpreter ici les input du client ->nessrine
+				else
 				{
                     buffer[bytesRead] = '\0';
 					std::string input = buffer;
-					// this->ParseInput(input, this->_events[i].data.fd); // amodifier
-					// boucle while pour recuperer toutes les infos du nouvel user qui se connecte
 					size_t pos = 0;
 					while ((pos = input.find('\n')) != std::string::npos)
 					{
@@ -188,7 +181,6 @@ void	Server::LaunchServer()
         }
     }
 
-	// devra etre supprimer lorsque les destructeurs seront codé
     close(this->_socketServer);
     close(this->_epollfd);
 

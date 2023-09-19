@@ -44,8 +44,8 @@ void	Command::SetUpCommandsContainer()
     _commands["PING"] = &Command::PING;
     _commands["CAP"] = &Command::CAP;
 	_commands["PRIVMSG"] =&Command::PRIVMSG;
+    _commands["USER"] = &Command::USER;
 	// _commands["JOIN"] = &Command::JOIN;
-    // _commands["USER"] = &Command::USER;
 }
 
 // void	Command::JOIN(int clientFd, User *user)
@@ -59,39 +59,26 @@ void	Command::PASS(User *user, Server *server)
 	{
 		if (this->_param[0] != server->GetServerPassword())
 		{
-			// supprimer user du container (class)channel et (class)server
+			// std::map<int, User*>::iterator it = (server->GetUsers()).find(user->GetFd());
+			std::string message = "464 : Password incorrect.\r\n";
+			send(user->GetFd(), message.c_str(), message.size(), 0);
+            epoll_ctl(server->GetEpollFd(), EPOLL_CTL_DEL, user->GetFd(), server->GetClientEvent());
+			// (server->GetUsers()).erase(it); // -> segfault, a mettre dans destructeur
 			close(user->GetFd());
-    	    epoll_ctl(server->GetEpollFd(), EPOLL_CTL_DEL, user->GetFd(), server->GetClientEvent());
-			std::cout << user->GetNickname() << " wrong password" << std::endl;
 		}
 		else
 		{
+			std::string welcomeMessage = "001 : Welcome to the IR`C Server! Your connection has been established successfully.\r\n";
+			int bytesSent = send(user->GetFd(), welcomeMessage.c_str(), welcomeMessage.size(), 0);
+			if (bytesSent == -1)
+			{
+			    std::cerr << "Error sending welcome message." << std::endl;
+			    return ;
+			}
 			user->SetAuth(true);
-			std::cout << user->GetNickname() << " good password" << std::endl;
 		}
 	}
 }
-
-// void	Command::CAP(int clientFd, User *user)
-// {
-// 	if (this->GetParameters()[0] == "LS") // liste les capacités disponible pour les clients
-// 	{
-// 		std::string response = "CAP * LS :multi-prefix\r\n";
-// 		send(user->GetFd(), response.c_str(), response.length(), 0);
-// 		std::cout<<"response : "<<response<<std::endl;
-// 	}
-// 	if (!(this->GetParameters()[0].compare("REQ"))) // demande l'obtemtion d'une capacité
-// 	{
-// 		std::string response = "CAP * ACK multi-prefix\r\n";
-// 		send(user->GetFd(), response.c_str(), response.length(), 0);
-// 		std::cout<<"response : "<<response<<std::endl;
-//     }
-// 	if (!(this->GetParameters()[0].compare("END"))) // peut-etre ajouter des infos supplementaires
-// 	{
-// 		std::string response = "001 " +(user->GetNickName())+": Bienvenue sur le serveur Irc\r\n";
-// 		send(user->GetFd(), response.c_str(), response.length(), 0);
-// 	}
-// }
 
 void	Command::CAP(User *user, Server *server)
 {
@@ -116,13 +103,39 @@ void	Command::CAP(User *user, Server *server)
 	}
 }
 
+void	Command::USER(User *user, Server *server)
+{
+	(void)server;
+
+	if (user->GetAuth() == true)
+	{
+		user->SetUsername(this->_param[0]);
+		user->SetHostname(this->_param[1]);
+		user->SetServername(this->_param[2]);
+		user->SetRealname(this->_param[3]);
+	}
+	return ;
+}
+
+void	Command::NICK(User *user, Server *server)
+{
+	(void)server;
+	if (user->GetAuth() == true)
+		user->SetNickname(this->_param[0]);
+	return ;
+}
+
 void	Command::PING(User *user, Server *server)
 {
 	(void)server;
 
-	std::cout << this->_name << std::endl;
-	std::string pongMessage = "PONG :" + this->_name + "\r\n";
-	send(user->GetFd(), pongMessage.c_str(), pongMessage.size(), 0);
+	if (user->GetAuth())
+	{
+		std::cout << this->_name << std::endl;
+		std::string pongMessage = "PONG :" + this->_name + "\r\n";
+		send(user->GetFd(), pongMessage.c_str(), pongMessage.size(), 0);
+	}
+	return ;
 }
 
 
