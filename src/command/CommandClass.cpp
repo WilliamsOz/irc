@@ -103,7 +103,7 @@ void	Command::PASS(User *user, Server *server)
 		}
 	}
 }
-
+	
 void	Command::CAP(User *user, Server *server)
 {
 	(void)server;
@@ -112,19 +112,19 @@ void	Command::CAP(User *user, Server *server)
 	{
 		std::string response = "CAP * LS :multi-prefix\r\n";
 		send(user->GetFd(), response.c_str(), response.length(), 0);
-		std::cout<<"response : "<<response<<std::endl;
+		// std::cout<<"response : "<< response <<std::endl;
 	}
 	if (!(this->GetParameters()[0].compare("REQ"))) // demande l'obtention d'une capacité
 	{
 		std::string response = "CAP * ACK multi-prefix\r\n";
 		send(user->GetFd(), response.c_str(), response.length(), 0);
-		std::cout<<"response : "<<response<<std::endl;
+		// std::cout<<"response : "<<response<<std::endl;
     }
-	if (!(this->GetParameters()[0].compare("END"))) // peut-etre ajouter des infos supplementaires?
-	{
-		std::string response = "001 " +(user->GetNickname())+": Bienvenue sur le serveur Irc\r\n";
-		send(user->GetFd(), response.c_str(), response.length(), 0);
-	}
+	// if (!(this->GetParameters()[0].compare("END"))) // peut-etre ajouter des infos supplementaires?
+	// {
+		// std::string response = "001 " +(user->GetNickname())+": Bienvenue sur le serveur Irc\r\n";
+		// send(user->GetFd(), response.c_str(), response.length(), 0);
+	// }
 }
 
 void	Command::USER(User *user, Server *server)
