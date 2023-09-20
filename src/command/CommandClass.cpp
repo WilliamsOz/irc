@@ -50,14 +50,15 @@ void	Command::SetUpCommandsContainer()
     _commands["CAP"] = &Command::CAP;
 	_commands["PRIVMSG"] =&Command::PRIVMSG;
     _commands["USER"] = &Command::USER;
-	_commands["NICK"] = &Command::USER;
-	// _commands["JOIN"] = &Command::JOIN;
+	_commands["NICK"] = &Command::NICK;
+	_commands["JOIN"] = &Command::JOIN;
 }
 
-// void	Command::JOIN(int clientFd, User *user)
-// {
-
-// }
+void	Command::JOIN(User *user, Server *server)
+{
+	(void)server;
+	(void)user;
+}
 
 void	Command::PASS(User *user, Server *server)
 {
