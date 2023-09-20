@@ -31,15 +31,15 @@ class User
 
 	private:
 
-	std::string	_nickname;
-	std::string	_username;
-	std::string	_hostname;
-	std::string	_servername;
-	std::string	_realname;
-	std::string	_mode;
-	int			_fd;
-	bool		_isAuth;
-
+	std::string				_nickname;
+	std::string				_username;
+	std::string				_hostname;
+	std::string				_servername;
+	std::string				_realname;
+	std::string				_mode;
+	int						_fd;
+	bool					_isAuth;
+	std::vector<Channel *>	_channels;
 };
 
 #endif

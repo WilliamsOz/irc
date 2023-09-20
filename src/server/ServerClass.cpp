@@ -53,7 +53,7 @@ bool	Server::HasChannel(std::string name)
 		return (false);
 }
 
-void	Server::AddChannel(User *user, std::string name)
+Channel*	Server::AddChannel(User *user, std::string name)
 {
 	(void)user;
 
@@ -61,7 +61,7 @@ void	Server::AddChannel(User *user, std::string name)
 	this->_channels[name] = newChannel;
 	newChannel->AddUser(user);
 	newChannel->AddOper(user);
-	return ;
+	return (newChannel);
 }
 
 void	Server::AddUser()

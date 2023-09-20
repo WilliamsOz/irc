@@ -69,7 +69,7 @@ void	Command::JOIN(User *user, Server *server)
 			case '#':
 				if (server->HasChannel(this->_param[i]) == false)
 				{
-					server->AddChannel(user, this->_param[i]);
+					server->AddChannel(user, this->_param[i]); // recuperer instance de channel
 					user->JoinChannel(this->_param[i]);
 				}
 				// else
