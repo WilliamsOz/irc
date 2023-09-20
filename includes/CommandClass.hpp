@@ -1,8 +1,6 @@
 ﻿#ifndef COMMANDCLASS_HPP
 # define COMMANDCLASS_HPP
 
-#include "irc.hpp"
-
 class Command;
 
 typedef void (Command::*CommandFunctionPointer)(User *, Server *);

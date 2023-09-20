@@ -10,6 +10,11 @@ User::~User()
 	return ;
 }
 
+void	User::JoinChannel(std::string channel)
+{
+	
+}
+
 void	User::SetUsername(std::string username)
 {
 	this->_username = username;

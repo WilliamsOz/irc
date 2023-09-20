@@ -1,15 +1,17 @@
 ﻿#ifndef USERCLASS_HPP
 # define USERCLASS_HPP
 
-# include <sys/socket.h>
-# include <sys/epoll.h>
-
 class User
 {
 	public:
+
 	User();
 	~User();
 
+	// FUNCTION
+	void		JoinChannel(std::string channel);
+
+	// SETTER
 	void		SetFd(int fd);
 	void		SetUsername(std::string username);
 	void		SetHostname(std::string hostname);
@@ -17,6 +19,8 @@ class User
 	void		SetRealname(std::string realname);
 	void		SetNickname( std::string nickname );
 	void		SetAuth(bool status);
+
+	// GETTER
 	bool		GetAuth();
 	int			GetFd();
 	std::string	GetNickname( void );
@@ -26,7 +30,6 @@ class User
 	std::string	GetRealname(void);
 
 	private:
-	// reference de tout les channels auquels le user est connecte
 
 	std::string	_nickname;
 	std::string	_username;
@@ -36,6 +39,7 @@ class User
 	std::string	_mode;
 	int			_fd;
 	bool		_isAuth;
+
 };
 
 #endif
