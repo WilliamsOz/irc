@@ -5,7 +5,7 @@ void	Server::SignalHandler(int)
 	g_signal = true;
 }
 
-Server::Server(int port, char *password): _port(port), _password(password)
+Server::Server(int port, const char *password): _port(port), _password(password)
 {
 	return ;
 }

@@ -9,7 +9,7 @@ class Server
 {
 	public:
 
-	Server(int port, char *password);
+	Server(int port, const char *password);
 	// ~Server();
 
 	void		AddUser();
@@ -27,7 +27,7 @@ class Server
 	private:
 
 	int								_port;
-	std::string						_password;
+	const char *					_password;
 	int								_socketServer;
 	sockaddr_in						_serverAddress;
 	int								_epollfd;
