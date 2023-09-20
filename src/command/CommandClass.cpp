@@ -54,11 +54,28 @@ void	Command::SetUpCommandsContainer()
 	_commands["JOIN"] = &Command::JOIN;
 }
 
+
+// /JOIN #moncanal ---------------> creer/rejoins un channel et deviens op si non existant
+// /JOIN #moncanal1 #moncanal2 #moncanal3 ---------------> creer/rejoins plusieurs channel et deviens op si non existant
 void	Command::JOIN(User *user, Server *server)
 {
 	(void)server;
 	(void)user;
+
+	// for (unsigned long i = 0; i < this->_param.size(); i++)
+	// 	std::cout << "ARG : " << this->_param[i] << std::endl;
 }
+
+
+// /MODE #moncanal +itk ---------------> applique les modes sur le/les channel :
+//																				- +i ---------------> invite only
+//																				- +t ---------------> topic changeable seulement par operator
+//																				- +k ---------------> definis mdp pour le channel
+// /MODE #moncanal +l 10 ---------------> definis le nombre max d'utilisateur pouvant entrer dans le channel
+// void	Command::MODE(User *user, Server *server)
+// {
+
+// }
 
 void	Command::PASS(User *user, Server *server)
 {
