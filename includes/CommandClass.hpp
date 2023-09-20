@@ -30,6 +30,7 @@ class Command
 	void						PASS(User *user, Server *server);
 	void						CAP(User *user, Server *server);
 	void						PRIVMSG(User *user, Server *server);
+	void						WHOIS(User *user, Server *server);
 
 	private:
 	std::string									_name;

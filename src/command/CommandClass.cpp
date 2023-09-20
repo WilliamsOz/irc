@@ -25,6 +25,8 @@ Command::Command(std::string src)
 		}
 		src = src.erase(0, pos + 1);
 	}
+	for (size_t i = 0 ; i < _param.size() ; i++)
+		std::cout << this->_param[i] << "\n";
 	this->SetUpCommandsContainer();
 }
 
@@ -52,6 +54,38 @@ void	Command::SetUpCommandsContainer()
     _commands["USER"] = &Command::USER;
 	_commands["NICK"] = &Command::NICK;
 	_commands["JOIN"] = &Command::JOIN;
+	_commands["WHOIS"] = &Command::WHOIS;
+}
+
+static void	printWhoIs(int fd, User *user)
+{
+	std::string message;
+
+	std::cout << user->GetRealname() << std::endl;
+
+	message = "311 " + user->GetNickname() + " :" + user->GetUsername() + " " + user->GetHostname() + " :" + user->GetRealname() + "\r\n";
+	send(fd, message.c_str(), message.size(), 0);
+	message = "End of /WHOIS list 318\r\n";
+	send(fd, message.c_str(), message.size(), 0);
+	return ;
+}
+
+void	Command::WHOIS(User *user, Server *server)
+{
+	if (user->GetAuth() == false)
+		return ;
+	// if (this->_param[0].at(0) == '#') -> whois sur un channel
+	for (size_t index = 0; index < this->_param.size() ; index ++)
+	{
+		int fdToFind = -1;
+		fdToFind = server->GetFdByNickName(this->_param[index]);
+		if (fdToFind != -1)
+			printWhoIs(user->GetFd(), server->GetUserByFd(fdToFind));
+		// else
+
+			// std::string message = this->_param[];
+	}
+	return ;
 }
 
 
