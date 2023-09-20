@@ -27,6 +27,9 @@ const int MAX_EVENTS = 10;
 # include "ChannelClass.hpp"
 # include "CommandClass.hpp"
 
+
+# include "NumericReplies.hpp"
+
 // GLOBAL
 extern volatile sig_atomic_t g_signal;
 
