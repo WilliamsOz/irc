@@ -55,13 +55,22 @@ bool	Server::HasChannel(std::string name)
 
 Channel*	Server::AddChannel(User *user, std::string name)
 {
-	(void)user;
-
 	Channel *newChannel = new Channel(name);
 	this->_channels[name] = newChannel;
 	newChannel->AddUser(user);
 	newChannel->AddOper(user);
 	return (newChannel);
+}
+
+void	Server::AddUserToChannel(User *user, std::string channel)
+{
+	Channel *chan;
+
+	std::map<std::string, Channel *>::iterator it;
+	it = this->_channels.find(channel);
+	chan = it->second;
+	chan->AddUser(user);
+	return ;
 }
 
 void	Server::AddUser()

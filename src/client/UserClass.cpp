@@ -10,9 +10,10 @@ User::~User()
 	return ;
 }
 
-void	User::JoinChannel(std::string channel)
+void	User::JoinChannel(Channel *toJoin)
 {
-	
+	this->_channels.push_back(toJoin);
+	return ;
 }
 
 void	User::SetUsername(std::string username)

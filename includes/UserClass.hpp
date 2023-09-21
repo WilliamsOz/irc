@@ -9,7 +9,7 @@ class User
 	~User();
 
 	// FUNCTION
-	void		JoinChannel(std::string channel);
+	void		JoinChannel(Channel *toJoin);
 
 	// SETTER
 	void		SetFd(int fd);

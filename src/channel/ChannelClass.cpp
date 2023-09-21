@@ -1,6 +1,11 @@
 # include "irc.hpp"
 
-Channel::Channel(const std::string name) : _name(name), _mode("none")
+Channel::Channel() : _modes("none")
+{
+	return ;
+}
+
+Channel::Channel(const std::string name) : _name(name), _modes("none")
 {
 	return ;
 }
@@ -8,6 +13,11 @@ Channel::Channel(const std::string name) : _name(name), _mode("none")
 Channel::~Channel()
 {
 	return ;
+}
+
+std::string	Channel::GetName()
+{
+	return (this->_name);
 }
 
 void	Channel::AddUser(User *toAdd)
@@ -19,5 +29,11 @@ void	Channel::AddUser(User *toAdd)
 void	Channel::AddOper(User *toAdd)
 {
 	this->_opers.push_back(toAdd);
+	return ;
+}
+
+void	Channel::SetModes(std::string modes)
+{
+	this->_modes = modes;
 	return ;
 }
