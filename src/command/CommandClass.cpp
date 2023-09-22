@@ -132,6 +132,7 @@ void	Command::JOIN(User *user, Server *server)
 					modes = this->_param[i].substr(pos, len);
 					chan->SetModes(modes);
 				}
+				break;
 		}
 	}
 }
@@ -161,16 +162,7 @@ void	Command::PASS(User *user, Server *server)
 			close(user->GetFd());
 		}
 		else
-		{
-			std::string welcomeMessage = "001 : Welcome to the IR`C Server! Your connection has been established successfully.\r\n";
-			int bytesSent = send(user->GetFd(), welcomeMessage.c_str(), welcomeMessage.size(), 0);
-			if (bytesSent == -1)
-			{
-			    std::cerr << "Error sending welcome message." << std::endl;
-			    return ;
-			}
 			user->SetAuth(true);
-		}
 	}
 }
 	
@@ -214,8 +206,20 @@ void	Command::USER(User *user, Server *server)
 void	Command::NICK(User *user, Server *server)
 {
 	(void)server;
+
 	if (user->GetAuth() == true)
+	{
 		user->SetNickname(this->_param[0]);
+		std::string welcomeMessage = RPL_WELCOME(user->GetNickname());
+		// std::string welcomeMessage = "001 : Welcome to the IR`C Server! Your connection has been established successfully.\r\n";
+		// int bytesSent = send(user->GetFd(), welcomeMessage.c_str(), welcomeMessage.size(), 0);
+		int bytesSent = send(user->GetFd(), welcomeMessage.c_str(), welcomeMessage.size(), 0);
+		if (bytesSent == -1)
+		{
+		    std::cerr << "Error sending welcome message." << std::endl;
+		    return ;
+		}
+	}
 	return ;
 }
 
