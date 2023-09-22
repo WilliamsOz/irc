@@ -98,7 +98,7 @@
 # define CMD_PING(token) ("PING :" + token + "\r\n")
 
             /* = = =    JOIN     = = = */
-# define RPL_JOIN(chanel) (":localhost JOIN #" + chanel + "\r\n") // used
+# define RPL_JOIN(nickname, chanel) (':' + nickname + " JOIN #" + chanel + "\r\n") // used
 
 # define PART_CHANEL(nickname, username, cmd, chanel) (user_id(nickname, username, cmd) + chanel + "\r\n")
 

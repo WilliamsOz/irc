@@ -105,21 +105,23 @@ void	Command::JOIN(User *user, Server *server)
 				if (server->HasChannel(this->_param[i]) == false)
 				{
 					this->_param[i].erase(0, 1);
-					chan = server->AddChannel(this->_param[i]); // utiliser constructor parametrique ?
+					chan = server->AddChannel(this->_param[i]);
 					if (chan->HasUser(user) == false)
 					{
 						user->JoinChannel(chan);
 						chan->AddUser(user);
 						chan->AddOper(user);
-						replies = RPL_JOIN(chan->GetName());
+						replies = RPL_JOIN(user->GetNickname(), chan->GetName());
 						send(user->GetFd(), replies.c_str(), replies.size(), 0);
 						if (chan->GetTopic().empty() == false)
 						{
 							replies = RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic());
 							send(user->GetFd(), replies.c_str(), replies.size(), 0);
 						}
-						replies = RPL_NAMREPLY(user->GetNickname(), chan->GetName(), chan->GetClientList()); //
-						// std::cout << replies << std::endl;
+						std::string userNickname = "@" + user->GetNickname();
+						replies = RPL_NAMREPLY(userNickname, chan->GetName(), chan->GetClientList());
+						send(user->GetFd(), replies.c_str(), replies.size(), 0);
+						replies = RPL_ENDOFNAMES(user->GetNickname(), chan->GetName());
 						send(user->GetFd(), replies.c_str(), replies.size(), 0);
 					}
 				}
