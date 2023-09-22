@@ -5,7 +5,7 @@
 
             /* = = =    TO CONNECT    = = = */
 // 001
-# define RPL_WELCOME(nickname) (":localhost 001 " + nickname + " :Welcome to the Internet Relay Network " + nickname + "\r\n")
+# define RPL_WELCOME(nickname) (":localhost 001 " + nickname + " :Welcome to the Internet Relay Network " + nickname + "\r\n") // used
 // 002
 # define RPL_YOURHOST(nickname, version) (":localhost 002 " + nickname + " :Your host is localhost, " + "running version " + version + "\r\n")
 // 003
@@ -98,13 +98,13 @@
 # define CMD_PING(token) ("PING :" + token + "\r\n")
 
             /* = = =    JOIN     = = = */
-# define JOINING_MSG(nickname, username, cmd, chanel) (user_id(nickname, username, cmd) + chanel + "\r\n")
+# define RPL_JOIN(chanel) (":localhost JOIN #" + chanel + "\r\n") // used
 
 # define PART_CHANEL(nickname, username, cmd, chanel) (user_id(nickname, username, cmd) + chanel + "\r\n")
 
 # define SET_CHANEL(nickname, username, cmd, chanel) (user_id(nickname, username, cmd) + ":" + chanel + "\r\n")
 // 353
-# define RPL_NAMREPLY(nickname, chanel, list_client) (":localhost 353 " + nickname + " = " + chanel + " :" + list_client +"\r\n")
+# define RPL_NAMREPLY(nickname, chanel, list_client) (":localhost 353 " + nickname + " = " + chanel + " :" + list_client +"\r\n") // used
 // 366
 # define RPL_ENDOFNAMES(nickname, chanel) (":localhost 366 " + nickname + " " + chanel + " :End of /NAMES list.\r\n")
 // 403
@@ -139,7 +139,7 @@
 // 331
 #define RPL_NOTOPIC(nickname, chanel) (":localhost 331 " + nickname + " " + chanel + " :No topic is set\r\n")
 // 332
-#define RPL_TOPIC(nickname, chanel, topic) (":localhost 332 " + nickname + " " + chanel + " " + topic + "\r\n")
+#define RPL_TOPIC(nickname, chanel, topic) (":localhost 332 " + nickname + " " + chanel + " : " + topic + "\r\n") // used
 // 333
 #define ROL_TOPICWHOTIME(nickname, chanel, concerned_client_nickname, time ) (":localhost 333 " + nickname +  + " " + chanel + " " concerned_client_nickname + " " + time + "\r\n")
 

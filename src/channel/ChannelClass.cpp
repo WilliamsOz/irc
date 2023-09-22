@@ -1,11 +1,11 @@
 # include "irc.hpp"
 
-Channel::Channel() : _modes("none")
+Channel::Channel() : _modes("none"), _topic("")
 {
 	return ;
 }
 
-Channel::Channel(const std::string name) : _name(name), _modes("none")
+Channel::Channel(const std::string name) : _name(name), _modes("none"), _topic("")
 {
 	return ;
 }
@@ -18,6 +18,45 @@ Channel::~Channel()
 std::string	Channel::GetName()
 {
 	return (this->_name);
+}
+
+std::string	Channel::GetModes()
+{
+	return (this->_modes);
+}
+
+std::string Channel::GetTopic()
+{
+	return (this->_topic);
+}
+
+bool	Channel::IsOper(User *toCheck)
+{
+	User *user = NULL;
+
+	for (std::vector<User *>::iterator it = this->_opers.begin(); it != this->_opers.end(); it++)
+	{
+		user = *it;
+		if (toCheck->GetNickname() == user->GetNickname())
+			return (true);
+	}
+	return (false);
+}
+
+std::string	Channel::GetClientList()
+{
+	User *user = NULL;
+	std::string userInfo;
+
+	for (std::vector<User *>::iterator it = this->_users.begin(); it != this->_users.end(); it++)
+	{
+		user = *it;
+		if (this->IsOper(user) == true)
+			userInfo += '@';
+		userInfo += user->GetNickname();
+		userInfo += ' ';
+	}
+	return (userInfo);
 }
 
 void	Channel::AddUser(User *toAdd)
@@ -38,7 +77,15 @@ void	Channel::SetModes(std::string modes)
 	return ;
 }
 
-std::string	Channel::GetModes()
+
+bool	Channel::HasUser(User *user)
 {
-	return (this->_modes);
+	for (std::vector<User *>::iterator it = this->_users.begin();
+		it != this->_users.end(); it++)
+	{
+		User *usertmp = *it;
+		if (usertmp->GetNickname() == user->GetNickname())
+			return (true);
+	}
+	return (false);
 }
