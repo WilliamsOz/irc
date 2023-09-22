@@ -78,7 +78,7 @@ void	Command::JOIN(User *user, Server *server)
 					user->JoinChannel(chan);
 				}
 				else
-					server->AddUserToChannel(user, this->_param[i]);
+					server->AddUserToChannel(user, this->_param[i]); // add invite only exception
 				hasChanStr = true;
 				break;
 			case '+':

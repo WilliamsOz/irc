@@ -69,7 +69,10 @@ void	Server::AddUserToChannel(User *user, std::string channel)
 	std::map<std::string, Channel *>::iterator it;
 	it = this->_channels.find(channel);
 	chan = it->second;
-	chan->AddUser(user);
+	if (chan->GetModes().find('i') != std::string::npos)
+		chan->AddUser(user);
+	//else
+		// send
 	return ;
 }
 

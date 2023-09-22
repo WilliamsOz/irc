@@ -37,3 +37,8 @@ void	Channel::SetModes(std::string modes)
 	this->_modes = modes;
 	return ;
 }
+
+std::string	Channel::GetModes()
+{
+	return (this->_modes);
+}

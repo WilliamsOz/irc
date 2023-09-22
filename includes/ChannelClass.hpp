@@ -13,6 +13,7 @@ class Channel
 	void	AddOper(User *toAdd);
 
 	std::string GetName();
+	std::string GetModes();
 
 	void	SetModes(std::string modes);
 
