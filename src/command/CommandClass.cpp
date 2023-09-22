@@ -91,7 +91,6 @@ void	Command::WHOIS(User *user, Server *server)
 void	Command::JOIN(User *user, Server *server)
 {
 	Channel		*chan;
-	// std::string	channel;
 	std::string	modes;
 	std::string replies;
 	size_t		pos;
@@ -105,7 +104,8 @@ void	Command::JOIN(User *user, Server *server)
 			case '#':
 				if (server->HasChannel(this->_param[i]) == false)
 				{
-					chan = server->AddChannel(this->_param[i]);
+					this->_param[i].erase(0, 1);
+					chan = server->AddChannel(this->_param[i]); // utiliser constructor parametrique ?
 					if (chan->HasUser(user) == false)
 					{
 						user->JoinChannel(chan);
@@ -118,9 +118,9 @@ void	Command::JOIN(User *user, Server *server)
 							replies = RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic());
 							send(user->GetFd(), replies.c_str(), replies.size(), 0);
 						}
-						replies = RPL_NAMREPLY(user->GetNickname(), chan->GetName(), chan->GetClientList());
-						std::cout << replies << std::endl;
-						send(user->GetFd(), replies.c_str(), replies.size(), 0); // 
+						replies = RPL_NAMREPLY(user->GetNickname(), chan->GetName(), chan->GetClientList()); //
+						// std::cout << replies << std::endl;
+						send(user->GetFd(), replies.c_str(), replies.size(), 0);
 					}
 				}
 				else
