@@ -11,20 +11,21 @@ class Server
 	Server(int port, const char *password);
 	// ~Server();
 
-	void		AddUser();
-	void		LaunchServer();
-	static void SignalHandler(int);
-	bool		HasChannel(std::string name);
-	Channel*	AddChannel(User *user, std::string name);
-	void		AddUserToChannel(User *user, std::string name);
+	void								AddUser();
+	void								LaunchServer();
+	static void							SignalHandler(int);
+	bool								HasChannel(std::string name);
+	Channel*							AddChannel(User *user, std::string name);
+	void								AddUserToChannel(User *user, std::string name);
 
-	void        SendMessagetoClient(User* recipient, std::string msg);
-	int			GetFdByNickName(std::string nickName);
-	User		*GetUserByFd(int fd);
-	std::string	GetServerPassword( void ) { return(this->_password); }
-	int			GetEpollFd();
-	epoll_event*	GetClientEvent();
-	std::map<int, User *>&	GetUsers();
+	void        						SendMessagetoClient(User* recipient, std::string msg);
+	int									GetFdByNickName(std::string nickName);
+	User								*GetUserByFd(int fd);
+	std::string							GetServerPassword( void ) { return(this->_password); }
+	std::map<std::string, Channel *>	GetChannels( void ) { return(this->_channels); }
+	int									GetEpollFd();
+	epoll_event*						GetClientEvent();
+	std::map<int, User *>&				GetUsers();
 
 	private:
 
