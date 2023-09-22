@@ -42,6 +42,40 @@ std::map<int, User *>&	Server::GetUsers()
 	return (this->_users);
 }
 
+bool	Server::HasChannel(std::string name)
+{
+	std::map<std::string, Channel *>::iterator it;
+	it = this->_channels.find(name);
+
+	if (it != this->_channels.end())
+		return (true);
+	else
+		return (false);
+}
+
+Channel*	Server::AddChannel(User *user, std::string name)
+{
+	Channel *newChannel = new Channel(name);
+	this->_channels[name] = newChannel;
+	newChannel->AddUser(user);
+	newChannel->AddOper(user);
+	return (newChannel);
+}
+
+void	Server::AddUserToChannel(User *user, std::string channel)
+{
+	Channel *chan;
+
+	std::map<std::string, Channel *>::iterator it;
+	it = this->_channels.find(channel);
+	chan = it->second;
+	if (chan->GetModes().find('i') != std::string::npos)
+		chan->AddUser(user);
+	//else
+		// send
+	return ;
+}
+
 void	Server::AddUser()
 {
 	User *newUser = new User();

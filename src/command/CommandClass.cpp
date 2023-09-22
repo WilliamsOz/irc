@@ -91,14 +91,41 @@ void	Command::WHOIS(User *user, Server *server)
 
 
 // /JOIN #moncanal ---------------> creer/rejoins un channel et deviens op si non existant
-// /JOIN #moncanal1 #moncanal2 #moncanal3 ---------------> creer/rejoins plusieurs channel et deviens op si non existant
+// /JOIN #moncanal1 +ito ---------------> creer/rejoins channel + applique les modes
+// i -> invite only
+// t -> topic changeable seulement par operator
 void	Command::JOIN(User *user, Server *server)
 {
-	(void)server;
-	(void)user;
+	Channel		*chan;
+	std::string	modes;
+	size_t		pos;
+	size_t		len;
+	bool		hasChanStr = false;
 
-	// for (unsigned long i = 0; i < this->_param.size(); i++)
-	// 	std::cout << "ARG : " << this->_param[i] << std::endl;
+	for (unsigned long i = 0; i < this->_param.size(); i++)
+	{
+		switch (this->_param[i][0])
+		{
+			case '#':
+				if (server->HasChannel(this->_param[i]) == false)
+				{
+					chan = server->AddChannel(user, this->_param[i]);
+					user->JoinChannel(chan);
+				}
+				else
+					server->AddUserToChannel(user, this->_param[i]); // add invite only exception
+				hasChanStr = true;
+				break;
+			case '+':
+				if (this->_param[i][1] != '\0' && hasChanStr == true)
+				{
+					pos = 1;
+					len = (this->_param[i].length()) - 1;
+					modes = this->_param[i].substr(pos, len);
+					chan->SetModes(modes);
+				}
+		}
+	}
 }
 
 

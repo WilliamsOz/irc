@@ -1,9 +1,8 @@
 #ifndef SERVERCLASS_HPP
 # define SERVERCLASS_HPP
 
-#include "irc.hpp"
-
-class User;
+class	User;
+class	Channel;
 
 class Server
 {
@@ -15,6 +14,9 @@ class Server
 	void		AddUser();
 	void		LaunchServer();
 	static void SignalHandler(int);
+	bool		HasChannel(std::string name);
+	Channel*	AddChannel(User *user, std::string name);
+	void		AddUserToChannel(User *user, std::string name);
 
 	void        SendMessagetoClient(User* recipient, std::string msg);
 	int			GetFdByNickName(std::string nickName);
@@ -26,15 +28,16 @@ class Server
 
 	private:
 
-	int								_port;
-	const char *					_password;
-	int								_socketServer;
-	sockaddr_in						_serverAddress;
-	int								_epollfd;
-	epoll_event						_serverEvent;
-	epoll_event						_clientEvent;
-	epoll_event 					_events[MAX_EVENTS];
-	std::map<int, User *>			_users;
+	int									_port;
+	std::string							_password;
+	int									_socketServer;
+	int									_epollfd;
+	sockaddr_in							_serverAddress; // a mettre dans LaunchServer()
+	epoll_event							_serverEvent; // a mettre dans LaunchServer()
+	epoll_event							_clientEvent; // a mettre dans LaunchServer()
+	epoll_event 						_events[MAX_EVENTS]; // a mettre dans LaunchServer()
+	std::map<int, User *>				_users;
+	std::map<std::string, Channel *>	_channels;
 };
 
 # endif

@@ -17,7 +17,7 @@ const int MAX_EVENTS = 10;
 # include <bits/stdc++.h>  
 # include <csignal>
 # include <signal.h>
-# include <string.h>
+# include <string>
 # include <map>
 # include <vector>
 
