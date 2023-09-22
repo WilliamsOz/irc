@@ -2,10 +2,16 @@
 
 volatile sig_atomic_t g_signal = false;
 
-int main()
+int main(int ac, char **av)
 {
-    char pass[] = "mdp";
+	if (ac != 3)
+		return 1;
+	std::string port = av[1];
+	std::string pass = av[2];
 
-	Server server(6667, pass);
-    server.LaunchServer();
+	if (port.empty() == true || pass.empty() == true)
+		return 1;
+	Server server(atoi(port.c_str()), pass.c_str());
+	server.LaunchServer();
+	return 0;
 }

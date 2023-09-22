@@ -8,7 +8,7 @@ class Server
 {
 	public:
 
-	Server(int port, char *password);
+	Server(int port, const char *password);
 	// ~Server();
 
 	void		AddUser();
