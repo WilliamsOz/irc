@@ -11,12 +11,12 @@ class Server
 	Server(int port, const char *password);
 	// ~Server();
 
-	void								AddUser();
-	void								LaunchServer();
-	static void							SignalHandler(int);
-	bool								HasChannel(std::string name);
-	Channel*							AddChannel(User *user, std::string name);
-	void								AddUserToChannel(User *user, std::string name);
+	void		AddUser();
+	void		LaunchServer();
+	static void SignalHandler(int);
+	bool		HasChannel(std::string name);
+	Channel*	AddChannel(std::string name);
+	void		AddUserToChannel(User *user, std::string name);
 
 	void        						SendMessagetoClient(User* recipient, std::string msg);
 	int									GetFdByNickName(std::string nickName);

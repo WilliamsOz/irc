@@ -11,9 +11,14 @@ class Channel
 
 	void	AddUser(User *toAdd);
 	void	AddOper(User *toAdd);
+	bool	IsOper(User *toCheck);
 
 	std::string GetName();
 	std::string GetModes();
+	std::string GetTopic();
+	std::string	GetClientList();
+
+	bool	HasUser(User *user);
 
 	void	SetModes(std::string modes);
 
@@ -23,6 +28,7 @@ class Channel
 	std::vector<User *>	_users;
 	std::string			_modes;
 	std::vector<User *>	_opers;
+	std::string			_topic;
 };
 
 #endif

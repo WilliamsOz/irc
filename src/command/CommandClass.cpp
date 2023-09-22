@@ -101,15 +101,12 @@ void	Command::WHOIS(User *user, Server *server)
 	return ;
 }
 
-
-// /JOIN #moncanal ---------------> creer/rejoins un channel et deviens op si non existant
-// /JOIN #moncanal1 +ito ---------------> creer/rejoins channel + applique les modes
-// i -> invite only
-// t -> topic changeable seulement par operator
+// en cas de success pour join -> envoyer 
 void	Command::JOIN(User *user, Server *server)
 {
 	Channel		*chan;
 	std::string	modes;
+	std::string replies;
 	size_t		pos;
 	size_t		len;
 	bool		hasChanStr = false;
@@ -121,15 +118,32 @@ void	Command::JOIN(User *user, Server *server)
 			case '#':
 				if (server->HasChannel(this->_param[i]) == false)
 				{
-					chan = server->AddChannel(user, this->_param[i]);
-					user->JoinChannel(chan);
+					this->_param[i].erase(0, 1);
+					chan = server->AddChannel(this->_param[i]); // utiliser constructor parametrique ?
+					if (chan->HasUser(user) == false)
+					{
+						user->JoinChannel(chan);
+						chan->AddUser(user);
+						chan->AddOper(user);
+						replies = RPL_JOIN(chan->GetName());
+						send(user->GetFd(), replies.c_str(), replies.size(), 0);
+						if (chan->GetTopic().empty() == false)
+						{
+							replies = RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic());
+							send(user->GetFd(), replies.c_str(), replies.size(), 0);
+						}
+						replies = RPL_NAMREPLY(user->GetNickname(), chan->GetName(), chan->GetClientList()); //
+						// std::cout << replies << std::endl;
+						send(user->GetFd(), replies.c_str(), replies.size(), 0);
+					}
 				}
 				else
-					server->AddUserToChannel(user, this->_param[i]); // add invite only exception
+					server->AddUserToChannel(user, this->_param[i]);
 				hasChanStr = true;
 				break;
 			case '+':
-				if (this->_param[i][1] != '\0' && hasChanStr == true)
+				if (this->_param[i][1] != '\0' && hasChanStr == true
+					&& server->HasChannel(chan->GetName()) == false)
 				{
 					pos = 1;
 					len = (this->_param[i].length()) - 1;
@@ -217,8 +231,6 @@ void	Command::NICK(User *user, Server *server)
 	{
 		user->SetNickname(this->_param[0]);
 		std::string welcomeMessage = RPL_WELCOME(user->GetNickname());
-		// std::string welcomeMessage = "001 : Welcome to the IR`C Server! Your connection has been established successfully.\r\n";
-		// int bytesSent = send(user->GetFd(), welcomeMessage.c_str(), welcomeMessage.size(), 0);
 		int bytesSent = send(user->GetFd(), welcomeMessage.c_str(), welcomeMessage.size(), 0);
 		if (bytesSent == -1)
 		{
