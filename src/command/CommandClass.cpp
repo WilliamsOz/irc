@@ -70,9 +70,10 @@ void	Command::WHOIS(User *user, Server *server)
 {
 	if (user->GetAuth() == false)
 		return ;
+	for (size_t i = 0 ; i < _param[0].size() ; i++)
+		std::cout << "ICICICICICI" << std::endl;
 	// if (this->_param[0].at(0) == '#') -> whois sur un channel
 	// else () -> 403 aucun channel trouver
-	std::cout << this->_param[0] << std::endl;
 	for (size_t index = 0; index < this->_param.size() ; index ++)// ->whois sur un user
 	{
 		int fdToFind = -1;
