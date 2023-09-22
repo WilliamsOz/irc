@@ -74,18 +74,22 @@ void	Command::WHOIS(User *user, Server *server)
 {
 	if (user->GetAuth() == false)
 		return ;
-	// if (this->_param[0].at(0) == '#') // -> whois sur un channel
-	// {
-		// std::map<std::string, Channel *>	channels;
-	// 	for (size_t index = 0 ; index < this->_param.size() ; index++)
-	// 	{
-	// 		// if (channels.find(this->_param[index]))
-	// 			// std::cout << "Cest bon" << std::endl;
-	// 		// else
-	// 			// std::cout << "NOP YA R" << std::endl;
-	// 	}
-	// }
-	// else () -> 403 aucun channel trouver
+	if (server->GetChannels().empty() == false && this->_param[0].at(0) == '#')
+	{
+		Channel	channels;
+		bool	isFind = false;
+
+		channels = server->GetChannelsByName(this->_param[0], &isFind);
+		if (isFind == true)
+			std::cout << "Cest bon" << std::endl; // trouver
+		else
+			std::cout << "NOP YA R" << std::endl; //pas trouver
+	}
+	else
+	{
+		std::cout << "ICICI" << std::endl; //pas trouver
+		return ;
+	}
 	for (size_t index = 0; index < this->_param.size() ; index++)
 	{
 		int fdToFind = -1;

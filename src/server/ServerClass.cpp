@@ -32,10 +32,28 @@ std::string	Server::GetServerPassword( void )
 	return(this->_password);
 }
 
-std::map<std::string, Channel *>	&Server::GetChannelsByName( void )
+std::map<std::string, Channel *>	Server::GetChannels( void )
 {
-
 	return this->_channels;
+}
+
+
+Channel&	Server::GetChannelsByName(std::string name, bool *isFind)
+{
+	std::map<std::string, Channel *> channelToFind;
+
+	if (name.at(0) == '#')
+		name.erase(0);
+	for (std::map<std::string, Channel *>::iterator it = this->_channels.begin() ; it != this->_channels.end() ; it++)
+	{
+		if (it->first == name)
+		{
+			*isFind = true;
+			return *it->second;
+		}
+	}
+	*isFind = false;
+	return *this->_channels.begin()->second;
 }
 
 

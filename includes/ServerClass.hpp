@@ -22,7 +22,8 @@ class Server
 	int									GetFdByNickName(std::string nickName);
 	User								*GetUserByFd(int fd);
 	std::string							GetServerPassword( void );
-	std::map<std::string, Channel *>	&GetChannelsByName( void );
+	std::map<std::string, Channel *>	GetChannels( void );
+	Channel&							GetChannelsByName(std::string name, bool *isFind);
 	int									GetEpollFd();
 	epoll_event*						GetClientEvent();
 	std::map<int, User *>&				GetUsers();
