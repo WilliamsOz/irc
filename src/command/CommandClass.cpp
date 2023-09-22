@@ -76,7 +76,7 @@ void	Command::WHOIS(User *user, Server *server)
 		return ;
 	// if (this->_param[0].at(0) == '#') // -> whois sur un channel
 	// {
-	// 	// std::map<std::string, Channel *>	channels;
+		// std::map<std::string, Channel *>	channels;
 	// 	for (size_t index = 0 ; index < this->_param.size() ; index++)
 	// 	{
 	// 		// if (channels.find(this->_param[index]))
