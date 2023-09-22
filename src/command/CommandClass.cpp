@@ -20,8 +20,12 @@ Command::Command(std::string src)
 		}
 		else
 		{
+			if (src.at(0) == ':')
+				_param.push_back(src.substr(1, pos));
+			else
+				_param.push_back(src.substr(0, pos));
+			// std::cout << src << std::endl;
 			// check la longueur du message ?
-			_param.push_back(src.substr(0, pos));
 		}
 		src = src.erase(0, pos + 1);
 	}
@@ -59,9 +63,9 @@ static void	printWhoIs(int fd, User *user)
 {
 	std::string message;
 
-	message = "311 : " + user->GetNickname() + " " + user->GetUsername() + " " + user->GetHostname() + " :" + user->GetRealname() + "\r\n"; //realname affiche : en trop
+	message = RPL_WHOISUSER(user->GetNickname(), user->GetUsername(), user->GetHostname(), user->GetRealname());
 	send(fd, message.c_str(), message.size(), 0);
-	message = "End of /WHOIS list : 318\r\n";
+	message = RPL_ENDOFWHOIS(user->GetNickname());
 	send(fd, message.c_str(), message.size(), 0);
 	return ;
 }
@@ -70,19 +74,19 @@ void	Command::WHOIS(User *user, Server *server)
 {
 	if (user->GetAuth() == false)
 		return ;
-	if (this->_param[0].at(0) == '#') // -> whois sur un channel
-	{
-		std::map<std::string, Channel *>	channels = server->GetChannels();
-		for (size_t index = 0 ; index < this->_param.size() ; index++)
-		{
-			// if (channels.find(this->_param[index]))
-				// std::cout << "Cest bon" << std::endl;
-			// else
-				// std::cout << "NOP YA R" << std::endl;
-		}
-	}
+	// if (this->_param[0].at(0) == '#') // -> whois sur un channel
+	// {
+	// 	// std::map<std::string, Channel *>	channels;
+	// 	for (size_t index = 0 ; index < this->_param.size() ; index++)
+	// 	{
+	// 		// if (channels.find(this->_param[index]))
+	// 			// std::cout << "Cest bon" << std::endl;
+	// 		// else
+	// 			// std::cout << "NOP YA R" << std::endl;
+	// 	}
+	// }
 	// else () -> 403 aucun channel trouver
-	for (size_t index = 0; index < this->_param.size() ; index++)// ->whois sur un user
+	for (size_t index = 0; index < this->_param.size() ; index++)
 	{
 		int fdToFind = -1;
 		fdToFind = server->GetFdByNickName(this->_param[index]);
@@ -90,7 +94,7 @@ void	Command::WHOIS(User *user, Server *server)
 			printWhoIs(user->GetFd(), server->GetUserByFd(fdToFind));
 		else
 		{
-			std::string message = ":localhost 401 " + user->GetNickname() + " :No such nick\r\n";
+			std::string message = ERR_NOSUCHNICK(user->GetNickname());
 			send(user->GetFd(), message.c_str(), message.size(), 0);
 		}
 	}
@@ -198,6 +202,8 @@ void	Command::USER(User *user, Server *server)
 		user->SetUsername(this->_param[0]);
 		user->SetHostname(this->_param[1]);
 		user->SetServername(this->_param[2]);
+		if (this->_param[4].empty() == false)
+			this->_param[3] = this->_param[3] + this->_param[4];
 		user->SetRealname(this->_param[3]);
 	}
 	return ;

@@ -21,8 +21,8 @@ class Server
 	void        						SendMessagetoClient(User* recipient, std::string msg);
 	int									GetFdByNickName(std::string nickName);
 	User								*GetUserByFd(int fd);
-	std::string							GetServerPassword( void ) { return(this->_password); }
-	std::map<std::string, Channel *>	GetChannels( void ) { return(this->_channels); }
+	std::string							GetServerPassword( void );
+	std::map<std::string, Channel *>	&GetChannelsByName( void );
 	int									GetEpollFd();
 	epoll_event*						GetClientEvent();
 	std::map<int, User *>&				GetUsers();

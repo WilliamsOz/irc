@@ -51,7 +51,9 @@
 
             /* = = =    WHO     = = = */
 // 311
-# define RPL_WHOISUSER(nickname, other_nick, username) (":localhost 311 " + nickname + " " + other_nick + " ~" + username + " localhost * :" + username + "\r\n")
+	// response = ":localhost 311 "+cmd.getParameters()[0]+' '+user->getNickname()+' '+user->getNickname()+" localhost * "+user->getFullname()+"\r\n";
+# define RPL_WHOISUSER(nickname, username, hostname, realname) (":localhost 311 " + nickname + ' ' + nickname + ' ' + nickname + " localhost * :" + realname + "\r\n")
+// # define RPL_WHOISUSER(nickname, username, realname) (":localhost 311 " + nickname + " ~" + username + " localhost *" + realname + "\r\n") // USED
 // 312
 # define RPL_WHOISSERVER(nickname, other_nick) (":localhost 312 " + nickname + " " + other_nick + " localhost :<insert catchy phrase here>\r\n")
 // 315
@@ -59,7 +61,7 @@
 // 317
 # define RPL_WHOISIDLE(nickname, other_nick, create_time) (":localhost 317 " + nickname + " " + other_nick + " " + create_time + " :second idle, signon time\r\n")
 // 318
-# define RPL_ENDOFWHOIS(nickname, other_nick) (":localhost 318 " + nickname + " " + other_nick + " :End of /WHOIS list.\r\n")
+# define RPL_ENDOFWHOIS(nickname) (":localhost 318 " + nickname + " :End of /WHOIS\r\n")
 // 352
 # define RPL_WHOREPLY(nickname, chanel, username, concerned_client_nickname, status, mode) (":localhost 352 " + nickname + " " + chanel + " ~" + username + " localhost localhost " + concerned_client_nickname + " " + status + mode + " :0 " + username + "\r\n")
 //352_bis
@@ -77,7 +79,7 @@
 
             /* = = =    NICK    = = = */
 // 401
-# define ERR_NOSUCHNICK(nickname, other_nick) (":localhost 401 " + nickname + " " + other_nick + " :No such nick\r\n")
+# define ERR_NOSUCHNICK(nickname) (":localhost 401 " + nickname + " :\r\n") //USED
 // 406
 # define ERR_WASNOSUCHNICK(nickname, other_nick) (":localhost 406 " + nickname + " " + other_nick + " :There was no such nickname\r\n")
 // 433
