@@ -5,7 +5,7 @@ Channel::Channel() : _topic("")
 	return ;
 }
 
-Channel::Channel(const std::string name) : _name(name), _topic("")
+Channel::Channel(const std::string name) : _name(name), _topic(""), _password("coucou") // remove last
 {
 	return ;
 }
@@ -59,6 +59,11 @@ std::string	Channel::GetClientList()
 		userInfo += ' ';
 	}
 	return (userInfo);
+}
+
+std::string	Channel::GetPassword()
+{
+	return (this->_password);
 }
 
 void	Channel::AddUser(User *toAdd)

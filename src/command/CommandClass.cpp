@@ -53,6 +53,7 @@ void	Command::SetUpCommandsContainer()
 	_commands["NICK"] = &Command::NICK;
 	_commands["JOIN"] = &Command::JOIN;
 	_commands["WHOIS"] = &Command::WHOIS;
+
 }
 
 static void	printWhoIs(int fd, User *user)
@@ -87,6 +88,9 @@ void	Command::WHOIS(User *user, Server *server)
 	return ;
 }
 
+
+// /JOIN #lol mdp -> check si mdp correct
+// /JOIN #lol -> rejoindre channel
 void	Command::JOIN(User *user, Server *server)
 {
 	Channel		*chan;
@@ -101,15 +105,15 @@ void	Command::JOIN(User *user, Server *server)
 		switch (this->_param[i][0])
 		{
 			case '#':
-				this->_param[i].erase(0, 1);
-				if (server->HasChannel(this->_param[i]) == false)
+				this->_param[i].erase(0, 1); // enlever le '#' du nom du channel
+				if (server->HasChannel(this->_param[i]) == false) // si le channel n'existe pas dans classe server
 				{
-					chan = server->AddChannel(this->_param[i]);
-					if (chan->HasUser(user) == false)
+					chan = server->AddChannel(this->_param[i]); // ajouter channel dans classe server
+					if (chan->HasUser(user) == false) // si user n'est pas deja dans ce channel
 					{
-						user->JoinChannel(chan);
-						chan->AddUser(user);
-						chan->AddOper(user);
+						user->JoinChannel(chan); // ajout du channel dans vector de classe user
+						chan->AddUser(user); // ajout du user dans vector de classe channel
+						chan->AddOper(user); // ajout du user dans vector operator de classe channel
 						replies = RPL_JOIN(user->GetNickname(), chan->GetName());
 						send(user->GetFd(), replies.c_str(), replies.size(), 0);
 						if (chan->GetTopic().empty() == false)
@@ -125,26 +129,40 @@ void	Command::JOIN(User *user, Server *server)
 					}
 				}
 				else
-				{
-					chan = server->AddUserToChannel(user, this->_param[i]);
-					replies = RPL_JOIN(user->GetNickname(), chan->GetName());
-					send(user->GetFd(), replies.c_str(), replies.size(), 0);
-					if (chan->GetTopic().empty() == false)
+				{ // probleme avec param[i + 1] qui existe mais inacessible
+					if (this->_param[i + 1].length() > 0) // si a 2e arg
 					{
-						replies = RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic());
+						if (this->_param[i + 1][0] != '+') // si 2e arg pas un mode
+						{
+							if (server->IsPassCorrect(this->_param[i], this->_param[i + 1]) == true)
+							{
+								std::cout << "password is correct" << std::endl;
+							}
+							else
+								std::cout << "password is incorrect" << std::endl;
+						}
+					}
+					else // pas de 2e arg ou bien c'est un mode
+					{
+						chan = server->AddUserToChannel(user, this->_param[i]); // ajouter user a map de channel dans classe server
+						replies = RPL_JOIN(user->GetNickname(), chan->GetName());
+						send(user->GetFd(), replies.c_str(), replies.size(), 0);
+						if (chan->GetTopic().empty() == false)
+						{
+							replies = RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic());
+							send(user->GetFd(), replies.c_str(), replies.size(), 0);
+						}
+						replies = RPL_NAMREPLY(user->GetNickname(), chan->GetName(), chan->GetClientList());
+						send(user->GetFd(), replies.c_str(), replies.size(), 0);
+						replies = RPL_ENDOFNAMES(user->GetNickname(), chan->GetName());
 						send(user->GetFd(), replies.c_str(), replies.size(), 0);
 					}
-					replies = RPL_NAMREPLY(user->GetNickname(), chan->GetName(), chan->GetClientList());
-					send(user->GetFd(), replies.c_str(), replies.size(), 0);
-					replies = RPL_ENDOFNAMES(user->GetNickname(), chan->GetName());
-					send(user->GetFd(), replies.c_str(), replies.size(), 0);
-
 				}
 				hasChanStr = true;
 				break;
 			case '+':
-				if (this->_param[i][1] != '\0' && hasChanStr == true
-					&& server->HasChannel(chan->GetName()) == false)
+				if (this->_param[i][1] != '\0' && hasChanStr == true // si ne contient pas seulement '+'
+					&& server->HasChannel(chan->GetName()) == false) // si case '#' est execute && channel n'existe pas dans classe server
 				{
 					pos = 1;
 					len = (this->_param[i].length()) - 1;
