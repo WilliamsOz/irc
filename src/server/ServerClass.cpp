@@ -47,7 +47,7 @@ bool	Server::HasChannel(std::string name)
 	std::map<std::string, Channel *>::iterator it;
 	it = this->_channels.find(name);
 
-	if (it != this->_channels.end())
+	if (it->first == name)
 		return (true);
 	else
 		return (false);
@@ -61,18 +61,22 @@ Channel*	Server::AddChannel(std::string name)
 	return (newChannel);
 }
 
-void	Server::AddUserToChannel(User *user, std::string channel)
+Channel*	Server::AddUserToChannel(User *user, std::string channel)
 {
 	Channel *chan;
 
 	std::map<std::string, Channel *>::iterator it;
 	it = this->_channels.find(channel);
 	chan = it->second;
-	if (chan->GetModes().find('i') != std::string::npos)
+
+	if (chan->GetModes().find('i') == std::string::npos) 
+	{
+		// check si user a l'invitation
 		chan->AddUser(user);
+	}
 	//else
 		// send
-	return ;
+	return (chan);
 }
 
 void	Server::AddUser()

@@ -87,7 +87,6 @@ void	Command::WHOIS(User *user, Server *server)
 	return ;
 }
 
-// en cas de success pour join -> envoyer 
 void	Command::JOIN(User *user, Server *server)
 {
 	Channel		*chan;
@@ -102,9 +101,9 @@ void	Command::JOIN(User *user, Server *server)
 		switch (this->_param[i][0])
 		{
 			case '#':
+				this->_param[i].erase(0, 1);
 				if (server->HasChannel(this->_param[i]) == false)
 				{
-					this->_param[i].erase(0, 1);
 					chan = server->AddChannel(this->_param[i]);
 					if (chan->HasUser(user) == false)
 					{
@@ -126,7 +125,21 @@ void	Command::JOIN(User *user, Server *server)
 					}
 				}
 				else
-					server->AddUserToChannel(user, this->_param[i]);
+				{
+					chan = server->AddUserToChannel(user, this->_param[i]);
+					replies = RPL_JOIN(user->GetNickname(), chan->GetName());
+					send(user->GetFd(), replies.c_str(), replies.size(), 0);
+					if (chan->GetTopic().empty() == false)
+					{
+						replies = RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic());
+						send(user->GetFd(), replies.c_str(), replies.size(), 0);
+					}
+					replies = RPL_NAMREPLY(user->GetNickname(), chan->GetName(), chan->GetClientList());
+					send(user->GetFd(), replies.c_str(), replies.size(), 0);
+					replies = RPL_ENDOFNAMES(user->GetNickname(), chan->GetName());
+					send(user->GetFd(), replies.c_str(), replies.size(), 0);
+
+				}
 				hasChanStr = true;
 				break;
 			case '+':
@@ -233,7 +246,6 @@ void	Command::PING(User *user, Server *server)
 
 	if (user->GetAuth())
 	{
-		std::cout << this->_name << std::endl;
 		std::string pongMessage = "PONG :" + this->_name + "\r\n";
 		send(user->GetFd(), pongMessage.c_str(), pongMessage.size(), 0);
 	}

@@ -1,11 +1,11 @@
 # include "irc.hpp"
 
-Channel::Channel() : _modes("none"), _topic("")
+Channel::Channel() : _topic("")
 {
 	return ;
 }
 
-Channel::Channel(const std::string name) : _name(name), _modes("none"), _topic("")
+Channel::Channel(const std::string name) : _name(name), _topic("")
 {
 	return ;
 }
@@ -53,6 +53,8 @@ std::string	Channel::GetClientList()
 		user = *it;
 		if (this->IsOper(user) == true)
 			userInfo += '@';
+		else
+			userInfo += '+';
 		userInfo += user->GetNickname();
 		userInfo += ' ';
 	}
