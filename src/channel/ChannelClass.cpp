@@ -30,6 +30,11 @@ std::string Channel::GetTopic()
 	return (this->_topic);
 }
 
+std::vector<User *>	&Channel::GetUsers()
+{
+	return (this->_users);
+}
+
 bool	Channel::IsOper(User *toCheck)
 {
 	User *user = NULL;
@@ -39,6 +44,20 @@ bool	Channel::IsOper(User *toCheck)
 		user = *it;
 		if (toCheck->GetNickname() == user->GetNickname())
 			return (true);
+	}
+	return (false);
+}
+
+bool	Channel::IsInBlackList(User *user)
+{
+	std::vector<User *>::iterator	it = this->_blacklist.begin();
+	std::vector<User *>::iterator	ite = this->_blacklist.end();
+
+	while (it != ite)
+	{
+		if (user->GetNickname() == (*it)->GetNickname()) // username ou nickname?
+			return (true);
+		it++;
 	}
 	return (false);
 }

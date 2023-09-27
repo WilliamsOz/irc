@@ -40,6 +40,7 @@ class User
 	int						_fd;
 	bool					_isAuth;
 	std::vector<Channel *>	_channels;
+	// std::map<Channel *, std::string>	_channelrights;
 };
 
 #endif
