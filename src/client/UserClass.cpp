@@ -43,10 +43,26 @@ void	User::SetRealname(std::string forname, std::string name)
 	this->_realname = realname;
 }
 
-
-void		User::SetNickname(std::string nickname)
+bool	User::IsAvailableNickname(std::string nickname, Server *server)
 {
-	this->_nickname = nickname;
+	std::map<int, User*>::iterator	it = server->GetUsers().begin();
+	std::map<int, User*>::iterator	ite = server->GetUsers().end();
+
+	while (it != ite)
+	{
+		if (nickname == it->second->GetNickname())
+			return (false);
+		it++;
+	}
+	return (true);
+}
+
+void		User::SetNickname(std::string nickname, Server *server)
+{
+	if (IsAvailableNickname(nickname, server) == true)
+		this->_nickname = nickname;
+	else
+		// error
 	return ;
 }
 

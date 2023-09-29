@@ -10,6 +10,7 @@ class User
 
 	// FUNCTION
 	void		JoinChannel(Channel *toJoin);
+	bool		IsAvailableNickname(std::string nickname, Server *server);
 
 	// SETTER
 	void		SetFd(int fd);
@@ -17,7 +18,7 @@ class User
 	void		SetHostname(std::string hostname);
 	void		SetServername(std::string servername);
 	void		SetRealname(std::string forname, std::string name);
-	void		SetNickname( std::string nickname );
+	void		SetNickname( std::string nickname, Server *server);
 	void		SetAuth(bool status);
 
 	// GETTER

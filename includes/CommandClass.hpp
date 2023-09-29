@@ -23,6 +23,7 @@ class Command
 	void						SetUpCommandsContainer();
 	void 						SendToChannel(User *user, Server *server);
 	void 						SendToUser(User *user, Server *server);
+	
 	// toutes les commandes
 	void						JOIN(User *user, Server *server);
 	void						PING(User *user, Server *server);

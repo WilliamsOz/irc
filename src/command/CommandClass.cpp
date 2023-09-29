@@ -204,7 +204,6 @@ void	Command::USER(User *user, Server *server)
 		user->SetServername(this->_param[2]);
 		user->SetRealname(this->_param[3], this->_param[4]);
 	}
-	std::cout << user->GetRealname() << std::endl;
 	return ;
 }
 
@@ -214,7 +213,7 @@ void	Command::NICK(User *user, Server *server)
 
 	if (user->GetAuth() == true)
 	{
-		user->SetNickname(this->_param[0]);
+		user->SetNickname(this->_param[0], server);
 		std::string welcomeMessage = RPL_WELCOME(user->GetNickname());
 		int bytesSent = send(user->GetFd(), welcomeMessage.c_str(), welcomeMessage.size(), 0);
 		if (bytesSent == -1)
