@@ -19,6 +19,7 @@ class Server
 	Channel*	AddUserToChannel(User *user, std::string name);
 
 	bool		IsPassCorrect(std::string channel, std::string password);
+	Channel		*GetChannelByName(std::string);
 	void        SendMessagetoClient(User* recipient, std::string msg);
 	int			GetFdByNickName(std::string nickName);
 	User		*GetUserByFd(int fd);
@@ -26,6 +27,7 @@ class Server
 	int			GetEpollFd();
 	epoll_event*	GetClientEvent();
 	std::map<int, User *>&	GetUsers();
+	void		SendMsgToClient(User *recipient, std::string msg);
 
 	private:
 

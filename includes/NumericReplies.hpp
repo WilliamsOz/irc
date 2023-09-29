@@ -121,6 +121,8 @@
 
 # define RPL_PRIVMSG_CLIENT(nickname, username, cmd, concerned_client_nickname, msg) (user_id(nickname, username, cmd) + concerned_client_nickname + " " + msg + "\r\n")
 
+# define ERR_NOTEXTTOSEND(nickname) (nickname + " :No text to send\r\n")
+
             /* = = =    INVITE     = = = */
 # define INVITE_CLIENT(nickname, username, cmd, concerned_client_nickname, chanel) (user_id(nickname, username, cmd) + concerned_client_nickname + " :" + chanel + "\r\n")
 

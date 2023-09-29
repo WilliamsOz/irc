@@ -30,6 +30,11 @@ std::string Channel::GetTopic()
 	return (this->_topic);
 }
 
+std::vector<User *>	&Channel::GetUsers()
+{
+	return (this->_users);
+}
+
 bool	Channel::IsOper(User *toCheck)
 {
 	User *user = NULL;

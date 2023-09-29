@@ -1,6 +1,9 @@
 ﻿#ifndef COMMANDCLASS_HPP
 # define COMMANDCLASS_HPP
 
+class Channel;
+class User;
+class Server;
 class Command;
 
 typedef void (Command::*CommandFunctionPointer)(User *, Server *);
@@ -18,7 +21,7 @@ class Command
 	// utils
 	void						ExecCommand(int clientFd, Server *server);
 	void						SetUpCommandsContainer();
-	// void 						SendToChannel(User *user, Server *server);
+	void 						SendToChannel(User *user, Server *server);
 	void 						SendToUser(User *user, Server *server);
 	// toutes les commandes
 	void						JOIN(User *user, Server *server);

@@ -64,6 +64,20 @@ bool	Server::HasChannel(std::string name)
 		return (false);
 }
 
+// fusionner les deux ?
+
+Channel	*Server::GetChannelByName(std::string name)
+{
+	std::map<std::string, Channel *>::iterator it;
+
+	it = this->_channels.find(name);
+
+	if (it != this->_channels.end())
+		return (it->second);
+	else
+		return (NULL);
+}
+
 Channel*	Server::AddChannel(std::string name)
 {
 	Channel *newChannel = new Channel(name);
@@ -235,7 +249,7 @@ void	Server::LaunchServer()
 }
 
 
-void        Server::SendMessagetoClient(User* recipient, std::string msg)
+void        Server::SendMsgToClient(User* recipient, std::string msg)
 {
 	int			bytes_sent;
 	int 		len = msg.size();
@@ -243,5 +257,4 @@ void        Server::SendMessagetoClient(User* recipient, std::string msg)
 	if ((bytes_sent = send(recipient->GetFd(), msg.c_str(), len, 0 )) != len)
 		return ;
 		// throw std::invalid_argument("send");
-	// client->setLastActiveTime();
 }

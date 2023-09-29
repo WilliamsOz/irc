@@ -40,7 +40,7 @@ void	Command::ExecCommand(int clientFd, Server *server)
 		(this->*this->_commands[this->_name])(server->GetUserByFd(clientFd), server);
 	}
 	else
-		std::cout << "Unknown command -> " << this->_name << "\n";
+		std::cout << "Unknown command -> [" << this->_name << "]" << "\n";
 }
 
 void	Command::SetUpCommandsContainer()
@@ -237,8 +237,9 @@ void	Command::USER(User *user, Server *server)
 		user->SetUsername(this->_param[0]);
 		user->SetHostname(this->_param[1]);
 		user->SetServername(this->_param[2]);
-		user->SetRealname(this->_param[3]);
+		user->SetRealname(this->_param[3], this->_param[4]);
 	}
+	std::cout << user->GetRealname() << std::endl;
 	return ;
 }
 
@@ -277,25 +278,48 @@ void	Command::SendToUser(User *user, Server *server)
 	int	recipientFd = server->GetFdByNickName(_param[0]);
 
 	if (recipientFd != -1) // si le user appartient bien au server
-	{
-		std::string	response = ":" + user->GetNickname() + " " + _param[1] + "\r\n";
-		send(recipientFd, response.c_str(), response.length(), 0);
-	}
+		server->SendMsgToClient(user, RPL_PRIVMSG_CLIENT(user->GetNickname(), user->GetUsername(), "PRIVMSG", this->_param[0], this->_param[1]));
 	else // le user est inconnu
+		server->SendMsgToClient(user, ERR_NOSUCHNICK(user->GetNickname(), this->_param[0]));
+}
+
+void	Command::SendToChannel(User *user, Server *server)
+{
+	Channel	*recipient = server->GetChannelByName(this->_param[0]);
+
+	if (server->HasChannel(this->_param[0]) == false)
 	{
-		std::string	response = ":localhost 401" + user->GetNickname() + " : No such NickName\r\n";
-		// si ca fail -> message d'erreur  ERR_CANNOTSENDTOCHAN (404)
-		send(user->GetFd(), response.c_str(), response.length(), 0);
+		server->SendMsgToClient(user, ERR_NOSUCHNICK(user->GetNickname(), this->_param[0]));
+		return ;	
+	}
+	if (!recipient->HasUser(user))
+	{
+		server->SendMsgToClient(user, ERR_CANNOTSENDTOCHAN(this->_param[0], recipient->GetName()));
+		return ;
+	}
+	if (this->_param[1] == "") // check que le msg n'est pas vide
+	{
+		server->SendMsgToClient(user, ERR_NOTEXTTOSEND(this->_param[0]));
+		return ;
+	}
+	std::vector<User *>::iterator	it = recipient->GetUsers().begin();
+	std::vector<User *>::iterator	ite = recipient->GetUsers().end();
+
+	while (it != ite)
+	{
+		server->SendMsgToClient(user,RPL_PRIVMSG_CHANEL(user->GetNickname(), user->GetUsername(), "PRIVMSG", recipient->GetName(), this->_param[1]));
+		it++;
 	}
 }
 
 void	Command::PRIVMSG(User *user, Server *server)
 {
-	// if (_param.size() < 2)
-	// 	// SendMessagetoClient(user, ERR_NEEDMOREPARAMS(user->GetNickName(), this->_name));
-	// if (this->GetParameters()[0][0] == '#')
-	// 	this->SendToChannel(user, server);
-	this->SendToUser(user, server);
+	if (_param.size() < 2)
+		server->SendMsgToClient(user, ERR_NEEDMOREPARAMS(user->GetNickname(), this->_name));
+	if (this->GetParameters()[0][0] == '#')
+		this->SendToChannel(user, server);
+	else
+		this->SendToUser(user, server);
 }
 
 std::string	Command::GetCmdName()
@@ -307,9 +331,3 @@ std::vector<std::string>	Command::GetParameters()
 {
 	return (this->_param);
 }
-
-// void	Command::SendToChannel()
-// {
-		// verifie que le chan existe
-		// // que le user n'est banne du channel
-// }
