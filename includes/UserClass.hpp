@@ -16,7 +16,7 @@ class User
 	void		SetUsername(std::string username);
 	void		SetHostname(std::string hostname);
 	void		SetServername(std::string servername);
-	void		SetRealname(std::string realname);
+	void		SetRealname(std::string forname, std::string name);
 	void		SetNickname( std::string nickname );
 	void		SetAuth(bool status);
 
@@ -40,7 +40,6 @@ class User
 	int						_fd;
 	bool					_isAuth;
 	std::vector<Channel *>	_channels;
-	// std::map<Channel *, std::string>	_channelrights;
 };
 
 #endif

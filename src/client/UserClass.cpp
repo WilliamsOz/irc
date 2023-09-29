@@ -34,8 +34,12 @@ void	User::SetServername(std::string servername)
 	return ;
 }
 
-void	User::SetRealname(std::string realname)
+void	User::SetRealname(std::string forname, std::string name)
 {
+	std::string	realname;
+
+	realname = forname.erase(0, 1); // on supprime les deux points
+	realname += " " + name;
 	this->_realname = realname;
 }
 

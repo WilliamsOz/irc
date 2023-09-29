@@ -242,5 +242,4 @@ void        Server::SendMsgToClient(User* recipient, std::string msg)
 	if ((bytes_sent = send(recipient->GetFd(), msg.c_str(), len, 0 )) != len)
 		return ;
 		// throw std::invalid_argument("send");
-	// client->setLastActiveTime();
 }

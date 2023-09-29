@@ -202,8 +202,9 @@ void	Command::USER(User *user, Server *server)
 		user->SetUsername(this->_param[0]);
 		user->SetHostname(this->_param[1]);
 		user->SetServername(this->_param[2]);
-		user->SetRealname(this->_param[3]);
+		user->SetRealname(this->_param[3], this->_param[4]);
 	}
+	std::cout << user->GetRealname() << std::endl;
 	return ;
 }
 
@@ -257,14 +258,11 @@ void	Command::SendToChannel(User *user, Server *server)
 		server->SendMsgToClient(user, ERR_NOSUCHNICK(user->GetNickname(), this->_param[0]));
 		return ;	
 	}
-	if (!recipient->HasUser(user))// && HasVoiceRight(recipient, user)
+	if (!recipient->HasUser(user))
 	{
 		server->SendMsgToClient(user, ERR_CANNOTSENDTOCHAN(this->_param[0], recipient->GetName()));
 		return ;
 	}
-	if (recipient->IsInBlackList(user) == true)
-		return ; // fail en silence
-	// check que le client a les droits d'envoyer un msg -> mode moderate activé et si le client a les privileges de parler
 	if (this->_param[1] == "") // check que le msg n'est pas vide
 	{
 		server->SendMsgToClient(user, ERR_NOTEXTTOSEND(this->_param[0]));
@@ -272,11 +270,6 @@ void	Command::SendToChannel(User *user, Server *server)
 	}
 	std::vector<User *>::iterator	it = recipient->GetUsers().begin();
 	std::vector<User *>::iterator	ite = recipient->GetUsers().end();
-
-	// std::vector<User *>& users = recipient->GetUsers();  // Get a reference to the vector of User pointers
-
-	// std::vector<User *>::iterator it = users.begin();  // Access begin() on the vector object
-	// std::vector<User *>::iterator ite = users.end();   // Access end() on the vector object
 
 	while (it != ite)
 	{

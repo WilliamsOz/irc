@@ -48,20 +48,6 @@ bool	Channel::IsOper(User *toCheck)
 	return (false);
 }
 
-bool	Channel::IsInBlackList(User *user)
-{
-	std::vector<User *>::iterator	it = this->_blacklist.begin();
-	std::vector<User *>::iterator	ite = this->_blacklist.end();
-
-	while (it != ite)
-	{
-		if (user->GetNickname() == (*it)->GetNickname()) // username ou nickname?
-			return (true);
-		it++;
-	}
-	return (false);
-}
-
 std::string	Channel::GetClientList()
 {
 	User *user = NULL;

@@ -18,19 +18,16 @@ class Channel
 	std::string GetTopic();
 	std::string	GetClientList();
 	std::vector<User *> &GetUsers();
-	bool		IsInBlackList(User *user);
 
 	bool	HasUser(User *user);
-
 	void	SetModes(std::string modes);
 
 	private:
 
-	std::string			_name;
 	std::vector<User *>	_users;
-	std::string			_modes;
 	std::vector<User *>	_opers;
-	std::vector<User *>	_blacklist;
+	std::string			_name;
+	std::string			_modes;
 	std::string			_topic;
 };
 
