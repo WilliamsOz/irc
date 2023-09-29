@@ -89,7 +89,6 @@ void	Command::WHOIS(User *user, Server *server)
 }
 
 
-// gerer le cas ou un user tente d'appliquer des modes sur un channel existant
 // gerer le cas ou le user ne donne pas de mdp a un channel qui en demande un
 // gerer le cas ou le mdp est correct
 // gerer le cas ou le mdp est incorrect
@@ -116,18 +115,12 @@ void	Command::JOIN(User *user, Server *server)
 						user->JoinChannel(chan); // ajout du channel dans vector de classe user
 						chan->AddUser(user); // ajout du user dans vector de classe channel
 						chan->AddOper(user); // ajout du user dans vector operator de classe channel
-						replies = RPL_JOIN(user->GetNickname(), chan->GetName());
-						send(user->GetFd(), replies.c_str(), replies.size(), 0);
+						server->SendMsgToClient(user, RPL_JOIN(user->GetNickname(), chan->GetName()));
 						if (chan->GetTopic().empty() == false)
-						{
-							replies = RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic());
-							send(user->GetFd(), replies.c_str(), replies.size(), 0);
-						}
+							server->SendMsgToClient(user, RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic()));
 						std::string userNickname = "@" + user->GetNickname();
-						replies = RPL_NAMREPLY(userNickname, chan->GetName(), chan->GetClientList());
-						send(user->GetFd(), replies.c_str(), replies.size(), 0);
-						replies = RPL_ENDOFNAMES(user->GetNickname(), chan->GetName());
-						send(user->GetFd(), replies.c_str(), replies.size(), 0);
+						server->SendMsgToClient(user, RPL_NAMREPLY(userNickname, chan->GetName(), chan->GetClientList()));
+						server->SendMsgToClient(user, RPL_ENDOFNAMES(user->GetNickname(), chan->GetName()));
 					}
 				}
 				else
@@ -147,17 +140,11 @@ void	Command::JOIN(User *user, Server *server)
 					else // pas de 2e arg ou bien c'est un mode
 					{
 						chan = server->AddUserToChannel(user, this->_param[i]); // ajouter user a map de channel dans classe server
-						replies = RPL_JOIN(user->GetNickname(), chan->GetName());
-						send(user->GetFd(), replies.c_str(), replies.size(), 0);
+						server->SendMsgToClient(user, RPL_JOIN(user->GetNickname(), chan->GetName()));
 						if (chan->GetTopic().empty() == false)
-						{
-							replies = RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic());
-							send(user->GetFd(), replies.c_str(), replies.size(), 0);
-						}
-						replies = RPL_NAMREPLY(user->GetNickname(), chan->GetName(), chan->GetClientList());
-						send(user->GetFd(), replies.c_str(), replies.size(), 0);
-						replies = RPL_ENDOFNAMES(user->GetNickname(), chan->GetName());
-						send(user->GetFd(), replies.c_str(), replies.size(), 0);
+							server->SendMsgToClient(user, RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic()));
+						server->SendMsgToClient(user, RPL_NAMREPLY(user->GetNickname(), chan->GetName(), chan->GetClientList()));
+						server->SendMsgToClient(user, RPL_ENDOFNAMES(user->GetNickname(), chan->GetName()));
 					}
 				}
 				hasChanStr = true;
