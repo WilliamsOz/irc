@@ -89,8 +89,10 @@ void	Command::WHOIS(User *user, Server *server)
 }
 
 
-// /JOIN #lol mdp -> check si mdp correct
-// /JOIN #lol -> rejoindre channel
+// gerer le cas ou un user tente d'appliquer des modes sur un channel existant
+// gerer le cas ou le user ne donne pas de mdp a un channel qui en demande un
+// gerer le cas ou le mdp est correct
+// gerer le cas ou le mdp est incorrect
 void	Command::JOIN(User *user, Server *server)
 {
 	Channel		*chan;
@@ -129,8 +131,8 @@ void	Command::JOIN(User *user, Server *server)
 					}
 				}
 				else
-				{ // probleme avec param[i + 1] qui existe mais inacessible
-					if (this->_param[i + 1].length() > 0) // si a 2e arg
+				{
+					if (this->_param.size() > 1) // si a 2e arg
 					{
 						if (this->_param[i + 1][0] != '+') // si 2e arg pas un mode
 						{
