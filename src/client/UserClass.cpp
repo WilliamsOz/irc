@@ -34,12 +34,12 @@ void	User::SetServername(std::string servername)
 	return ;
 }
 
-void	User::SetRealname(std::string forname, std::string name)
+void	User::SetRealname(std::string forname/*, std::string name*/) // a remettre sous dell
 {
 	std::string	realname;
 
 	realname = forname.erase(0, 1); // on supprime les deux points
-	realname += " " + name;
+	// realname += " " + name;
 	this->_realname = realname;
 }
 

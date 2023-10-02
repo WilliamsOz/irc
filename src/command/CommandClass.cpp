@@ -137,8 +137,9 @@ void	Command::JOIN(User *user, Server *server)
 								std::cout << "password is incorrect" << std::endl;
 						}
 					}
-					else // pas de 2e arg ou bien c'est un mode
+					else if // pas de 2e arg ou bien c'est un mode
 					{
+						if ()
 						chan = server->AddUserToChannel(user, this->_param[i]); // ajouter user a map de channel dans classe server
 						server->SendMsgToClient(user, RPL_JOIN(user->GetNickname(), chan->GetName()));
 						if (chan->GetTopic().empty() == false)
@@ -224,9 +225,8 @@ void	Command::USER(User *user, Server *server)
 		user->SetUsername(this->_param[0]);
 		user->SetHostname(this->_param[1]);
 		user->SetServername(this->_param[2]);
-		user->SetRealname(this->_param[3], this->_param[4]);
+		user->SetRealname(this->_param[3]/*, this->_param[4]*/); // a remettre sous dell 42
 	}
-	std::cout << user->GetRealname() << std::endl;
 	return ;
 }
 
