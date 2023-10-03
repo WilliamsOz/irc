@@ -55,14 +55,10 @@ void	Command::SetUpCommandsContainer()
 	_commands["WHOIS"] = &Command::WHOIS;
 }
 
-static void	printWhoIs(int fd, User *user)
+void	Command::printWhoIs(User *user)
 {
-	std::string message;
-
-	message = "311 : " + user->GetNickname() + " " + user->GetUsername() + " " + user->GetHostname() + " :" + user->GetRealname() + "\r\n"; //realname affiche : en trop
-	send(fd, message.c_str(), message.size(), 0);
-	message = "End of /WHOIS list : 318\r\n";
-	send(fd, message.c_str(), message.size(), 0);
+	SendMsgToClient(user, RPL_WHOISUSER(user->GetNickname(), user->GetHostname(), user->GetUsername()));
+	SendMsgToClient(user, RPL_ENDOFWHOIS(user->GetNickname(), user->GetHostname()));
 	return ;
 }
 
@@ -77,12 +73,9 @@ void	Command::WHOIS(User *user, Server *server)
 		int fdToFind = -1;
 		fdToFind = server->GetFdByNickName(this->_param[index]);
 		if (fdToFind != -1)
-			printWhoIs(user->GetFd(), server->GetUserByFd(fdToFind));
+			printWhoIs(server->GetUserByFd(fdToFind));
 		else
-		{
-			std::string message = ":localhost 401 " + user->GetNickname() + " :No such nick\r\n";
-			send(user->GetFd(), message.c_str(), message.size(), 0);
-		}
+			SendMsgToClient(user, ERR_NOSUCHNICK(user->GetNickname(), user->GetHostname()));
 	}
 	return ;
 }
@@ -111,16 +104,10 @@ void	Command::JOIN(User *user, Server *server)
 						user->JoinChannel(chan);
 						chan->AddUser(user);
 						chan->AddOper(user);
-						replies = RPL_JOIN(chan->GetName());
-						send(user->GetFd(), replies.c_str(), replies.size(), 0);
+						SendMsgToClient(user, RPL_JOIN(chan->GetName()));
 						if (chan->GetTopic().empty() == false)
-						{
-							replies = RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic());
-							send(user->GetFd(), replies.c_str(), replies.size(), 0);
-						}
-						replies = RPL_NAMREPLY(user->GetNickname(), chan->GetName(), chan->GetClientList()); //
-						// std::cout << replies << std::endl;
-						send(user->GetFd(), replies.c_str(), replies.size(), 0);
+							SendMsgToClient(user, RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic()));
+						SendMsgToClient(user, RPL_NAMREPLY(user->GetNickname(), chan->GetName(), chan->GetClientList()));
 					}
 				}
 				else
@@ -159,8 +146,7 @@ void	Command::PASS(User *user, Server *server)
 		if (this->_param[0] != server->GetServerPassword())
 		{
 			// std::map<int, User*>::iterator it = (server->GetUsers()).find(user->GetFd());
-			std::string message = "464 : Password incorrect.\r\n";
-			send(user->GetFd(), message.c_str(), message.size(), 0);
+			SendMsgToClient(user, ERR_PASSWDMISMATCH(user->GetNickname()));
             epoll_ctl(server->GetEpollFd(), EPOLL_CTL_DEL, user->GetFd(), server->GetClientEvent());
 			// (server->GetUsers()).erase(it); // -> segfault, a mettre dans destructeur
 			close(user->GetFd());
@@ -175,22 +161,9 @@ void	Command::CAP(User *user, Server *server)
 	(void)server;
 
 	if (this->GetParameters()[0] == "LS") // liste les capacités disponible pour les clients
-	{
-		std::string response = "CAP * LS :multi-prefix\r\n";
-		send(user->GetFd(), response.c_str(), response.length(), 0);
-		// std::cout<<"response : "<< response <<std::endl;
-	}
+		SendMsgToClient(user, CAP_LS());
 	if (!(this->GetParameters()[0].compare("REQ"))) // demande l'obtention d'une capacité
-	{
-		std::string response = "CAP * ACK multi-prefix\r\n";
-		send(user->GetFd(), response.c_str(), response.length(), 0);
-		// std::cout<<"response : "<<response<<std::endl;
-    }
-	// if (!(this->GetParameters()[0].compare("END"))) // peut-etre ajouter des infos supplementaires?
-	// {
-		// std::string response = "001 " +(user->GetNickname())+": Bienvenue sur le serveur Irc\r\n";
-		// send(user->GetFd(), response.c_str(), response.length(), 0);
-	// }
+		SendMsgToClient(user, CAP_REQ());
 }
 
 void	Command::USER(User *user, Server *server)
@@ -202,7 +175,7 @@ void	Command::USER(User *user, Server *server)
 		user->SetUsername(this->_param[0]);
 		user->SetHostname(this->_param[1]);
 		user->SetServername(this->_param[2]);
-		user->SetRealname(this->_param[3], this->_param[4]);
+		user->SetRealname(&_param);
 	}
 	return ;
 }
@@ -214,13 +187,7 @@ void	Command::NICK(User *user, Server *server)
 	if (user->GetAuth() == true)
 	{
 		user->SetNickname(this->_param[0], server);
-		std::string welcomeMessage = RPL_WELCOME(user->GetNickname());
-		int bytesSent = send(user->GetFd(), welcomeMessage.c_str(), welcomeMessage.size(), 0);
-		if (bytesSent == -1)
-		{
-		    std::cerr << "Error sending welcome message." << std::endl;
-		    return ;
-		}
+		SendMsgToClient(user, RPL_WELCOME(user->GetNickname()));
 	}
 	return ;
 }
@@ -232,8 +199,7 @@ void	Command::PING(User *user, Server *server)
 	if (user->GetAuth())
 	{
 		std::cout << this->_name << std::endl;
-		std::string pongMessage = "PONG :" + this->_name + "\r\n";
-		send(user->GetFd(), pongMessage.c_str(), pongMessage.size(), 0);
+		SendMsgToClient(user, RPL_PONG);
 	}
 	return ;
 }
@@ -243,9 +209,9 @@ void	Command::SendToUser(User *user, Server *server)
 	int	recipientFd = server->GetFdByNickName(_param[0]);
 
 	if (recipientFd != -1) // si le user appartient bien au server
-		server->SendMsgToClient(user, RPL_PRIVMSG_CLIENT(user->GetNickname(), user->GetUsername(), "PRIVMSG", this->_param[0], this->_param[1]));
+		SendMsgToClient(user, RPL_PRIVMSG_CLIENT(user->GetNickname(), user->GetUsername(), "PRIVMSG", _param[0], _param[1]));
 	else // le user est inconnu
-		server->SendMsgToClient(user, ERR_NOSUCHNICK(user->GetNickname(), this->_param[0]));
+		SendMsgToClient(user, ERR_NOSUCHNICK(user->GetNickname(), user->GetHostname()));
 }
 
 void	Command::SendToChannel(User *user, Server *server)
@@ -254,17 +220,17 @@ void	Command::SendToChannel(User *user, Server *server)
 
 	if (server->HasChannel(this->_param[0]) == false)
 	{
-		server->SendMsgToClient(user, ERR_NOSUCHNICK(user->GetNickname(), this->_param[0]));
+		SendMsgToClient(user, ERR_NOSUCHNICK(user->GetNickname(), user->GetHostname()));
 		return ;	
 	}
 	if (!recipient->HasUser(user))
 	{
-		server->SendMsgToClient(user, ERR_CANNOTSENDTOCHAN(this->_param[0], recipient->GetName()));
+		SendMsgToClient(user, ERR_CANNOTSENDTOCHAN(this->_param[0], recipient->GetName()));
 		return ;
 	}
 	if (this->_param[1] == "") // check que le msg n'est pas vide
 	{
-		server->SendMsgToClient(user, ERR_NOTEXTTOSEND(this->_param[0]));
+		SendMsgToClient(user, ERR_NOTEXTTOSEND(this->_param[0]));
 		return ;
 	}
 	std::vector<User *>::iterator	it = recipient->GetUsers().begin();
@@ -272,7 +238,7 @@ void	Command::SendToChannel(User *user, Server *server)
 
 	while (it != ite)
 	{
-		server->SendMsgToClient(user,RPL_PRIVMSG_CHANEL(user->GetNickname(), user->GetUsername(), "PRIVMSG", recipient->GetName(), this->_param[1]));
+		SendMsgToClient(user, RPL_PRIVMSG_CHANEL(user->GetNickname(), user->GetUsername(), "PRIVMSG", recipient->GetName(), this->_param[1]));
 		it++;
 	}
 }
@@ -280,7 +246,7 @@ void	Command::SendToChannel(User *user, Server *server)
 void	Command::PRIVMSG(User *user, Server *server)
 {
 	if (_param.size() < 2)
-		server->SendMsgToClient(user, ERR_NEEDMOREPARAMS(user->GetNickname(), this->_name));
+		SendMsgToClient(user, ERR_NEEDMOREPARAMS(user->GetNickname(), this->_name));
 	if (this->GetParameters()[0][0] == '#')
 		this->SendToChannel(user, server);
 	else
@@ -295,4 +261,17 @@ std::string	Command::GetCmdName()
 std::vector<std::string>	Command::GetParameters()
 {
 	return (this->_param);
+}
+
+void        Command::SendMsgToClient(User* recipient, std::string msg)
+{
+	int			bytes_sent;
+	int 		len = msg.size();
+
+	if (len > 4096) // == taille maximum des msg sur internet
+		// throw an error
+	if ((bytes_sent = send(recipient->GetFd(), msg.c_str(), len, 0 )) != len)
+		return ;
+		// throw std::invalid_argument("send");
+	// if ret send() == -1 -> throw error 
 }

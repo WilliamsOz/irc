@@ -14,7 +14,9 @@
 # define RPL_MYINFO(nickname, version) (":localhost 004 " + nickname + " localhost " + version + "\r\n")
 
 			/* = = =   CAP   = = = */
-# define CAP_LS()
+# define CAP_LS() ("CAP * LS :multi-prefix\r\n")
+
+#define CAP_REQ() ("CAP * ACK multi-prefix\r\n")
 
             /* = = =    MODE    = = = */
 # define SET_CLIENT_MODE(nickname, username, cmd, mode) (user_id(nickname, username, cmd) + nickname + " :+" + mode + "\r\n")
@@ -51,21 +53,21 @@
 
             /* = = =    WHO     = = = */
 // 311
-# define RPL_WHOISUSER(nickname, other_nick, username) (":localhost 311 " + nickname + " " + other_nick + " ~" + username + " localhost * :" + username + "\r\n")
+# define RPL_WHOISUSER(nickname, host_name, username) (":localhost 311 " + nickname + " " + host_name + " ~" + username + " localhost * :" + username + "\r\n") // used
 // 312
-# define RPL_WHOISSERVER(nickname, other_nick) (":localhost 312 " + nickname + " " + other_nick + " localhost :<insert catchy phrase here>\r\n")
+# define RPL_WHOISSERVER(nickname, host_name) (":localhost 312 " + nickname + " " + host_name + " localhost :<insert catchy phrase here>\r\n")
 // 315
 # define RPL_ENDOFWHO(nickname, chanel) (":localhost 315 " + nickname + " " + chanel + " :End of /WHO list.\r\n")
 // 317
-# define RPL_WHOISIDLE(nickname, other_nick, create_time) (":localhost 317 " + nickname + " " + other_nick + " " + create_time + " :second idle, signon time\r\n")
+# define RPL_WHOISIDLE(nickname, host_name, create_time) (":localhost 317 " + nickname + " " + host_name + " " + create_time + " :second idle, signon time\r\n")
 // 318
-# define RPL_ENDOFWHOIS(nickname, other_nick) (":localhost 318 " + nickname + " " + other_nick + " :End of /WHOIS list.\r\n")
+# define RPL_ENDOFWHOIS(nickname, host_name) (":localhost 318 " + nickname + " " + host_name + " :End of /WHOIS list.\r\n") // used
 // 352
 # define RPL_WHOREPLY(nickname, chanel, username, concerned_client_nickname, status, mode) (":localhost 352 " + nickname + " " + chanel + " ~" + username + " localhost localhost " + concerned_client_nickname + " " + status + mode + " :0 " + username + "\r\n")
 //352_bis
 # define RPL_WHOREPLY_BIS(nickname, chanel, username, concerned_client_nickname, status) (":localhost 352 " + nickname + " " + chanel + " ~" + username + " localhost localhost " + concerned_client_nickname + " " + status +  " :0 " + username + "\r\n")
 // 369
-# define RPL_ENDOFWHOWAS(nickname, other_nick) (":localhost 369 " + nickname + " " + other_nick + " :End of WHOWAS\r\n")
+# define RPL_ENDOFWHOWAS(nickname, host_name) (":localhost 369 " + nickname + " " + host_name + " :End of WHOWAS\r\n")
 
             /* = = =    LIST    = = = */
 // 321
@@ -77,9 +79,9 @@
 
             /* = = =    NICK    = = = */
 // 401
-# define ERR_NOSUCHNICK(nickname, other_nick) (":localhost 401 " + nickname + " " + other_nick + " :No such nick\r\n")
+# define ERR_NOSUCHNICK(nickname, host_name) (":localhost 401 " + nickname + " " + host_name + " :No such nick\r\n") // used
 // 406
-# define ERR_WASNOSUCHNICK(nickname, other_nick) (":localhost 406 " + nickname + " " + other_nick + " :There was no such nickname\r\n")
+# define ERR_WASNOSUCHNICK(nickname, host_name) (":localhost 406 " + nickname + " " + host_name + " :There was no such nickname\r\n")
 // 433
 # define ERR_NICKNAMEINUSE(nickname) (":localhost 433 * " + nickname + " :Nickname is already in use\r\n")
 
@@ -87,13 +89,14 @@
 // 421
 # define ERR_UNKNOWNCOMMAND(nickname, cmd) (":localhost 421 " + nickname + " " + cmd + " :Unknown command\r\n")
 // 461
-# define ERR_NEEDMOREPARAMS(nickname, cmd) (":localhost 461 " + nickname + " " + cmd + " :Not enough parameters\r\n")
+# define ERR_NEEDMOREPARAMS(nickname, cmd) (":localhost 461 " + nickname + " " + cmd + " :Not enough parameters\r\n") // used
 
             /* = = =    PING / PONG     = = = */
 // 513
 # define ERR_BADPING(nickname) (":localhost 513 " + nickname + std::string(RED) + "Error: " + std::string(RESET) + "Wrong password !\r\n")
 
-# define RPL_PONG ":localhost PONG localhost :localhost\r\n"
+# define RPL_PONG ":localhost PONG localhost :localhost\r\n" // used
+// a faire check par oscar
 
 # define CMD_PING(token) ("PING :" + token + "\r\n")
 
@@ -112,16 +115,16 @@
 // 404
 # define ERR_CANNOTSENDTOCHAN(nickname, chanel) (":localhost 404 " + nickname + " " + chanel + " :Cannot send to channel\r\n")
 // 441
-# define ERR_USERNOTINCHANNEL(nickname, concerned_client_nickname, chanel) ((":localhost 441 " + nickname + " " + concerned_client_nickname + " " + chanel + " :They aren't on that channel\r\n"))
+# define ERR_USERNOTINCHANNEL(nickname, concerned_client_nickname, chanel) ((":localhost 441 " + nickname + " " + concerned_client_nickname + " " + chanel + " :They aren't on that channel\r\n")) // used
 // 442
 # define ERR_NOTONCHANNEL(nickname, chanel) (":localhost 442 " + nickname + " " + chanel + " :You're not on that chanel\r\n")
 
             /* = = =    PRV MESSAGES     = = = */
-# define RPL_PRIVMSG_CHANEL(nickname, username, cmd, chanel, msg) (user_id(nickname, username, cmd) + chanel + " " + msg + "\r\n")
+# define RPL_PRIVMSG_CHANEL(nickname, username, cmd, chanel, msg) (user_id(nickname, username, cmd) + chanel + " " + msg + "\r\n") // used
 
 # define RPL_PRIVMSG_CLIENT(nickname, username, cmd, concerned_client_nickname, msg) (user_id(nickname, username, cmd) + concerned_client_nickname + " " + msg + "\r\n")
 
-# define ERR_NOTEXTTOSEND(nickname) (nickname + " :No text to send\r\n")
+# define ERR_NOTEXTTOSEND(nickname) (nickname + " :No text to send\r\n") // used
 
             /* = = =    INVITE     = = = */
 # define INVITE_CLIENT(nickname, username, cmd, concerned_client_nickname, chanel) (user_id(nickname, username, cmd) + concerned_client_nickname + " :" + chanel + "\r\n")

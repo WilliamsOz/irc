@@ -34,12 +34,17 @@ void	User::SetServername(std::string servername)
 	return ;
 }
 
-void	User::SetRealname(std::string forname, std::string name)
+void	User::SetRealname(std::vector<std::string> *paramCpy)
 {
-	std::string	realname;
+	std::string	forname = paramCpy->at(3); // le real name est le 3eme arg de NICK
+	std::string realname = forname.erase(0, 1); // on supprime les deux points
+	size_t		i = 4;
 
-	realname = forname.erase(0, 1); // on supprime les deux points
-	realname += " " + name;
+	while (i < paramCpy->size())
+	{
+		realname += " " + paramCpy->at(i); // on ajoute tout les noms qui suivent
+		i++;						 	// car c'est possible d'y en avoir 1 ou plus de 2
+	}
 	this->_realname = realname;
 }
 
