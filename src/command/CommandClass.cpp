@@ -141,7 +141,6 @@ void	Command::JOIN(User *user, Server *server)
 					}
 					else if // pas de 2e arg ou bien c'est un mode
 					{
-<<<<<<< HEAD
 						if (server->HasPass(this->_param[i]) == false)
 						{
 							chan = server->AddUserToChannel(user, this->_param[i]); // ajouter user a map de channel dans classe server
@@ -153,15 +152,6 @@ void	Command::JOIN(User *user, Server *server)
 						}
 						else // mdp needed
 							server->SendMsgToClient(user, ERR_BADCHANNELKEY(user->GetNickname(), this->_param[i]));
-=======
-						if ()
-						chan = server->AddUserToChannel(user, this->_param[i]); // ajouter user a map de channel dans classe server
-						server->SendMsgToClient(user, RPL_JOIN(user->GetNickname(), chan->GetName()));
-						if (chan->GetTopic().empty() == false)
-							server->SendMsgToClient(user, RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic()));
-						server->SendMsgToClient(user, RPL_NAMREPLY(user->GetNickname(), chan->GetName(), chan->GetClientList()));
-						server->SendMsgToClient(user, RPL_ENDOFNAMES(user->GetNickname(), chan->GetName()));
->>>>>>> efe6533a15716ce46e5c27b931bde097bb75f0c4
 					}
 				}
 				hasChanStr = true;
