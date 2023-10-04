@@ -1,11 +1,11 @@
 # include "irc.hpp"
 
-Channel::Channel() : _modes("none"), _topic("")
+Channel::Channel() :  _password(""), _modes(""), _topic("")
 {
 	return ;
 }
 
-Channel::Channel(const std::string name) : _name(name), _modes("none"), _topic("")
+Channel::Channel(const std::string name) : _password(""), _name(name), _modes(""), _topic("")
 {
 	return ;
 }
@@ -76,10 +76,29 @@ void	Channel::AddOper(User *toAdd)
 	return ;
 }
 
-void	Channel::SetModes(std::string modes)
+void	Channel::SetModes(int mode, std::string param, int *j, Server *server)
 {
-	this->_modes = modes;
-	return ;
+	if (mode != 'o')
+		if (!_modes.find(mode))
+			_modes += mode;
+	if (mode == 'k')
+	{
+		_password = param;
+		(*j)++;
+	}
+	else if (mode == 'o')
+	{
+		User	*newOper = server->GetUserByNickname(param);
+
+		if (!IsOper(newOper))
+			AddOper(newOper);
+		(*j)++;
+	}
+	else if (mode == 'l')
+	{
+		_limit = atoi(param.c_str());
+		(*j)++;
+	}
 }
 
 

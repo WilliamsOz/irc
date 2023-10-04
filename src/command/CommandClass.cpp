@@ -19,10 +19,7 @@ Command::Command(std::string src)
 			first = false;
 		}
 		else
-		{
-			// check la longueur du message ?
 			_param.push_back(src.substr(0, pos));
-		}
 		src = src.erase(0, pos + 1);
 	}
 	this->SetUpCommandsContainer();
@@ -46,6 +43,7 @@ void	Command::ExecCommand(int clientFd, Server *server)
 void	Command::SetUpCommandsContainer()
 {
     _commands["PASS"] = &Command::PASS;
+    _commands["PASS"] = &Command::MODE;
     _commands["PING"] = &Command::PING;
     _commands["CAP"] = &Command::CAP;
 	_commands["PRIVMSG"] =&Command::PRIVMSG;
@@ -121,7 +119,7 @@ void	Command::JOIN(User *user, Server *server)
 					pos = 1;
 					len = (this->_param[i].length()) - 1;
 					modes = this->_param[i].substr(pos, len);
-					chan->SetModes(modes);
+					// chan->SetModes(modes); // a modifier
 				}
 				break;
 		}
@@ -134,10 +132,31 @@ void	Command::JOIN(User *user, Server *server)
 //																				- +t ---------------> topic changeable seulement par operator
 //																				- +k ---------------> definis mdp pour le channel
 // /MODE #moncanal +l 10 ---------------> definis le nombre max d'utilisateur pouvant entrer dans le channel
-// void	Command::MODE(User *user, Server *server)
-// {
 
-// }
+void	Command::MODE(User *user, Server *server)
+{
+	Channel	*channel = server->GetChannelByName(_param[0]);
+
+	if (_param[0][0] != '#' || !channel)
+	{	
+		SendMsgToClient(user, ERR_NOSUCHCHANNEL(user->GetNickname(), _param[0]));
+		return;
+	}
+	if (!channel->IsOper(user))
+	{	
+		SendMsgToClient(user, ERR_CHANOPRIVSNEED(user->GetNickname(), _param[0]));
+		return;
+	}
+	int i = 0;
+	int	j = 2; // index des arguments des modes
+
+	if (_param[1][i] == '+')
+		while (_param[1][i] != '-' && _param[1][i])
+			channel->SetModes(_param[1][i++], _param[j], &j, server);
+	// if (_param[1][i] == '-')
+	// 	while (_param[1][i++] != '-')
+	// 		channel->UnsetModes(_param[1][i++], &_param, &j);
+}
 
 void	Command::PASS(User *user, Server *server)
 {

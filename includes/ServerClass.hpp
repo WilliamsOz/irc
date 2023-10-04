@@ -21,12 +21,12 @@ class Server
 	Channel		*GetChannelByName(std::string);
 	void        SendMessagetoClient(User* recipient, std::string msg);
 	int			GetFdByNickName(std::string nickName);
+	User		*GetUserByNickname(std::string nickName);
 	User		*GetUserByFd(int fd);
 	std::string	GetServerPassword( void ) { return(this->_password); }
 	int			GetEpollFd();
 	epoll_event*	GetClientEvent();
 	std::map<int, User *>&	GetUsers();
-	void		SendMsgToClient(User *recipient, std::string msg);
 
 	private:
 

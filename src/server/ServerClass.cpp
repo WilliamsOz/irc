@@ -37,6 +37,16 @@ int		Server::GetFdByNickName(std::string nickName)
 	return (-1);
 }
 
+User	*Server::GetUserByNickname(std::string nickName) 
+{
+	for (std::map<int, User *>::iterator it =_users.begin(); it != _users.end(); it++)
+	{
+		if (it->second->GetNickname() == nickName)
+			return (it->second);
+	}
+	return (NULL);
+}
+
 std::map<int, User *>&	Server::GetUsers()
 {
 	return (this->_users);
@@ -52,8 +62,6 @@ bool	Server::HasChannel(std::string name)
 	else
 		return (false);
 }
-
-// fusionner les deux ?
 
 Channel	*Server::GetChannelByName(std::string name)
 {
@@ -231,15 +239,4 @@ void	Server::LaunchServer()
     close(this->_epollfd);
 
 	return ;
-}
-
-
-void        Server::SendMsgToClient(User* recipient, std::string msg)
-{
-	int			bytes_sent;
-	int 		len = msg.size();
-
-	if ((bytes_sent = send(recipient->GetFd(), msg.c_str(), len, 0 )) != len)
-		return ;
-		// throw std::invalid_argument("send");
 }

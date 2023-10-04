@@ -26,6 +26,8 @@ class Command
 	void						SendMsgToClient(User *recipient, std::string msg);
 	void						printWhoIs(User *user);
 	// toutes les commandes
+
+	void						MODE(User *user, Server *server);
 	void						JOIN(User *user, Server *server);
 	void						PING(User *user, Server *server);
 	void						NICK(User *user, Server *server);
