@@ -139,7 +139,7 @@ void	Command::JOIN(User *user, Server *server)
 								server->SendMsgToClient(user, ERR_BADCHANNELKEY(user->GetNickname(), this->_param[i]));
 						}
 					}
-					else if // pas de 2e arg ou bien c'est un mode
+					else // pas de 2e arg ou bien c'est un mode
 					{
 						if (server->HasPass(this->_param[i]) == false)
 						{
