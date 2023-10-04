@@ -19,6 +19,7 @@ class Server
 	Channel*	AddUserToChannel(User *user, std::string name);
 
 	bool		IsPassCorrect(std::string channel, std::string password);
+	bool		HasPass(std::string channel);
 	Channel		*GetChannelByName(std::string);
 	void        SendMessagetoClient(User* recipient, std::string msg);
 	int			GetFdByNickName(std::string nickName);

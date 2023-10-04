@@ -88,10 +88,7 @@ void	Command::WHOIS(User *user, Server *server)
 	return ;
 }
 
-
-// gerer le cas ou le user ne donne pas de mdp a un channel qui en demande un
-// gerer le cas ou le mdp est correct
-// gerer le cas ou le mdp est incorrect
+// gerer le cas ou le channel est sur invitation seulement
 void	Command::JOIN(User *user, Server *server)
 {
 	Channel		*chan;
@@ -107,7 +104,7 @@ void	Command::JOIN(User *user, Server *server)
 		{
 			case '#':
 				this->_param[i].erase(0, 1); // enlever le '#' du nom du channel
-				if (server->HasChannel(this->_param[i]) == false) // si le channel n'existe pas dans classe server
+				if (server->HasChannel(this->_param[i]) == false) // channel inexistant
 				{
 					chan = server->AddChannel(this->_param[i]); // ajouter channel dans classe server
 					if (chan->HasUser(user) == false) // si user n'est pas deja dans ce channel
@@ -123,28 +120,38 @@ void	Command::JOIN(User *user, Server *server)
 						server->SendMsgToClient(user, RPL_ENDOFNAMES(user->GetNickname(), chan->GetName()));
 					}
 				}
-				else
+				else // channel existant
 				{
 					if (this->_param.size() > 1) // si a 2e arg
-					{
+					{ 								// fusionner les deux if et voir si il y a un segfault
 						if (this->_param[i + 1][0] != '+') // si 2e arg pas un mode
 						{
-							if (server->IsPassCorrect(this->_param[i], this->_param[i + 1]) == true)
+							if (server->IsPassCorrect(this->_param[i], this->_param[i + 1]) == true) // password correct
 							{
-								std::cout << "password is correct" << std::endl;
+								chan = server->AddUserToChannel(user, this->_param[i]); // ajouter user a map de channel dans classe server
+								server->SendMsgToClient(user, RPL_JOIN(user->GetNickname(), chan->GetName()));
+								if (chan->GetTopic().empty() == false)
+									server->SendMsgToClient(user, RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic()));
+								server->SendMsgToClient(user, RPL_NAMREPLY(user->GetNickname(), chan->GetName(), chan->GetClientList()));
+								server->SendMsgToClient(user, RPL_ENDOFNAMES(user->GetNickname(), chan->GetName()));
 							}
-							else
-								std::cout << "password is incorrect" << std::endl;
+							else // password incorrect
+								server->SendMsgToClient(user, ERR_BADCHANNELKEY(user->GetNickname(), this->_param[i]));
 						}
 					}
 					else // pas de 2e arg ou bien c'est un mode
 					{
-						chan = server->AddUserToChannel(user, this->_param[i]); // ajouter user a map de channel dans classe server
-						server->SendMsgToClient(user, RPL_JOIN(user->GetNickname(), chan->GetName()));
-						if (chan->GetTopic().empty() == false)
-							server->SendMsgToClient(user, RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic()));
-						server->SendMsgToClient(user, RPL_NAMREPLY(user->GetNickname(), chan->GetName(), chan->GetClientList()));
-						server->SendMsgToClient(user, RPL_ENDOFNAMES(user->GetNickname(), chan->GetName()));
+						if (server->HasPass(this->_param[i]) == false)
+						{
+							chan = server->AddUserToChannel(user, this->_param[i]); // ajouter user a map de channel dans classe server
+							server->SendMsgToClient(user, RPL_JOIN(user->GetNickname(), chan->GetName()));
+							if (chan->GetTopic().empty() == false)
+								server->SendMsgToClient(user, RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic()));
+							server->SendMsgToClient(user, RPL_NAMREPLY(user->GetNickname(), chan->GetName(), chan->GetClientList()));
+							server->SendMsgToClient(user, RPL_ENDOFNAMES(user->GetNickname(), chan->GetName()));
+						}
+						else // mdp needed
+							server->SendMsgToClient(user, ERR_BADCHANNELKEY(user->GetNickname(), this->_param[i]));
 					}
 				}
 				hasChanStr = true;
@@ -162,17 +169,6 @@ void	Command::JOIN(User *user, Server *server)
 		}
 	}
 }
-
-
-// /MODE #moncanal +itk ---------------> applique les modes sur le/les channel :
-//																				- +i ---------------> invite only
-//																				- +t ---------------> topic changeable seulement par operator
-//																				- +k ---------------> definis mdp pour le channel
-// /MODE #moncanal +l 10 ---------------> definis le nombre max d'utilisateur pouvant entrer dans le channel
-// void	Command::MODE(User *user, Server *server)
-// {
-
-// }
 
 void	Command::PASS(User *user, Server *server)
 {
@@ -226,7 +222,6 @@ void	Command::USER(User *user, Server *server)
 		user->SetServername(this->_param[2]);
 		user->SetRealname(this->_param[3], this->_param[4]);
 	}
-	std::cout << user->GetRealname() << std::endl;
 	return ;
 }
 
