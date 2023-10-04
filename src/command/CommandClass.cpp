@@ -180,10 +180,24 @@ void	Command::MODE(User *user, Server *server)
 
 	if (_param[1][i] == '+')
 		while (_param[1][i] != '-' && _param[1][i])
+		{
+			if (_param[j] == "") // checker si ca marche
+			{
+				SendMsgToClient(user, ERR_NEEDMOREPARAMS(user->GetNickname(), this->_name));
+				break;
+			}
 			channel->SetModes(_param[1][i++], _param[j], &j, server);
-	// if (_param[1][i] == '-')
-	// 	while (_param[1][i++] != '-')
-	// 		channel->UnsetModes(_param[1][i++], &_param, &j);
+		}
+	if (_param[1][i] == '-')
+		while (_param[1][i++] != '-')
+		{
+			if (_param[j] == "")
+			{
+				SendMsgToClient(user, ERR_NEEDMOREPARAMS(user->GetNickname(), this->_name));
+				break;
+			}
+			channel->UnsetModes(_param[1][i++],_param[j], &j, server);
+		}
 }
 
 void	Command::PASS(User *user, Server *server)

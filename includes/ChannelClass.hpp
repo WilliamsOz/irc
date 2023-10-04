@@ -13,6 +13,7 @@ class Channel
 
 	void	AddUser(User *toAdd);
 	void	AddOper(User *toAdd);
+	void	DelOper(User *toDel);
 	bool	IsOper(User *toCheck); // utile?
 
 	std::string GetName();
@@ -24,7 +25,7 @@ class Channel
 
 	bool	HasUser(User *user);
 	void	SetModes(int mode, std::string param, int *j, Server *server);
-	void	UnsetModes(int mode, std::vector<std::string> *paramCpy, int *j);
+	void	UnsetModes(int mode, std::string param, int *j, Server *server);
 
 	private:
 

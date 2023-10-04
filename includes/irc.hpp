@@ -20,6 +20,8 @@ const int MAX_EVENTS = 10;
 # include <string>
 # include <map>
 # include <vector>
+# include <bitset>
+#include <limits.h>
 
 // CLASS
 # include "ServerClass.hpp"

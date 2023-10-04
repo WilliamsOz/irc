@@ -48,6 +48,21 @@ bool	Channel::IsOper(User *toCheck)
 	return (false);
 }
 
+void	Channel::DelOper(User *toDel)
+{
+	User *user = NULL;
+
+	for (std::vector<User *>::iterator it = this->_opers.begin(); it != this->_opers.end(); it++)
+	{
+		user = *it;
+		if (toDel->GetNickname() == user->GetNickname())
+		{
+			this->_opers.erase(it);
+			return ;
+		}
+	}
+}
+
 std::string	Channel::GetClientList()
 {
 	User *user = NULL;
@@ -108,6 +123,26 @@ void	Channel::SetModes(int mode, std::string param, int *j, Server *server)
 	}
 }
 
+void	Channel::UnsetModes(int mode, std::string param, int *j, Server *server)
+{
+	size_t	i = _modes.find(mode);
+
+	if (mode != 'o')
+		if (i != std::string::npos)
+			_modes.erase(i, 1);
+	if (mode == 'k')
+		_password = "";
+	else if (mode == 'o')
+	{
+		User	*toDel = server->GetUserByNickname(param);
+
+		if (!IsOper(toDel))
+			DelOper(toDel);
+		(*j)++;
+	}
+	else if (mode == 'l')
+		_limit = INT_MAX;
+}
 
 bool	Channel::HasUser(User *user)
 {
