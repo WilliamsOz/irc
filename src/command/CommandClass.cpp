@@ -51,6 +51,7 @@ void	Command::SetUpCommandsContainer()
 	_commands["NICK"] = &Command::NICK;
 	_commands["JOIN"] = &Command::JOIN;
 	_commands["WHOIS"] = &Command::WHOIS;
+
 }
 
 void	Command::printWhoIs(User *user)
@@ -78,7 +79,7 @@ void	Command::WHOIS(User *user, Server *server)
 	return ;
 }
 
-// en cas de success pour join -> envoyer 
+// gerer le cas ou le channel est sur invitation seulement
 void	Command::JOIN(User *user, Server *server)
 {
 	Channel		*chan;
@@ -93,28 +94,62 @@ void	Command::JOIN(User *user, Server *server)
 		switch (this->_param[i][0])
 		{
 			case '#':
-				if (server->HasChannel(this->_param[i]) == false)
+				this->_param[i].erase(0, 1); // enlever le '#' du nom du channel
+				if (server->HasChannel(this->_param[i]) == false) // channel inexistant
 				{
-					this->_param[i].erase(0, 1);
-					chan = server->AddChannel(this->_param[i]); // utiliser constructor parametrique ?
-					if (chan->HasUser(user) == false)
+					chan = server->AddChannel(this->_param[i]); // ajouter channel dans classe server
+					if (chan->HasUser(user) == false) // si user n'est pas deja dans ce channel
 					{
-						user->JoinChannel(chan);
-						chan->AddUser(user);
-						chan->AddOper(user);
-						SendMsgToClient(user, RPL_JOIN(chan->GetName()));
+						user->JoinChannel(chan); // ajout du channel dans vector de classe user
+						chan->AddUser(user); // ajout du user dans vector de classe channel
+						chan->AddOper(user); // ajout du user dans vector operator de classe channel
+						SendMsgToClient(user, RPL_JOIN(user->GetNickname(), chan->GetName()));
 						if (chan->GetTopic().empty() == false)
 							SendMsgToClient(user, RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic()));
-						SendMsgToClient(user, RPL_NAMREPLY(user->GetNickname(), chan->GetName(), chan->GetClientList()));
+						std::string userNickname = "@" + user->GetNickname();
+						SendMsgToClient(user, RPL_NAMREPLY(userNickname, chan->GetName(), chan->GetClientList()));
+						SendMsgToClient(user, RPL_ENDOFNAMES(user->GetNickname(), chan->GetName()));
 					}
 				}
-				else
-					server->AddUserToChannel(user, this->_param[i]);
+				else // channel existant
+				{
+					if (this->_param.size() > 1) // si a 2e arg
+					{ 								// fusionner les deux if et voir si il y a un segfault
+						if (this->_param[i + 1][0] != '+') // si 2e arg pas un mode
+						{
+							if (server->IsPassCorrect(this->_param[i], this->_param[i + 1]) == true) // password correct
+							{
+								chan = server->AddUserToChannel(user, this->_param[i]); // ajouter user a map de channel dans classe server
+								SendMsgToClient(user, RPL_JOIN(user->GetNickname(), chan->GetName()));
+								if (chan->GetTopic().empty() == false)
+									SendMsgToClient(user, RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic()));
+								SendMsgToClient(user, RPL_NAMREPLY(user->GetNickname(), chan->GetName(), chan->GetClientList()));
+								SendMsgToClient(user, RPL_ENDOFNAMES(user->GetNickname(), chan->GetName()));
+							}
+							else // password incorrect
+								SendMsgToClient(user, ERR_BADCHANNELKEY(user->GetNickname(), this->_param[i]));
+						}
+					}
+					else // pas de 2e arg ou bien c'est un mode
+					{
+						if (server->HasPass(this->_param[i]) == false)
+						{
+							chan = server->AddUserToChannel(user, this->_param[i]); // ajouter user a map de channel dans classe server
+							SendMsgToClient(user, RPL_JOIN(user->GetNickname(), chan->GetName()));
+							if (chan->GetTopic().empty() == false)
+								SendMsgToClient(user, RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic()));
+							SendMsgToClient(user, RPL_NAMREPLY(user->GetNickname(), chan->GetName(), chan->GetClientList()));
+							SendMsgToClient(user, RPL_ENDOFNAMES(user->GetNickname(), chan->GetName()));
+						}
+						else // mdp needed
+							SendMsgToClient(user, ERR_BADCHANNELKEY(user->GetNickname(), this->_param[i]));
+					}
+				}
 				hasChanStr = true;
 				break;
 			case '+':
-				if (this->_param[i][1] != '\0' && hasChanStr == true
-					&& server->HasChannel(chan->GetName()) == false)
+				if (this->_param[i][1] != '\0' && hasChanStr == true // si ne contient pas seulement '+'
+					&& server->HasChannel(chan->GetName()) == false) // si case '#' est execute && channel n'existe pas dans classe server
 				{
 					pos = 1;
 					len = (this->_param[i].length()) - 1;
@@ -125,13 +160,6 @@ void	Command::JOIN(User *user, Server *server)
 		}
 	}
 }
-
-
-// /MODE #moncanal +itk ---------------> applique les modes sur le/les channel :
-//																				- +i ---------------> invite only
-//																				- +t ---------------> topic changeable seulement par operator
-//																				- +k ---------------> definis mdp pour le channel
-// /MODE #moncanal +l 10 ---------------> definis le nombre max d'utilisateur pouvant entrer dans le channel
 
 void	Command::MODE(User *user, Server *server)
 {

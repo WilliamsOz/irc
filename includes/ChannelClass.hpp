@@ -19,6 +19,7 @@ class Channel
 	std::string GetModes();
 	std::string GetTopic();
 	std::string	GetClientList();
+	std::string	GetPassword();
 	std::vector<User *> &GetUsers();
 
 	bool	HasUser(User *user);

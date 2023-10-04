@@ -58,10 +58,17 @@ std::string	Channel::GetClientList()
 		user = *it;
 		if (this->IsOper(user) == true)
 			userInfo += '@';
+		else
+			userInfo += '+';
 		userInfo += user->GetNickname();
 		userInfo += ' ';
 	}
 	return (userInfo);
+}
+
+std::string	Channel::GetPassword()
+{
+	return (this->_password);
 }
 
 void	Channel::AddUser(User *toAdd)

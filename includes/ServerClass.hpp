@@ -16,8 +16,10 @@ class Server
 	static void SignalHandler(int);
 	bool		HasChannel(std::string name);
 	Channel*	AddChannel(std::string name);
-	void		AddUserToChannel(User *user, std::string name);
+	Channel*	AddUserToChannel(User *user, std::string name);
 
+	bool		IsPassCorrect(std::string channel, std::string password);
+	bool		HasPass(std::string channel);
 	Channel		*GetChannelByName(std::string);
 	void        SendMessagetoClient(User* recipient, std::string msg);
 	int			GetFdByNickName(std::string nickName);
