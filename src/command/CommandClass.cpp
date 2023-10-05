@@ -64,24 +64,33 @@ void	Command::SetUpCommandsContainer()
 void	Command::INVITE(User *user, Server *server)
 {
 	Channel *chan = NULL;
+	User	*target = NULL;
+	std::string tmp;
+
 	if (this->_param.size() < 2)
 		return ;
-	this->_param[1].erase(0, 1);
+	tmp.assign(this->_param[1]);
+	if (this->_param[1].find('#') != std::string::npos) // si contient un '#', supprimer
+		this->_param[1].erase(0, 1);
 	if (server->HasChannel(this->_param[1]) == true) // channel exist
 	{
 		chan = server->GetChannelByName(this->_param[1]);
-		if (chan->HasUser(user) == false) // le user est pas membre du channel -> ERR_NOTONCHANNEL
-			SendMsgToClient(user, ERR_NOTONCHANNEL(user->GetNickname(), chan->GetName()));
-		else if (chan->IsOper(user) == false && chan->GetModes().find('i') != std::string::npos) // user pas op et channel en invite only -> ERR_CHANOPRIVSNEEDED
-			SendMsgToClient(user, ERR_CHANOPRIVSNEED(user->GetNickname(), chan->GetName()));
-		// else if () // user target est deja dans channel -> ERR_USERONCHANNEL
-		// else // RPL_INVITING pour inviter le client
+		target = server->GetUserByFd(server->GetFdByNickName(this->_param[0]));
+		if (chan->HasUser(user) == false) 															// le user est pas membre du channel
+			SendMsgToClient(user, ERR_NOTONCHANNEL(user->GetNickname(), tmp));
+		else if (chan->IsOper(user) == false && chan->GetModes().find('i') != std::string::npos)	// user pas op et channel en invite only
+			SendMsgToClient(user, ERR_CHANOPRIVSNEED(user->GetNickname(), tmp));
+		else if (chan->HasUser(target))																// user target est deja dans channel
+			SendMsgToClient(user, ERR_USERONCHANNEL(target->GetNickname(), this->_param[1]));
+		else // inviter le client
+		{
+			SendMsgToClient(user, RPL_INVITING(user->GetNickname(), target->GetNickname(), chan->GetName()));
+			SendMsgToClient(target, INVITE_CLIENT(user->GetNickname(), user->GetUsername(), "Invite", target->GetNickname(), chan->GetName()));
+			target->AddInvitation(chan);
+		}
 	}
 	else
 		SendMsgToClient(user, ERR_NOSUCHCHANNEL(user->GetNickname(), this->_param[1]));
-
-	// else
-	// numeric replies ERR_NOSUCHCHANNEL
 }
 
 void	Command::printWhoIs(User *user)
@@ -147,7 +156,7 @@ void	Command::JOIN(User *user, Server *server)
 					{ 								// fusionner les deux if et voir si il y a un segfault
 						if (this->_param[i + 1][0] != '+') // si 2e arg pas un mode
 						{
-							if (server->IsPassCorrect(this->_param[i], this->_param[i + 1]) == true) // password correct
+							if (server->IsPassCorrect(this->_param[i], this->_param[i + 1]) == true) // password correct 					// ajouter condition de invitation only
 							{
 								chan = server->AddUserToChannel(user, this->_param[i]); // ajouter user a map de channel dans classe server
 								server->SendMsgToClient(user, RPL_JOIN(user->GetNickname(), chan->GetName()));
@@ -162,9 +171,11 @@ void	Command::JOIN(User *user, Server *server)
 					}
 					else // pas de 2e arg ou bien c'est un mode
 					{
-						if (server->HasPass(this->_param[i]) == false)
+						if (server->HasPass(this->_param[i]) == false) // ajouter condition d'invite only
 						{
 							chan = server->AddUserToChannel(user, this->_param[i]); // ajouter user a map de channel dans classe server
+							user->JoinChannel(chan);
+							chan->AddUser(user);
 							server->SendMsgToClient(user, RPL_JOIN(user->GetNickname(), chan->GetName()));
 							if (chan->GetTopic().empty() == false)
 								server->SendMsgToClient(user, RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic()));

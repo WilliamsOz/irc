@@ -16,6 +16,7 @@ class User
 	// FUNCTION
 	void		JoinChannel(Channel *toJoin);
 	bool		IsAvailableNickname(std::string nickname, Server *server);
+	void		AddInvitation(Channel *invite);
 
 	// SETTER
 	void		SetFd(int fd);
@@ -46,6 +47,7 @@ class User
 	int						_fd;
 	bool					_isAuth;
 	std::vector<Channel *>	_channels;
+	std::vector<Channel *>	_invited;
 };
 
 #endif
