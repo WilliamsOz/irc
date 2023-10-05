@@ -53,8 +53,27 @@ void	Command::SetUpCommandsContainer()
 	_commands["NICK"] = &Command::NICK;
 	_commands["JOIN"] = &Command::JOIN;
 	_commands["WHOIS"] = &Command::WHOIS;
+	// _commands["INVITE"] = &Command::INVITE;
 
 }
+
+// seulement les membres du channel sont autorise a invite sinon ERR_NOTONCHANNEL
+// si channel est invite-only, server doit replies ERR_CHANOPRIVSNEEDED si user pas operateur
+// si user deja dans channel, reject commande avec replies ERR_USERONCHANNEL
+// replies RPL_INVITING si commande accepte
+// void	Command::INVITE(User *user, Server *server)
+// {
+// 	(void)user;
+// 	(void)server;
+// 	if (this->_param.size() > 1)
+// 		std::cout << "carre" << std::endl;
+// 	else
+// 		std::cout << "NO" << std::endl;
+// 	// if (server->HasChannel(this->_))
+
+// 	// else
+// 	// numeric replies ERR_NOSUCHCHANNEL
+// }
 
 void	Command::printWhoIs(User *user)
 {
@@ -289,8 +308,6 @@ void        Command::SendMsgToClient(User* recipient, std::string msg)
 	int			bytes_sent;
 	int 		len = msg.size();
 
-	if (len > 4096) // == taille maximum des msg sur internet
-		// throw an error
 	if ((bytes_sent = send(recipient->GetFd(), msg.c_str(), len, 0 )) != len)
 		return ;
 		// throw std::invalid_argument("send");
