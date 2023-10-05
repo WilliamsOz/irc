@@ -43,7 +43,7 @@ void	Command::ExecCommand(int clientFd, Server *server)
 void	Command::SetUpCommandsContainer()
 {
     _commands["PASS"] = &Command::PASS;
-    _commands["PASS"] = &Command::MODE;
+    _commands["MODE"] = &Command::MODE;
     _commands["PING"] = &Command::PING;
     _commands["CAP"] = &Command::CAP;
 	_commands["PRIVMSG"] =&Command::PRIVMSG;
@@ -161,11 +161,29 @@ void	Command::JOIN(User *user, Server *server)
 	}
 }
 
+std::stack<std::string>	*Command::SetModeParams(std::vector<std::string> param)
+{
+	std::stack<std::string>	*modeParams = NULL;
+	int i = 2; // les parametres de mode sont stocker partir de cet indice (ex: #channel(0) +ok-v(1) mp(2))
+	int j = param.size() - 1;
+
+	modeParams->push(""); // on push une valeur par defaut au cas ou il n'y a pas d'arg
+	while (j >= i)
+	{
+		modeParams->push(param[j]);
+		j--; // on rempli a l'envers car c une stack
+	}
+	return (modeParams);
+}
+
 void	Command::MODE(User *user, Server *server)
 {
-	Channel	*channel = server->GetChannelByName(_param[0]);
+	Channel					*channel = server->GetChannelByName(_param[0].erase(0, 1)); //on supprime le hashtag
+	std::stack<std::string>	*modeParams = SetModeParams(_param);
 
-	if (_param[0][0] != '#' || !channel)
+	if (_param[0][0] != '#') // on ne gere que les mode de channel pas ceux des clients
+		return;
+	if (!channel)
 	{	
 		SendMsgToClient(user, ERR_NOSUCHCHANNEL(user->GetNickname(), _param[0]));
 		return;
@@ -175,28 +193,19 @@ void	Command::MODE(User *user, Server *server)
 		SendMsgToClient(user, ERR_CHANOPRIVSNEED(user->GetNickname(), _param[0]));
 		return;
 	}
-	int i = 0;
-	int	j = 2; // index des arguments des modes
+	int i = 0; // index des flag de mode
 
 	if (_param[1][i] == '+')
 		while (_param[1][i] != '-' && _param[1][i])
 		{
-			if (_param[j] == "") // checker si ca marche
-			{
-				SendMsgToClient(user, ERR_NEEDMOREPARAMS(user->GetNickname(), this->_name));
-				break;
-			}
-			channel->SetModes(_param[1][i++], _param[j], &j, server);
+			i++;
+			channel->SetModes(_param[1][i], modeParams, server, this, user); // on incremente j quand on a utilisé un param
 		}
 	if (_param[1][i] == '-')
-		while (_param[1][i++] != '-')
+		while (_param[1][i] != '-')
 		{
-			if (_param[j] == "")
-			{
-				SendMsgToClient(user, ERR_NEEDMOREPARAMS(user->GetNickname(), this->_name));
-				break;
-			}
-			channel->UnsetModes(_param[1][i++],_param[j], &j, server);
+			i++;
+			channel->UnsetModes(_param[1][i++], modeParams, server, this, user);
 		}
 }
 
@@ -213,7 +222,9 @@ void	Command::PASS(User *user, Server *server)
 			close(user->GetFd());
 		}
 		else
+		{
 			user->SetAuth(true);
+		}
 	}
 }
 	
@@ -326,12 +337,9 @@ std::vector<std::string>	Command::GetParameters()
 
 void        Command::SendMsgToClient(User* recipient, std::string msg)
 {
-	int			bytes_sent;
 	int 		len = msg.size();
 
-	if (len > 4096) // == taille maximum des msg sur internet
-		// throw an error
-	if ((bytes_sent = send(recipient->GetFd(), msg.c_str(), len, 0 )) != len)
+	if ((send(recipient->GetFd(), msg.c_str(), len, 0 )) != len)
 		return ;
 		// throw std::invalid_argument("send");
 	// if ret send() == -1 -> throw error 

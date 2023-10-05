@@ -3,6 +3,8 @@
 
 #include "irc.hpp"
 
+class Command;
+
 class Channel
 {
 	public:
@@ -23,10 +25,10 @@ class Channel
 	std::string	GetPassword();
 	std::vector<User *> &GetUsers();
 
-	bool	HasUser(User *user);
-	void	SetModes(int mode, std::string param, int *j, Server *server);
-	void	UnsetModes(int mode, std::string param, int *j, Server *server);
-
+	bool		HasUser(User *user);
+	void		SetModes(int mode, std::stack<std::string> *modeParam, Server *server, Command *cmd, User *user);
+	void		UnsetModes(int mode, std::stack<std::string> *modeParams, Server *server, Command *cmd, User *user);
+	std::string	IntToString(int number);
 	private:
 
 	std::vector<User *>	_users;

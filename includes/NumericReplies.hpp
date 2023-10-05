@@ -19,17 +19,17 @@
 #define CAP_REQ() ("CAP * ACK multi-prefix\r\n")
 
             /* = = =    MODE    = = = */
-# define SET_CLIENT_MODE(nickname, username, cmd, mode) (user_id(nickname, username, cmd) + nickname + " :+" + mode + "\r\n")
+// # define SET_CLIENT_MODE(nickname, username, cmd, mode) (user_id(nickname, username, cmd) + nickname + " :+" + mode + "\r\n")
 
-# define UNSET_CLIENT_MODE(nickname, username, cmd, mode) (user_id(nickname, username, cmd) + nickname + " :-" + mode + "\r\n")
+// # define UNSET_CLIENT_MODE(nickname, username, cmd, mode) (user_id(nickname, username, cmd) + nickname + " :-" + mode + "\r\n")
 
-# define SET_CHANEL_MODE(nickname, username, cmd, chanel, mode) (user_id(nickname, username, cmd) + chanel + " :+" + mode + "\r\n")
+# define SET_CHANEL_MODE(nickname, username, cmd, chanel, mode) (user_id(nickname, username, cmd) + chanel + " :+" + mode + "\r\n") //used
 
-# define UNSET_CHANEL_MODE(nickname, username, cmd, chanel, mode) (user_id(nickname, username, cmd) + chanel + " :-" + mode + "\r\n")
+# define UNSET_CHANEL_MODE(nickname, username, cmd, chanel, mode) (user_id(nickname, username, cmd) + chanel + " :-" + mode + "\r\n") // used
 
-# define SET_OTHER_CLIENT_CHANEL_MODE(nickname, username, cmd, chanel, mode, concerned_client_nickname) ((user_id(nickname, username, cmd) + chanel + " +" + mode  + " " + concerned_client_nickname + "\r\n"))
+# define SET_NEWOPER(nickname, username, cmd, chanel, mode, concerned_client_nickname) ((user_id(nickname, username, cmd) + chanel + " +" + mode  + " " + concerned_client_nickname + "\r\n")) //used
 
-# define UNSET_OTHER_CLIENT_CHANEL_MODE(nickname, username, cmd, chanel, mode, concerned_client_nickname) ((user_id(nickname, username, cmd) + chanel + " -" + mode  + " " + concerned_client_nickname + "\r\n"))
+# define UNSET_OPER(nickname, username, cmd, chanel, mode, concerned_client_nickname) ((user_id(nickname, username, cmd) + chanel + " -" + mode  + " " + concerned_client_nickname + "\r\n"))
 // 324
 # define RPL_CHANNELMODEIS(nickname, chanel, chanel_mods) (":localhost 324 " + nickname + " " + chanel + " +" chanel_mods + "\r\n")
 // 329

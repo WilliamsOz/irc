@@ -98,47 +98,97 @@ void	Channel::AddOper(User *toAdd)
 	return ;
 }
 
-void	Channel::SetModes(int mode, std::string param, int *j, Server *server)
+std::string Channel::IntToString(int number)
 {
+    std::ostringstream	oss;
+
+    oss << number;
+    return oss.str();
+}
+
+
+void	Channel::SetModes(int mode, std::stack<std::string> *modeParams, Server *server, Command *cmd, User *user)
+{
+	std::string	availableModes = "itkol";
+	std::string	needParam = "kol";
+	
+	if (availableModes.find(mode) == std::string::npos)
+	{
+		cmd->SendMsgToClient(user, ERR_UMODEUNKNOWNFLAG(user->GetNickname()));
+		return ;
+	}
+	if (needParam.find(mode) != std::string::npos && modeParams->top().empty() == true)
+		return ; // on ignore la commande si le param est manquant
 	if (mode != 'o')
 		if (!_modes.find(mode))
-			_modes += mode;
+		{
+			_modes += mode; // le mode est ajouté a la liste de mode du canal
+			std::vector<User *>::iterator	it = this->_users.begin();
+			std::vector<User *>::iterator	ite = this->_users.end();
+			while (it != ite) // tous les mebres du canal sont informés du changement de mode
+				cmd->SendMsgToClient(user, SET_CHANEL_MODE(user->GetNickname(), user->GetUsername(), cmd->GetCmdName(), _name, IntToString(mode)));
+		}
 	if (mode == 'k')
 	{
-		_password = param;
-		(*j)++;
+		_password = modeParams->top();
+		modeParams->pop();
 	}
 	else if (mode == 'o')
 	{
-		User	*newOper = server->GetUserByNickname(param);
+		User	*newOper = server->GetUserByNickname(modeParams->top());
 
 		if (!IsOper(newOper))
 			AddOper(newOper);
-		(*j)++;
+		std::vector<User *>::iterator	it = this->_users.begin();
+		std::vector<User *>::iterator	ite = this->_users.end();
+			while (it != ite)
+				cmd->SendMsgToClient(user, SET_NEWOPER(user->GetNickname(), user->GetUsername(), cmd->GetCmdName(), _name, IntToString(mode), modeParams->top()));
+		modeParams->pop();
 	}
 	else if (mode == 'l')
 	{
-		_limit = atoi(param.c_str());
-		(*j)++;
+		_limit = atoi(modeParams->top().c_str());
+		modeParams->pop();
 	}
 }
 
-void	Channel::UnsetModes(int mode, std::string param, int *j, Server *server)
+void	Channel::UnsetModes(int mode, std::stack<std::string> *modeParams, Server *server, Command *cmd, User *user)
 {
+	std::string	availableModes = "itkol";
+	
+	if (availableModes.find(mode) == std::string::npos)
+	{
+		cmd->SendMsgToClient(user, ERR_UMODEUNKNOWNFLAG(user->GetNickname()));
+		return ;
+	}
 	size_t	i = _modes.find(mode);
 
 	if (mode != 'o')
 		if (i != std::string::npos)
+		{
 			_modes.erase(i, 1);
+			std::vector<User *>::iterator	it = this->_users.begin();
+			std::vector<User *>::iterator	ite = this->_users.end();
+
+			while (it != ite)
+				cmd->SendMsgToClient(user, UNSET_CHANEL_MODE(user->GetNickname(), user->GetUsername(), cmd->GetCmdName(), _name, IntToString(mode)));
+		}
 	if (mode == 'k')
 		_password = "";
 	else if (mode == 'o')
 	{
-		User	*toDel = server->GetUserByNickname(param);
+		if (modeParams->top().empty())
+			return; // fail en silence
+		User	*toDel = server->GetUserByNickname(modeParams->top());
 
 		if (!IsOper(toDel))
 			DelOper(toDel);
-		(*j)++;
+		std::vector<User *>::iterator	it = this->_users.begin();
+		std::vector<User *>::iterator	ite = this->_users.end();
+
+			while (it != ite)
+				cmd->SendMsgToClient(user, UNSET_OPER(user->GetNickname(), user->GetUsername(), cmd->GetCmdName(), _name, IntToString(mode), modeParams->top()));
+		modeParams->pop();
 	}
 	else if (mode == 'l')
 		_limit = INT_MAX;

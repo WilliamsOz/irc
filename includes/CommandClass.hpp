@@ -25,8 +25,9 @@ class Command
 	void 						SendToUser(User *user, Server *server);
 	void						SendMsgToClient(User *recipient, std::string msg);
 	void						printWhoIs(User *user);
-	// toutes les commandes
+	std::stack<std::string>		*SetModeParams(std::vector<std::string> param);
 
+	// toutes les commandes
 	void						MODE(User *user, Server *server);
 	void						JOIN(User *user, Server *server);
 	void						PING(User *user, Server *server);
@@ -38,8 +39,8 @@ class Command
 	void						WHOIS(User *user, Server *server);
 	
 	private:
-	std::string									_name;
-	std::vector<std::string>					_param;
+	std::string										_name;
+	std::vector<std::string>						_param;
 	std::map<std::string, CommandFunctionPointer>	_commands;
 };
 
