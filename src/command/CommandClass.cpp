@@ -53,7 +53,7 @@ void	Command::SetUpCommandsContainer()
 	_commands["NICK"] = &Command::NICK;
 	_commands["JOIN"] = &Command::JOIN;
 	_commands["WHOIS"] = &Command::WHOIS;
-	// _commands["INVITE"] = &Command::INVITE;
+	_commands["INVITE"] = &Command::INVITE;
 
 }
 
@@ -61,19 +61,28 @@ void	Command::SetUpCommandsContainer()
 // si channel est invite-only, server doit replies ERR_CHANOPRIVSNEEDED si user pas operateur
 // si user deja dans channel, reject commande avec replies ERR_USERONCHANNEL
 // replies RPL_INVITING si commande accepte
-// void	Command::INVITE(User *user, Server *server)
-// {
-// 	(void)user;
-// 	(void)server;
-// 	if (this->_param.size() > 1)
-// 		std::cout << "carre" << std::endl;
-// 	else
-// 		std::cout << "NO" << std::endl;
-// 	// if (server->HasChannel(this->_))
+void	Command::INVITE(User *user, Server *server)
+{
+	Channel *chan = NULL;
+	if (this->_param.size() < 2)
+		return ;
+	this->_param[1].erase(0, 1);
+	if (server->HasChannel(this->_param[1]) == true) // channel exist
+	{
+		chan = server->GetChannelByName(this->_param[1]);
+		if (chan->HasUser(user) == false) // le user est pas membre du channel -> ERR_NOTONCHANNEL
+			SendMsgToClient(user, ERR_NOTONCHANNEL(user->GetNickname(), chan->GetName()));
+		else if (chan->IsOper(user) == false && chan->GetModes().find('i') != std::string::npos) // user pas op et channel en invite only -> ERR_CHANOPRIVSNEEDED
+			SendMsgToClient(user, ERR_CHANOPRIVSNEED(user->GetNickname(), chan->GetName()));
+		// else if () // user target est deja dans channel -> ERR_USERONCHANNEL
+		// else // RPL_INVITING pour inviter le client
+	}
+	else
+		SendMsgToClient(user, ERR_NOSUCHCHANNEL(user->GetNickname(), this->_param[1]));
 
-// 	// else
-// 	// numeric replies ERR_NOSUCHCHANNEL
-// }
+	// else
+	// numeric replies ERR_NOSUCHCHANNEL
+}
 
 void	Command::printWhoIs(User *user)
 {
