@@ -259,7 +259,8 @@ void	Command::NICK(User *user, Server *server)
 	if (user->GetAuth() == true)
 	{
 		user->SetNickname(this->_param[0], server);
-		SendMsgToClient(user, RPL_WELCOME(user->GetNickname()));
+		if (user->GetNickname().empty() == false)
+			SendMsgToClient(user, RPL_WELCOME(user->GetNickname()));
 	}
 	return ;
 }
