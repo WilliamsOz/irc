@@ -5,7 +5,7 @@ Channel::Channel() : _topic("")
 	return ;
 }
 
-Channel::Channel(const std::string name) : _name(name), _topic(""), _password("coucou") // remove last
+Channel::Channel(const std::string name) : _name(name), _topic("")
 {
 	return ;
 }
