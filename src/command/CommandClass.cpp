@@ -221,10 +221,7 @@ void	Command::PING(User *user, Server *server)
 	(void)server;
 
 	if (user->GetAuth())
-	{
-		std::cout << this->_name << std::endl;
 		SendMsgToClient(user, RPL_PONG);
-	}
 	return ;
 }
 
