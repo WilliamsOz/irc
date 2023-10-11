@@ -82,7 +82,7 @@ void	Command::INVITE(User *user, Server *server)
 			SendMsgToClient(user, ERR_CHANOPRIVSNEED(user->GetNickname(), tmp));
 		else if (chan->HasUser(target))																// user target est deja dans channel
 			SendMsgToClient(user, ERR_USERONCHANNEL(target->GetNickname(), this->_param[1]));
-		else // inviter le client
+		else																						// inviter le client
 		{
 			SendMsgToClient(user, RPL_INVITING(user->GetNickname(), target->GetNickname(), chan->GetName()));
 			SendMsgToClient(target, INVITE_CLIENT(user->GetNickname(), user->GetUsername(), "Invite", target->GetNickname(), chan->GetName()));
@@ -90,7 +90,7 @@ void	Command::INVITE(User *user, Server *server)
 		}
 	}
 	else
-		SendMsgToClient(user, ERR_NOSUCHCHANNEL(user->GetNickname(), this->_param[1]));
+		SendMsgToClient(user, ERR_NOSUCHCHANNEL(user->GetNickname(), this->_param[1]));				// channel inexistant
 }
 
 void	Command::printWhoIs(User *user)
