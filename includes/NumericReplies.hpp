@@ -61,7 +61,7 @@
 // 317
 # define RPL_WHOISIDLE(nickname, host_name, create_time) (":localhost 317 " + nickname + " " + host_name + " " + create_time + " :second idle, signon time\r\n")
 // 318
-# define RPL_ENDOFWHOIS(nickname) (":localhost 318 " + nickname + " :End of /WHOIS\r\n") // USED
+# define RPL_ENDOFWHOIS(nickname) (":localhost 318: " + nickname + " :End of /WHOIS\r\n")
 // 352
 # define RPL_WHOREPLY(nickname, chanel, username, concerned_client_nickname, status, mode) (":localhost 352 " + nickname + " " + chanel + " ~" + username + " localhost localhost " + concerned_client_nickname + " " + status + mode + " :0 " + username + "\r\n")
 //352_bis
@@ -79,7 +79,7 @@
 
             /* = = =    NICK    = = = */
 // 401
-# define ERR_NOSUCHNICK(nickname) (":localhost 401 " + nickname + " :\r\n") //USED
+# define ERR_NOSUCHNICK(nickname) (":localhost 401: " + nickname + " There is no such nick :" + nickname + "\r\n") //USED
 // 406
 # define ERR_WASNOSUCHNICK(nickname, host_name) (":localhost 406 " + nickname + " " + host_name + " :There was no such nickname\r\n")
 // 433

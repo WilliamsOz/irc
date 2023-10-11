@@ -60,10 +60,10 @@ void	Command::SetUpCommandsContainer()
 
 }
 
-void	Command::printWhoIs(User *user)
+void	Command::printWhoIs(User *user, User *target)
 {
-	SendMsgToClient(user, RPL_WHOISUSER(user->GetNickname(), user->GetHostname(), user->GetUsername()));
-	SendMsgToClient(user, RPL_ENDOFWHOIS(user->GetNickname()));
+	SendMsgToClient(user, RPL_WHOISUSER(target->GetNickname(), target->GetHostname(), target->GetUsername()));
+	SendMsgToClient(user, RPL_ENDOFWHOIS(target->GetNickname()));
 	return ;
 }
 
@@ -71,14 +71,14 @@ void	Command::WHOIS(User *user, Server *server)
 {
 	if (user->GetAuth() == false)
 		return ;
-	for (size_t index = 0; index < this->_param.size() ; index++)
+	for (size_t index = 0 ; index < this->_param.size() ; index++)
 	{
 		int fdToFind = -1;
 		fdToFind = server->GetFdByNickName(this->_param[index]);
 		if (fdToFind != -1)
-			printWhoIs(server->GetUserByFd(fdToFind));
+			printWhoIs(user, server->GetUserByFd(fdToFind));
 		else
-			SendMsgToClient(user, ERR_NOSUCHNICK(user->GetNickname()));
+			SendMsgToClient(user, ERR_NOSUCHNICK(this->_param[index]));
 	}
 	return ;
 }
@@ -291,7 +291,7 @@ void        Command::SendMsgToClient(User* recipient, std::string msg)
 	int			bytes_sent;
 	int 		len = msg.size();
 
-	if (len > 4096) // == taille maximum des msg sur internet
+	// if (len > 4096) // == taille maximum des msg sur internet
 		// throw an error
 	if ((bytes_sent = send(recipient->GetFd(), msg.c_str(), len, 0 )) != len)
 		return ;
