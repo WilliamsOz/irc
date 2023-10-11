@@ -16,12 +16,6 @@ void	User::JoinChannel(Channel *toJoin)
 	return ;
 }
 
-void	User::AddInvitation(Channel *invite)
-{
-	this->_invited.push_back(invite);
-	return ;
-}
-
 void	User::SetUsername(std::string username)
 {
 	this->_username = username;

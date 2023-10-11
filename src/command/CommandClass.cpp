@@ -86,7 +86,7 @@ void	Command::INVITE(User *user, Server *server)
 		{
 			SendMsgToClient(user, RPL_INVITING(user->GetNickname(), target->GetNickname(), chan->GetName()));
 			SendMsgToClient(target, INVITE_CLIENT(user->GetNickname(), user->GetUsername(), "Invite", target->GetNickname(), chan->GetName()));
-			target->AddInvitation(chan);
+			chan->AddUserToInviteList(target);
 		}
 	}
 	else
@@ -118,7 +118,8 @@ void	Command::WHOIS(User *user, Server *server)
 	return ;
 }
 
-// gerer le cas ou le channel est sur invitation seulement
+// potentiellement ajouter des return apres chaque reply error pour eviter l'application de mode sur un mauvais join
+// /join #chanelexistant +it ----> regler ce probleme
 void	Command::JOIN(User *user, Server *server)
 {
 	Channel		*chan;
@@ -126,7 +127,7 @@ void	Command::JOIN(User *user, Server *server)
 	std::string replies;
 	size_t		pos;
 	size_t		len;
-	bool		hasChanStr = false;
+	bool		newChanCreated = false;
 
 	for (unsigned long i = 0; i < this->_param.size(); i++)
 	{
@@ -148,6 +149,7 @@ void	Command::JOIN(User *user, Server *server)
 						std::string userNickname = "@" + user->GetNickname();
 						server->SendMsgToClient(user, RPL_NAMREPLY(userNickname, chan->GetName(), chan->GetClientList()));
 						server->SendMsgToClient(user, RPL_ENDOFNAMES(user->GetNickname(), chan->GetName()));
+						newChanCreated = true;
 					}
 				}
 				else // channel existant
@@ -167,13 +169,22 @@ void	Command::JOIN(User *user, Server *server)
 								server->SendMsgToClient(user, RPL_NAMREPLY(user->GetNickname(), chan->GetName(), chan->GetClientList()));
 								server->SendMsgToClient(user, RPL_ENDOFNAMES(user->GetNickname(), chan->GetName()));
 							}
-							else // password incorrect
+							else if (server->IsPassCorrect(this->_param[i], this->_param[i + 1]) == false) // password incorrect
+							{
 								server->SendMsgToClient(user, ERR_BADCHANNELKEY(user->GetNickname(), this->_param[i]));
+								return ;
+							}
+							else // user n'est pas invite
+							{
+								server->SendMsgToClient(user, ERR_INVITEONLYCHAN(user->GetNickname(), chan->GetName()));
+								return ;
+							}
 						}
 					}
 					else // pas de 2e arg ou bien c'est un mode
 					{
-						if (server->HasPass(this->_param[i]) == false) // ajouter condition d'invite only
+						if (server->HasPass(this->_param[i]) == false
+							&& chan->IsUserInvited(user) == true) // si le channel n'a pas de mdp et que l'user est invited
 						{
 							chan = server->AddUserToChannel(user, this->_param[i]); // ajouter user a map de channel dans classe server
 							user->JoinChannel(chan);
@@ -184,20 +195,27 @@ void	Command::JOIN(User *user, Server *server)
 							server->SendMsgToClient(user, RPL_NAMREPLY(user->GetNickname(), chan->GetName(), chan->GetClientList()));
 							server->SendMsgToClient(user, RPL_ENDOFNAMES(user->GetNickname(), chan->GetName()));
 						}
-						else // mdp needed
+						else if (server->HasPass(this->_param[i]) == true) // channel a un password
+						{
 							server->SendMsgToClient(user, ERR_BADCHANNELKEY(user->GetNickname(), this->_param[i]));
+							return ;
+						}
+						else // user n'est pas invited
+						{
+							server->SendMsgToClient(user, ERR_INVITEONLYCHAN(user->GetNickname(), chan->GetName()));
+							return ;
+						}
 					}
 				}
-				hasChanStr = true;
-				break;
+				break ;
 			case '+':
-				if (this->_param[i][1] != '\0' && hasChanStr == true // si ne contient pas seulement '+'
-					&& server->HasChannel(chan->GetName()) == false) // si case '#' est execute && channel n'existe pas dans classe server
+				if (this->_param[i].size() > 1 && newChanCreated == true) // si ne contient pas seulement '+'
 				{
 					pos = 1;
 					len = (this->_param[i].length()) - 1;
 					modes = this->_param[i].substr(pos, len);
 					chan->SetModes(modes);
+					std::cout << chan->GetModes() << std::endl;
 				}
 				break;
 		}

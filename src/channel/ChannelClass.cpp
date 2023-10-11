@@ -5,7 +5,7 @@ Channel::Channel() : _topic("")
 	return ;
 }
 
-Channel::Channel(const std::string name) : _name(name), _modes("i"), _topic(""), _password("coucou") // remove last
+Channel::Channel(const std::string name) : _name(name), _topic("")
 {
 	return ;
 }
@@ -85,7 +85,8 @@ void	Channel::AddOper(User *toAdd)
 
 void	Channel::AddUserToInviteList(User *toAdd)
 {
-	this->_invited.push_back(toAdd);
+	if (IsUserInvited(toAdd) == false)
+		this->_invited.push_back(toAdd);
 	return;
 }
 
