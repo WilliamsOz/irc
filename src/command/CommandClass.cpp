@@ -429,15 +429,11 @@ void        Command::SendMsgToClient(User* recipient, std::string msg)
 {
 	int 		len = msg.size();
 
-<<<<<<< HEAD
 	//  la longueur du message ne doit pas dépasser 512 caractères
-	std::cout << "insendmsgtoclient()\n";
-	std::cout << "sending msg to [" << recipient->GetNickname() << "] fd="<< recipient->GetFd() << std::endl;
-	std::cout << "msg=[" << msg << "]" << std::endl;
+	// std::cout << "insendmsgtoclient()\n";
+	// std::cout << "sending msg to [" << recipient->GetNickname() << "] fd="<< recipient->GetFd() << std::endl;
+	// std::cout << "msg=[" << msg << "]" << std::endl;
 	if ((send(recipient->GetFd(), msg.c_str(), len, 0 )) != len)
-=======
-	if ((bytes_sent = send(recipient->GetFd(), msg.c_str(), len, 0 )) != len)
->>>>>>> origin/join_command
 		return ;
 		// throw std::invalid_argument("send");
 	// if ret send() == -1 -> throw error 
