@@ -17,18 +17,20 @@ class Channel
 	std::string GetModes();
 	std::string GetTopic();
 	std::string	GetClientList();
+	std::string	GetPassword();
+	std::vector<User *> &GetUsers();
 
 	bool	HasUser(User *user);
-
 	void	SetModes(std::string modes);
 
 	private:
 
-	std::string			_name;
 	std::vector<User *>	_users;
-	std::string			_modes;
 	std::vector<User *>	_opers;
+	std::string			_name;
+	std::string			_modes;
 	std::string			_topic;
+	std::string			_password;
 };
 
 #endif

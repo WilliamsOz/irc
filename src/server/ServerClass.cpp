@@ -32,31 +32,6 @@ std::string	Server::GetServerPassword( void )
 	return(this->_password);
 }
 
-std::map<std::string, Channel *>	Server::GetChannels( void )
-{
-	return this->_channels;
-}
-
-
-Channel&	Server::GetChannelsByName(std::string name, bool *isFind)
-{
-	std::map<std::string, Channel *> channelToFind;
-
-	if (name.at(0) == '#')
-		name.erase(0);
-	for (std::map<std::string, Channel *>::iterator it = this->_channels.begin() ; it != this->_channels.end() ; it++)
-	{
-		if (it->first == name)
-		{
-			*isFind = true;
-			return *it->second;
-		}
-	}
-	*isFind = false;
-	return *this->_channels.begin()->second;
-}
-
-
 int		Server::GetFdByNickName(std::string nickName) 
 {
 	for (std::map<int, User *>::iterator it =_users.begin(); it != _users.end(); it++)
@@ -72,15 +47,51 @@ std::map<int, User *>&	Server::GetUsers()
 	return (this->_users);
 }
 
+bool	Server::IsPassCorrect(std::string channel, std::string password)
+{
+	std::map<std::string, Channel *>::iterator it;
+	it = this->_channels.find(channel);
+
+	if (it->second->GetPassword() == password)
+		return (true);
+	else
+		return (false);
+}
+
+bool	Server::HasPass(std::string channel)
+{
+	std::map<std::string, Channel *>::iterator it;
+	it = this->_channels.find(channel);
+
+	if (it->second->GetPassword().empty() == false)
+		return (true);
+	else
+		return (false);
+}
+
 bool	Server::HasChannel(std::string name)
 {
 	std::map<std::string, Channel *>::iterator it;
 	it = this->_channels.find(name);
 
-	if (it != this->_channels.end())
+	if (it->first == name)
 		return (true);
 	else
 		return (false);
+}
+
+// fusionner les deux ?
+
+Channel	*Server::GetChannelByName(std::string name)
+{
+	std::map<std::string, Channel *>::iterator it;
+
+	it = this->_channels.find(name);
+
+	if (it != this->_channels.end())
+		return (it->second);
+	else
+		return (NULL);
 }
 
 Channel*	Server::AddChannel(std::string name)
@@ -91,18 +102,22 @@ Channel*	Server::AddChannel(std::string name)
 	return (newChannel);
 }
 
-void	Server::AddUserToChannel(User *user, std::string channel)
+Channel*	Server::AddUserToChannel(User *user, std::string channel)
 {
 	Channel *chan;
 
 	std::map<std::string, Channel *>::iterator it;
 	it = this->_channels.find(channel);
 	chan = it->second;
-	if (chan->GetModes().find('i') != std::string::npos)
+
+	if (chan->GetModes().find('i') == std::string::npos) 
+	{
+		// check si user a l'invitation
 		chan->AddUser(user);
+	}
 	//else
 		// send
-	return ;
+	return (chan);
 }
 
 void	Server::AddUser()
@@ -250,7 +265,7 @@ void	Server::LaunchServer()
 }
 
 
-void        Server::SendMessagetoClient(User* recipient, std::string msg)
+void        Server::SendMsgToClient(User* recipient, std::string msg)
 {
 	int			bytes_sent;
 	int 		len = msg.size();
@@ -258,5 +273,4 @@ void        Server::SendMessagetoClient(User* recipient, std::string msg)
 	if ((bytes_sent = send(recipient->GetFd(), msg.c_str(), len, 0 )) != len)
 		return ;
 		// throw std::invalid_argument("send");
-	// client->setLastActiveTime();
 }

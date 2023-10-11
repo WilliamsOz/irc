@@ -1,11 +1,11 @@
 # include "irc.hpp"
 
-Channel::Channel() : _modes("none"), _topic("")
+Channel::Channel() : _topic("")
 {
 	return ;
 }
 
-Channel::Channel(const std::string name) : _name(name), _modes("none"), _topic("")
+Channel::Channel(const std::string name) : _name(name), _topic(""), _password("coucou") // remove last
 {
 	return ;
 }
@@ -28,6 +28,11 @@ std::string	Channel::GetModes()
 std::string Channel::GetTopic()
 {
 	return (this->_topic);
+}
+
+std::vector<User *>	&Channel::GetUsers()
+{
+	return (this->_users);
 }
 
 bool	Channel::IsOper(User *toCheck)
@@ -53,10 +58,17 @@ std::string	Channel::GetClientList()
 		user = *it;
 		if (this->IsOper(user) == true)
 			userInfo += '@';
+		else
+			userInfo += '+';
 		userInfo += user->GetNickname();
 		userInfo += ' ';
 	}
 	return (userInfo);
+}
+
+std::string	Channel::GetPassword()
+{
+	return (this->_password);
 }
 
 void	Channel::AddUser(User *toAdd)

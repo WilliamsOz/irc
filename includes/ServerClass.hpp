@@ -16,17 +16,19 @@ class Server
 	static void SignalHandler(int);
 	bool		HasChannel(std::string name);
 	Channel*	AddChannel(std::string name);
-	void		AddUserToChannel(User *user, std::string name);
+	Channel*	AddUserToChannel(User *user, std::string name);
 
-	void        						SendMessagetoClient(User* recipient, std::string msg);
-	int									GetFdByNickName(std::string nickName);
-	User								*GetUserByFd(int fd);
-	std::string							GetServerPassword( void );
-	std::map<std::string, Channel *>	GetChannels( void );
-	Channel&							GetChannelsByName(std::string name, bool *isFind);
-	int									GetEpollFd();
-	epoll_event*						GetClientEvent();
-	std::map<int, User *>&				GetUsers();
+	bool		IsPassCorrect(std::string channel, std::string password);
+	bool		HasPass(std::string channel);
+	Channel		*GetChannelByName(std::string);
+	void        SendMessagetoClient(User* recipient, std::string msg);
+	int			GetFdByNickName(std::string nickName);
+	User		*GetUserByFd(int fd);
+	std::string	GetServerPassword( void );
+	int			GetEpollFd();
+	epoll_event*	GetClientEvent();
+	std::map<int, User *>&	GetUsers();
+	void		SendMsgToClient(User *recipient, std::string msg);
 
 	private:
 

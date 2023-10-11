@@ -1,6 +1,9 @@
 ﻿#ifndef COMMANDCLASS_HPP
 # define COMMANDCLASS_HPP
 
+class Channel;
+class User;
+class Server;
 class Command;
 
 typedef void (Command::*CommandFunctionPointer)(User *, Server *);
@@ -18,8 +21,10 @@ class Command
 	// utils
 	void						ExecCommand(int clientFd, Server *server);
 	void						SetUpCommandsContainer();
-	// void 						SendToChannel(User *user, Server *server);
+	void 						SendToChannel(User *user, Server *server);
 	void 						SendToUser(User *user, Server *server);
+	void						SendMsgToClient(User *recipient, std::string msg);
+	void						printWhoIs(User *user);
 	// toutes les commandes
 	void						JOIN(User *user, Server *server);
 	void						PING(User *user, Server *server);
@@ -29,7 +34,7 @@ class Command
 	void						CAP(User *user, Server *server);
 	void						PRIVMSG(User *user, Server *server);
 	void						WHOIS(User *user, Server *server);
-
+	
 	private:
 	std::string									_name;
 	std::vector<std::string>					_param;
