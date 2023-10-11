@@ -124,7 +124,7 @@
 # define ERR_USERONCHANNEL(nickname, channel) (":localhost 443 " + channel + " " + nickname + " :is already on channel\r\n") // used
 
             /* = = =    PRV MESSAGES     = = = */
-# define RPL_PRIVMSG_CHANEL(nickname, username, cmd, chanel, msg) (user_id(nickname, username, cmd) + chanel + " " + msg + "\r\n") // used
+# define RPL_PRIVMSG_CHANNEL(nickname, username, cmd, chanel, msg) (user_id(nickname, username, cmd) + chanel + " " + msg + "\r\n") // used
 												
 # define RPL_PRIVMSG_CLIENT(nickname, msg) (nickname + ": " + msg + "\r\n") // used
 
