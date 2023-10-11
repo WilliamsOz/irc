@@ -196,12 +196,18 @@ void	Channel::UnsetModes(int mode, std::stack<std::string> *modeParams, Server *
 
 bool	Channel::HasUser(User *user)
 {
-	for (std::vector<User *>::iterator it = this->_users.begin();
-		it != this->_users.end(); it++)
+	std::cout << this->_users[0] << std::endl;
+	std::vector<User *>::iterator it = this->_users.begin();
+	std::vector<User *>::iterator ite = this->_users.end(); 
+	
+	std::cout << "so quoi?1\n";
+	while (it != ite)
 	{
 		User *usertmp = *it;
 		if (usertmp->GetNickname() == user->GetNickname())
 			return (true);
+		it++;
 	}
+	std::cout << "so quoi?2\n";
 	return (false);
 }

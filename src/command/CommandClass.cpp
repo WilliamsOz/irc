@@ -34,6 +34,7 @@ void	Command::ExecCommand(int clientFd, Server *server)
 {
 	if (this->_commands.find(this->_name) != _commands.end())
 	{
+		std::cout << _name << std::endl;
 		(this->*this->_commands[this->_name])(server->GetUserByFd(clientFd), server);
 	}
 	else
@@ -161,26 +162,24 @@ void	Command::JOIN(User *user, Server *server)
 	}
 }
 
-std::stack<std::string>	*Command::SetModeParams(std::vector<std::string> param)
+void	Command::SetModeParams(std::vector<std::string> *param)
 {
-	std::stack<std::string>	*modeParams = NULL;
 	int i = 2; // les parametres de mode sont stocker partir de cet indice (ex: #channel(0) +ok-v(1) mp(2))
-	int j = param.size() - 1;
+	int j = param->size() - 1;
 
-	modeParams->push(""); // on push une valeur par defaut au cas ou il n'y a pas d'arg
+	_modeParams.push(""); // on push une valeur par defaut au cas ou il n'y a pas d'arg
 	while (j >= i)
 	{
-		modeParams->push(param[j]);
+		_modeParams.push((*param)[j]);
 		j--; // on rempli a l'envers car c une stack
 	}
-	return (modeParams);
 }
 
 void	Command::MODE(User *user, Server *server)
 {
-	Channel					*channel = server->GetChannelByName(_param[0].erase(0, 1)); //on supprime le hashtag
-	std::stack<std::string>	*modeParams = SetModeParams(_param);
+	Channel	*channel = server->GetChannelByName(_param[0].erase(0, 1)); //on supprime le hashtag
 
+	SetModeParams(&_param);
 	if (_param[0][0] != '#') // on ne gere que les mode de channel pas ceux des clients
 		return;
 	if (!channel)
@@ -199,13 +198,13 @@ void	Command::MODE(User *user, Server *server)
 		while (_param[1][i] != '-' && _param[1][i])
 		{
 			i++;
-			channel->SetModes(_param[1][i], modeParams, server, this, user); // on incremente j quand on a utilisé un param
+			channel->SetModes(_param[1][i], &_modeParams, server, this, user); // on incremente j quand on a utilisé un param
 		}
 	if (_param[1][i] == '-')
 		while (_param[1][i] != '-')
 		{
 			i++;
-			channel->UnsetModes(_param[1][i++], modeParams, server, this, user);
+			channel->UnsetModes(_param[1][i++], &_modeParams, server, this, user);
 		}
 }
 
@@ -277,41 +276,71 @@ void	Command::PING(User *user, Server *server)
 	return ;
 }
 
+std::string	Command::GetMsg()
+{
+	std::string	msg;
+	size_t 		i = 1;
+
+	_param[i].erase(0, 1); // on supp les ":"
+	while (i < _param.size())
+	{
+		msg += _param[i];
+		msg += " ";
+		i++;
+	}
+	return (msg);
+}
+
 void	Command::SendToUser(User *user, Server *server)
 {
-	int	recipientFd = server->GetFdByNickName(_param[0]);
+	std::cout << "in sendtouser()\n";
+	std::cout << "_param[0]=[" << _param[0] << "]\n";
 
-	if (recipientFd != -1) // si le user appartient bien au server
-		SendMsgToClient(user, RPL_PRIVMSG_CLIENT(user->GetNickname(), user->GetUsername(), "PRIVMSG", _param[0], _param[1]));
+	User	*recipient = server->GetUserByNickname(_param[0]);
+
+	if (recipient) // si le user appartient bien au server
+	{
+		SendMsgToClient(recipient, RPL_PRIVMSG_CLIENT(user->GetNickname(), this->GetMsg()));
+	}
 	else // le user est inconnu
 		SendMsgToClient(user, ERR_NOSUCHNICK(user->GetNickname(), user->GetHostname()));
 }
 
 void	Command::SendToChannel(User *user, Server *server)
 {
+	std::cout << "in sendtochan()\n";
 	Channel	*recipient = server->GetChannelByName(this->_param[0]);
+	std::cout << "JE\n";
 
-	if (server->HasChannel(this->_param[0]) == false)
+	this->_param[0].erase(0, 1);
+	std::cout << "HEIN?\n";
+	if (server->HasChannel(this->_param[0]) == false) // check que le chan existe
 	{
-		SendMsgToClient(user, ERR_NOSUCHNICK(user->GetNickname(), user->GetHostname()));
+		SendMsgToClient(user, ERR_NOSUCHCHANNEL(user->GetNickname(), _param[0]));
 		return ;	
 	}
-	if (!recipient->HasUser(user))
+	std::cout << "HEIN?1\n";
+	if (!recipient->HasUser(user)) // check que le user qui veut parler appartient bien au channel
 	{
 		SendMsgToClient(user, ERR_CANNOTSENDTOCHAN(this->_param[0], recipient->GetName()));
 		return ;
 	}
+	std::cout << "HEIN?\2n";
 	if (this->_param[1] == "") // check que le msg n'est pas vide
 	{
 		SendMsgToClient(user, ERR_NOTEXTTOSEND(this->_param[0]));
 		return ;
 	}
+
+	std::cout << "VAIS VOUS BUTTER\n";
 	std::vector<User *>::iterator	it = recipient->GetUsers().begin();
 	std::vector<User *>::iterator	ite = recipient->GetUsers().end();
 
+	std::cout << "WESH GROS\n";
 	while (it != ite)
 	{
-		SendMsgToClient(user, RPL_PRIVMSG_CHANEL(user->GetNickname(), user->GetUsername(), "PRIVMSG", recipient->GetName(), this->_param[1]));
+		std::cout << "IN CHAN send to " << (*it)->GetNickname() << std::endl;
+		SendMsgToClient(*it, RPL_PRIVMSG_CLIENT(user->GetNickname(), this->GetMsg()));
 		it++;
 	}
 }
@@ -319,7 +348,11 @@ void	Command::SendToChannel(User *user, Server *server)
 void	Command::PRIVMSG(User *user, Server *server)
 {
 	if (_param.size() < 2)
+	{
+		std::cout << "error param\n";
 		SendMsgToClient(user, ERR_NEEDMOREPARAMS(user->GetNickname(), this->_name));
+		return;
+	}
 	if (this->GetParameters()[0][0] == '#')
 		this->SendToChannel(user, server);
 	else
@@ -340,6 +373,10 @@ void        Command::SendMsgToClient(User* recipient, std::string msg)
 {
 	int 		len = msg.size();
 
+	//  la longueur du message ne doit pas dépasser 512 caractères
+	std::cout << "insendmsgtoclient()\n";
+	std::cout << "sending msg to [" << recipient->GetNickname() << "] fd="<< recipient->GetFd() << std::endl;
+	std::cout << "msg=[" << msg << "]" << std::endl;
 	if ((send(recipient->GetFd(), msg.c_str(), len, 0 )) != len)
 		return ;
 		// throw std::invalid_argument("send");

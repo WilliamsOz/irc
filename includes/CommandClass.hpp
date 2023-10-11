@@ -17,6 +17,7 @@ class Command
 	//getter
 	std::vector<std::string>	GetParameters();
 	std::string					GetCmdName();
+	std::string					GetMsg();
 
 	// utils
 	void						ExecCommand(int clientFd, Server *server);
@@ -25,7 +26,8 @@ class Command
 	void 						SendToUser(User *user, Server *server);
 	void						SendMsgToClient(User *recipient, std::string msg);
 	void						printWhoIs(User *user);
-	std::stack<std::string>		*SetModeParams(std::vector<std::string> param);
+	void						SetModeParams(std::vector<std::string> *param);
+
 
 	// toutes les commandes
 	void						MODE(User *user, Server *server);
@@ -41,6 +43,7 @@ class Command
 	private:
 	std::string										_name;
 	std::vector<std::string>						_param;
+	std::stack<std::string>							_modeParams;
 	std::map<std::string, CommandFunctionPointer>	_commands;
 };
 

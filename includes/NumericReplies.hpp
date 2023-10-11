@@ -123,8 +123,8 @@
 
             /* = = =    PRV MESSAGES     = = = */
 # define RPL_PRIVMSG_CHANEL(nickname, username, cmd, chanel, msg) (user_id(nickname, username, cmd) + chanel + " " + msg + "\r\n") // used
-
-# define RPL_PRIVMSG_CLIENT(nickname, username, cmd, concerned_client_nickname, msg) (user_id(nickname, username, cmd) + concerned_client_nickname + " " + msg + "\r\n")
+												
+# define RPL_PRIVMSG_CLIENT(nickname, msg) (nickname + ": " + msg + "\r\n") // used
 
 # define ERR_NOTEXTTOSEND(nickname) (nickname + " :No text to send\r\n") // used
 
