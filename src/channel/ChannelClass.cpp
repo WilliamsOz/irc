@@ -5,7 +5,7 @@ Channel::Channel() : _topic("")
 	return ;
 }
 
-Channel::Channel(const std::string name) : _name(name), _topic(""), _password("coucou") // remove last
+Channel::Channel(const std::string name) : _name(name), _modes("i"), _topic(""), _password("coucou") // remove last
 {
 	return ;
 }
@@ -81,6 +81,28 @@ void	Channel::AddOper(User *toAdd)
 {
 	this->_opers.push_back(toAdd);
 	return ;
+}
+
+void	Channel::AddUserToInviteList(User *toAdd)
+{
+	this->_invited.push_back(toAdd);
+	return;
+}
+
+bool	Channel::IsUserInvited(User *toCheck)
+{
+	if (this->_modes.find('i') != std::string::npos)
+		return (true);
+	else
+	{
+		for (std::vector<User *>::iterator it = this->_invited.begin(); it != this->_invited.end(); it++)
+		{
+			User *user = *it;
+			if (user->GetNickname() == toCheck->GetNickname())
+				return (true);
+		}
+		return (false);
+	}
 }
 
 void	Channel::SetModes(std::string modes)

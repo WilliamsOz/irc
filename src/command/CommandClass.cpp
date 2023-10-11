@@ -122,11 +122,13 @@ void	Command::JOIN(User *user, Server *server)
 				}
 				else // channel existant
 				{
+					chan = server->GetChannelByName(this->_param[i]);
 					if (this->_param.size() > 1) // si a 2e arg
 					{ 								// fusionner les deux if et voir si il y a un segfault
 						if (this->_param[i + 1][0] != '+') // si 2e arg pas un mode
 						{
-							if (server->IsPassCorrect(this->_param[i], this->_param[i + 1]) == true) // password correct
+							if (server->IsPassCorrect(this->_param[i], this->_param[i + 1]) == true
+								&& chan->IsUserInvited(user) == true) // password correct et user invited
 							{
 								chan = server->AddUserToChannel(user, this->_param[i]); // ajouter user a map de channel dans classe server
 								server->SendMsgToClient(user, RPL_JOIN(user->GetNickname(), chan->GetName()));

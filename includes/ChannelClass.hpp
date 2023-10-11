@@ -12,6 +12,8 @@ class Channel
 	void	AddUser(User *toAdd);
 	void	AddOper(User *toAdd);
 	bool	IsOper(User *toCheck);
+	void	AddUserToInviteList(User *toAdd);
+	bool	IsUserInvited(User *toCheck);
 
 	std::string GetName();
 	std::string GetModes();
@@ -27,6 +29,7 @@ class Channel
 
 	std::vector<User *>	_users;
 	std::vector<User *>	_opers;
+	std::vector<User *>	_invited;
 	std::string			_name;
 	std::string			_modes;
 	std::string			_topic;
