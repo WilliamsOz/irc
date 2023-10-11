@@ -16,6 +16,12 @@ void	User::JoinChannel(Channel *toJoin)
 	return ;
 }
 
+void	User::AddInvitation(Channel *invite)
+{
+	this->_invited.push_back(invite);
+	return ;
+}
+
 void	User::SetUsername(std::string username)
 {
 	this->_username = username;
@@ -34,19 +40,40 @@ void	User::SetServername(std::string servername)
 	return ;
 }
 
-void	User::SetRealname(std::string forname/*, std::string name*/) // a remettre sous dell
+void	User::SetRealname(std::vector<std::string> *paramCpy)
 {
-	std::string	realname;
+	std::string	forname = paramCpy->at(3); // le real name est le 3eme arg de NICK
+	std::string realname = forname.erase(0, 1); // on supprime les deux points
+	size_t		i = 4;
 
-	realname = forname.erase(0, 1); // on supprime les deux points
-	// realname += " " + name;
+	while (i < paramCpy->size())
+	{
+		realname += " " + paramCpy->at(i); // on ajoute tout les noms qui suivent
+		i++;						 	// car c'est possible d'y en avoir 1 ou plus de 2
+	}
 	this->_realname = realname;
 }
 
-
-void		User::SetNickname(std::string nickname)
+bool	User::IsAvailableNickname(std::string nickname, Server *server)
 {
-	this->_nickname = nickname;
+	std::map<int, User*>::iterator	it = server->GetUsers().begin();
+	std::map<int, User*>::iterator	ite = server->GetUsers().end();
+
+	while (it != ite)
+	{
+		if (nickname == it->second->GetNickname())
+			return (false);
+		it++;
+	}
+	return (true);
+}
+
+void		User::SetNickname(std::string nickname, Server *server)
+{
+	if (IsAvailableNickname(nickname, server) == true)
+		this->_nickname = nickname;
+	else
+		// error
 	return ;
 }
 

@@ -1,6 +1,11 @@
 ﻿#ifndef USERCLASS_HPP
 # define USERCLASS_HPP
 
+#include "irc.hpp"
+
+class Channel;
+class Server;
+
 class User
 {
 	public:
@@ -10,14 +15,16 @@ class User
 
 	// FUNCTION
 	void		JoinChannel(Channel *toJoin);
+	bool		IsAvailableNickname(std::string nickname, Server *server);
+	void		AddInvitation(Channel *invite);
 
 	// SETTER
 	void		SetFd(int fd);
 	void		SetUsername(std::string username);
 	void		SetHostname(std::string hostname);
 	void		SetServername(std::string servername);
-	void		SetRealname(std::string forname/*, std::string name*/); // (/!\ le realname peux etre un prenom seulement)
-	void		SetNickname( std::string nickname );
+	void		SetRealname(std::vector<std::string> *paramCpy);
+	void		SetNickname( std::string nickname, Server *server);
 	void		SetAuth(bool status);
 
 	// GETTER
@@ -40,6 +47,7 @@ class User
 	int						_fd;
 	bool					_isAuth;
 	std::vector<Channel *>	_channels;
+	std::vector<Channel *>	_invited;
 };
 
 #endif
