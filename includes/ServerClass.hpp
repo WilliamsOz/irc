@@ -24,7 +24,7 @@ class Server
 	int			GetFdByNickName(std::string nickName);
 	User		*GetUserByNickname(std::string nickName);
 	User		*GetUserByFd(int fd);
-	std::string	GetServerPassword( void ) { return(this->_password); }
+	std::string	GetServerPassword( void );
 	int			GetEpollFd();
 	epoll_event*	GetClientEvent();
 	std::map<int, User *>&	GetUsers();

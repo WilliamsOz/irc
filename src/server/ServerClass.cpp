@@ -27,6 +27,11 @@ User*	Server::GetUserByFd(int fd)
 	return userFound;
 }
 
+std::string	Server::GetServerPassword( void )
+{
+	return(this->_password);
+}
+
 int		Server::GetFdByNickName(std::string nickName) 
 {
 	for (std::map<int, User *>::iterator it =_users.begin(); it != _users.end(); it++)

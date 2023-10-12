@@ -109,8 +109,10 @@ void	Channel::AddUserToInviteList(User *toAdd)
 
 bool	Channel::IsUserInvited(User *toCheck)
 {
-	if (this->_modes.find('i') != std::string::npos)
+	if (this->_modes.find('i') == std::string::npos)
+	{
 		return (true);
+	}
 	else
 	{
 		for (std::vector<User *>::iterator it = this->_invited.begin(); it != this->_invited.end(); it++)
@@ -131,12 +133,16 @@ std::string Channel::IntToString(int number)
     return oss.str();
 }
 
-// void	Channel::SetModes(std::string modes)
-// {
-// 	if (modes)
-// 	this->_modes = modes;
-// 	return ;
-// }
+void	Channel::SetModes(std::string modes)
+{
+	std::string	modes_available = "it";
+	for (size_t i = 0; i < modes.size(); i++)
+	{
+		if (modes_available.find(modes[i]) != std::string::npos)
+			this->_modes += modes[i];
+	}
+	return ;
+}
 
 void	Channel::SetModes(int mode, std::stack<std::string> *modeParams, Server *server, Command *cmd, User *user)
 {

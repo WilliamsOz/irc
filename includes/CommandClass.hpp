@@ -25,9 +25,9 @@ class Command
 	void 						SendToChannel(User *user, Server *server);
 	void 						SendToUser(User *user, Server *server);
 	void						SendMsgToClient(User *recipient, std::string msg);
-	void						printWhoIs(User *user);
 	void						SetModeParams(std::vector<std::string> *param);
 
+	void						printWhoIs(User *user, User *target);
 
 	// toutes les commandes
 	void						MODE(User *user, Server *server);
