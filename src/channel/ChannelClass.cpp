@@ -5,7 +5,7 @@ Channel::Channel() : _topic("")
 	return ;
 }
 
-Channel::Channel(const std::string name) : _name(name), _topic(""), _password("coucou") // remove last
+Channel::Channel(const std::string name) : _name(name), _topic("")
 {
 	return ;
 }
@@ -83,9 +83,39 @@ void	Channel::AddOper(User *toAdd)
 	return ;
 }
 
+void	Channel::AddUserToInviteList(User *toAdd)
+{
+	if (IsUserInvited(toAdd) == false)
+		this->_invited.push_back(toAdd);
+	return;
+}
+
+bool	Channel::IsUserInvited(User *toCheck)
+{
+	if (this->_modes.find('i') == std::string::npos)
+	{
+		return (true);
+	}
+	else
+	{
+		for (std::vector<User *>::iterator it = this->_invited.begin(); it != this->_invited.end(); it++)
+		{
+			User *user = *it;
+			if (user->GetNickname() == toCheck->GetNickname())
+				return (true);
+		}
+		return (false);
+	}
+}
+
 void	Channel::SetModes(std::string modes)
 {
-	this->_modes = modes;
+	std::string	modes_available = "it";
+	for (size_t i = 0; i < modes.size(); i++)
+	{
+		if (modes_available.find(modes[i]) != std::string::npos)
+			this->_modes += modes[i];
+	}
 	return ;
 }
 

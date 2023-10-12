@@ -1,6 +1,9 @@
 #ifndef IRC_HPP
 # define IRC_HPP
 
+// TEMP
+#define ICI std::cout << "ICI" << std::endl;
+
 // CONST
 const int MAX_EVENTS = 10;
 
