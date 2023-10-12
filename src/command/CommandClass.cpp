@@ -56,6 +56,16 @@ void	Command::SetUpCommandsContainer()
 	_commands["JOIN"] = &Command::JOIN;
 	_commands["WHOIS"] = &Command::WHOIS;
 	_commands["INVITE"] = &Command::INVITE;
+	_commands["PART"] = &Command::PART;
+}
+
+// gerer la sortie de plusieurs channel en une seule command -> /part #lol,#coucou,#salut
+void	Command::PART(User *user, Server *server)
+{
+	(void)user;
+	(void)server;
+	for (size_t i = 0; i < this->_param.size(); i++)
+		std::cout << this->_param[i] << std::endl;
 }
 
 void	Command::INVITE(User *user, Server *server)

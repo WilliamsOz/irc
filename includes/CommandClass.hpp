@@ -14,7 +14,7 @@ class Command
 	Command(std::string src);
 	~Command();
 
-	//getter
+	// getter
 	std::vector<std::string>	GetParameters();
 	std::string					GetCmdName();
 
@@ -36,6 +36,7 @@ class Command
 	void						PRIVMSG(User *user, Server *server);
 	void						WHOIS(User *user, Server *server);
 	void						INVITE(User *user, Server *server);
+	void						PART(User *user, Server *server);
 	
 	private:
 	std::string									_name;
