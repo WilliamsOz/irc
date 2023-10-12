@@ -24,8 +24,6 @@ Command::Command(std::string src)
 				_param.push_back(src.substr(1, pos));
 			else
 				_param.push_back(src.substr(0, pos));
-			// std::cout << src << std::endl;
-			// check la longueur du message ?
 		}
 		src = src.erase(0, pos + 1);
 	}
@@ -60,10 +58,6 @@ void	Command::SetUpCommandsContainer()
 	_commands["INVITE"] = &Command::INVITE;
 }
 
-// seulement les membres du channel sont autorise a invite sinon ERR_NOTONCHANNEL
-// si channel est invite-only, server doit replies ERR_CHANOPRIVSNEEDED si user pas operateur
-// si user deja dans channel, reject commande avec replies ERR_USERONCHANNEL
-// replies RPL_INVITING si commande accepte
 void	Command::INVITE(User *user, Server *server)
 {
 	Channel *chan = NULL;
