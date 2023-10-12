@@ -80,8 +80,6 @@ bool	Server::HasChannel(std::string name)
 		return (false);
 }
 
-// fusionner les deux ?
-
 Channel	*Server::GetChannelByName(std::string name)
 {
 	std::map<std::string, Channel *>::iterator it;
@@ -102,7 +100,7 @@ Channel*	Server::AddChannel(std::string name)
 	return (newChannel);
 }
 
-Channel*	Server::AddUserToChannel(User *user, std::string channel)
+void	Server::AddUserToChannel(User *user, std::string channel)
 {
 	Channel *chan;
 
@@ -110,14 +108,8 @@ Channel*	Server::AddUserToChannel(User *user, std::string channel)
 	it = this->_channels.find(channel);
 	chan = it->second;
 
-	if (chan->GetModes().find('i') == std::string::npos) 
-	{
-		// check si user a l'invitation
-		chan->AddUser(user);
-	}
-	//else
-		// send
-	return (chan);
+	chan->AddUser(user);
+	return ;
 }
 
 void	Server::AddUser()

@@ -153,7 +153,7 @@ void	Command::JOIN(User *user, Server *server)
 						if (server->IsPassCorrect(this->_param[i], this->_param[i + 1]) == true
 							&& chan->IsUserInvited(user) == true) // password correct et user invited
 						{
-							chan = server->AddUserToChannel(user, this->_param[i]); // ajouter user a map de channel dans classe server
+							server->AddUserToChannel(user, this->_param[i]); // ajouter user a map de channel dans classe server
 							SendMsgToClient(user, RPL_JOIN(user->GetNickname(), chan->GetName()));
 							if (chan->GetTopic().empty() == false)
 								SendMsgToClient(user, RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic()));
@@ -170,7 +170,7 @@ void	Command::JOIN(User *user, Server *server)
 						if (server->HasPass(this->_param[i]) == false
 							&& chan->IsUserInvited(user) == true) // si le channel n'a pas de mdp et que l'user est invited
 						{
-							chan = server->AddUserToChannel(user, this->_param[i]); // ajouter user a map de channel dans classe server
+							server->AddUserToChannel(user, this->_param[i]); // ajouter user a map de channel dans classe server
 							user->JoinChannel(chan);
 							chan->AddUser(user);
 							SendMsgToClient(user, RPL_JOIN(user->GetNickname(), chan->GetName()));
