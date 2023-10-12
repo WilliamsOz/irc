@@ -14,6 +14,7 @@ class User
 	~User();
 
 	// FUNCTION
+	void		LeaveChannel(Channel *toLeave);
 	void		JoinChannel(Channel *toJoin);
 	bool		IsAvailableNickname(std::string nickname, Server *server);
 

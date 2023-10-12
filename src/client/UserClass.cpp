@@ -10,6 +10,20 @@ User::~User()
 	return ;
 }
 
+void	User::LeaveChannel(Channel *toLeave)
+{
+	for (std::vector<Channel *>::iterator it = this->_channels.begin(); it != this->_channels.end(); it++)
+	{
+		if (toLeave->GetName() == (*it)->GetName())
+			this->_channels.erase(it);
+	}
+
+	std::cout << "Channel in user : " << std::endl;
+	for (size_t i = 0; i < this->_channels.size(); i++)
+		std::cout << this->_channels[i] << std::endl;
+	return ;
+}
+
 void	User::JoinChannel(Channel *toJoin)
 {
 	this->_channels.push_back(toJoin);
@@ -68,7 +82,7 @@ void		User::SetNickname(std::string nickname, Server *server)
 {
 	if (IsAvailableNickname(nickname, server) == true)
 		this->_nickname = nickname;
-	else
+	// else
 		// error
 	return ;
 }

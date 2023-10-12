@@ -59,13 +59,33 @@ void	Command::SetUpCommandsContainer()
 	_commands["PART"] = &Command::PART;
 }
 
-// gerer la sortie de plusieurs channel en une seule command -> /part #lol,#coucou,#salut
 void	Command::PART(User *user, Server *server)
 {
-	(void)user;
-	(void)server;
+	std::string					chanStr;
+	Channel						*chan;
+	
 	for (size_t i = 0; i < this->_param.size(); i++)
-		std::cout << this->_param[i] << std::endl;
+	{
+		chanStr.assign(this->_param[i]);
+		if (chanStr[i] == '#' && chanStr.size() > 1)
+		{
+			chanStr.erase(0, 1);
+			chan = server->GetChannelByName(chanStr);
+			if (!chan)
+				SendMsgToClient(user, ERR_NOSUCHCHANNEL(user->GetNickname(), '#' + chanStr));
+			else if (chan->HasUser(user) == false)
+				SendMsgToClient(user, ERR_NOTONCHANNEL(user->GetNickname(), '#' + chan->GetName()));
+			else
+			{
+				if (chan->GetUsers().size() == 1)
+					server->RemoveChannel(chan);
+				user->LeaveChannel(chan);
+				SendMsgToClient(user, PART_CHANEL(user->GetNickname(), user->GetUsername(), "PART", chan->GetName()));
+			}
+		}
+	}
+	
+	return ;
 }
 
 void	Command::INVITE(User *user, Server *server)

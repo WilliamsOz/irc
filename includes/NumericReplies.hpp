@@ -103,7 +103,7 @@
             /* = = =    JOIN     = = = */
 # define RPL_JOIN(nickname, chanel) (':' + nickname + " JOIN #" + chanel + "\r\n") // used
 
-# define PART_CHANEL(nickname, username, cmd, chanel) (user_id(nickname, username, cmd) + chanel + "\r\n")
+# define PART_CHANEL(nickname, username, cmd, chanel) (user_id(nickname, username, cmd) + chanel + "\r\n") // used
 
 # define SET_CHANEL(nickname, username, cmd, chanel) (user_id(nickname, username, cmd) + ":" + chanel + "\r\n")
 // 353
@@ -113,7 +113,7 @@
 // 475
 # define ERR_BADCHANNELKEY(nickname, channel) (":localhost 475 " + nickname + " " + channel + " :\r\n") // used
 // 403
-# define ERR_NOSUCHCHANNEL(nickname, chanel) (":localhost 403 " + nickname + " " + chanel + " :No such channel\r\n")
+# define ERR_NOSUCHCHANNEL(nickname, chanel) (":localhost 403 " + nickname + " " + chanel + " :No such channel\r\n") // used
 // 404
 # define ERR_CANNOTSENDTOCHAN(nickname, chanel) (":localhost 404 " + nickname + " " + chanel + " :Cannot send to channel\r\n")
 // 441

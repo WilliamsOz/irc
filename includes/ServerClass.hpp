@@ -17,6 +17,7 @@ class Server
 	bool		HasChannel(std::string name);
 	Channel*	AddChannel(std::string name);
 	void		AddUserToChannel(User *user, std::string name);
+	void		RemoveChannel(Channel *toRemove);
 
 	bool		IsPassCorrect(std::string channel, std::string password);
 	bool		HasPass(std::string channel);
