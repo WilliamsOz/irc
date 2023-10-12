@@ -41,7 +41,7 @@
 // 474
 # define ERR_BANNEDFROMCHAN(client, channel) (":localhost 474 " + client + " " + channel + " :Cannot join channel (+b)\r\n")
 // 481
-# define ERR_NOPRIVILEGES(nickname) (":localhost 481 " + nickname + " :Permission Denied- You're not an IRC operator\r\n")
+# define ERR_NOPRIVILEGES(nickname) (":localhost 481 " + nickname + " :Permission Denied- Can't destitute the founder of a channel\r\n") // used
 // 482
 # define ERR_CHANOPRIVSNEED(nickname, chanel) (":localhost 482 " + nickname + " " + chanel + " :You're not chanel operator\r\n")
 // 501
@@ -96,7 +96,6 @@
 # define ERR_BADPING(nickname) (":localhost 513 " + nickname + std::string(RED) + "Error: " + std::string(RESET) + "Wrong password !\r\n")
 
 # define RPL_PONG ":localhost PONG localhost :localhost\r\n" // used
-// a faire check par oscar
 
 # define CMD_PING(token) ("PING :" + token + "\r\n")
 
@@ -124,9 +123,9 @@
 # define ERR_USERONCHANNEL(nickname, channel) (":localhost 443 " + channel + " " + nickname + " :is already on channel\r\n") // used
 
             /* = = =    PRV MESSAGES     = = = */
-# define RPL_PRIVMSG_CHANNEL(nickname, username, cmd, chanel, msg) (user_id(nickname, username, cmd) + chanel + " " + msg + "\r\n") // used
+# define RPL_PRIVMSG_CHANNEL(nickname, chanel, msg) (":" + nickname + " PRIVMSG #" + chanel + " " + msg + "\r\n") // used
 												
-# define RPL_PRIVMSG_CLIENT(nickname, msg) (nickname + ": " + msg + "\r\n") // used
+# define RPL_PRIVMSG_CLIENT(nickname, msg) (nickname + " PRIVMSG " + msg + "\r\n") // used
 
 # define ERR_NOTEXTTOSEND(nickname) (nickname + " :No text to send\r\n") // used
 

@@ -89,8 +89,6 @@ std::string	Channel::GetPassword()
 void	Channel::AddUser(User *toAdd)
 {
 	this->_users.push_back(toAdd);
-	std::cout << &this->_users.at(0) << std::endl;
-	std::cout << this->_users.at(0)->GetNickname() << std::endl;
 	return ;
 }
 
@@ -105,6 +103,12 @@ void	Channel::AddUserToInviteList(User *toAdd)
 	if (IsUserInvited(toAdd) == false)
 		this->_invited.push_back(toAdd);
 	return;
+}
+
+void	Channel::SetFounder(std::string founderName)
+{
+	this->_founder.assign(founderName);
+	return ;
 }
 
 bool	Channel::IsUserInvited(User *toCheck)
@@ -151,7 +155,7 @@ void	Channel::SetModes(int mode, std::stack<std::string> *modeParams, Server *se
 	
 	if (availableModes.find(mode) == std::string::npos)
 	{
-		cmd->SendMsgToClient(user, ERR_UMODEUNKNOWNFLAG(user->GetNickname()));
+		cmd->SendOneMsg(user, ERR_UMODEUNKNOWNFLAG(user->GetNickname()));
 		return ;
 	}
 	if (needParam.find(mode) != std::string::npos && modeParams->top().empty() == true) // on ignore la commande si le param est manquant
@@ -160,10 +164,7 @@ void	Channel::SetModes(int mode, std::stack<std::string> *modeParams, Server *se
 		if (!_modes.find(mode))
 		{
 			_modes += mode; // le mode est ajouté a la liste de mode du canal
-			std::vector<User *>::iterator	it = this->_users.begin();
-			std::vector<User *>::iterator	ite = this->_users.end();
-			while (it != ite) // tous les membres du canal sont informés du changement de mode
-				cmd->SendMsgToClient(user, SET_CHANEL_MODE(user->GetNickname(), user->GetUsername(), cmd->GetCmdName(), _name, IntToString(mode)));
+			cmd->SendGroupedMsg(_users, SET_CHANEL_MODE(user->GetNickname(), user->GetUsername(), cmd->GetCmdName(), _name, IntToString(mode)));
 		}
 	if (mode == 'k')
 	{
@@ -176,10 +177,7 @@ void	Channel::SetModes(int mode, std::stack<std::string> *modeParams, Server *se
 
 		if (!IsOper(newOper))
 			AddOper(newOper);
-		std::vector<User *>::iterator	it = this->_users.begin();
-		std::vector<User *>::iterator	ite = this->_users.end();
-			while (it != ite)
-				cmd->SendMsgToClient(user, SET_NEWOPER(user->GetNickname(), user->GetUsername(), cmd->GetCmdName(), _name, IntToString(mode), modeParams->top()));
+		cmd->SendGroupedMsg(_users, SET_NEWOPER(user->GetNickname(), user->GetUsername(), cmd->GetCmdName(), _name, IntToString(mode), modeParams->top()));
 		modeParams->pop();
 	}
 	else if (mode == 'l')
@@ -195,21 +193,17 @@ void	Channel::UnsetModes(int mode, std::stack<std::string> *modeParams, Server *
 	
 	if (availableModes.find(mode) == std::string::npos)
 	{
-		cmd->SendMsgToClient(user, ERR_UMODEUNKNOWNFLAG(user->GetNickname()));
+		cmd->SendOneMsg(user, ERR_UMODEUNKNOWNFLAG(user->GetNickname()));
 		return ;
 	}
 	size_t	i = _modes.find(mode);
 
 	if (mode != 'o')
-		if (i != std::string::npos)
-		{
-			_modes.erase(i, 1);
-			std::vector<User *>::iterator	it = this->_users.begin();
-			std::vector<User *>::iterator	ite = this->_users.end();
-
-			while (it != ite)
-				cmd->SendMsgToClient(user, UNSET_CHANEL_MODE(user->GetNickname(), user->GetUsername(), cmd->GetCmdName(), _name, IntToString(mode)));
-		}
+	if (i != std::string::npos)
+	{
+		_modes.erase(i, 1);
+		cmd->SendGroupedMsg(_users, UNSET_CHANEL_MODE(user->GetNickname(), user->GetUsername(), cmd->GetCmdName(), _name, IntToString(mode)));
+	}
 	if (mode == 'k')
 		_password = "";
 	else if (mode == 'o')
@@ -218,13 +212,13 @@ void	Channel::UnsetModes(int mode, std::stack<std::string> *modeParams, Server *
 			return; // fail en silence
 		User	*toDel = server->GetUserByNickname(modeParams->top());
 
-		if (!IsOper(toDel))
-			DelOper(toDel);
-		std::vector<User *>::iterator	it = this->_users.begin();
-		std::vector<User *>::iterator	ite = this->_users.end();
-
-			while (it != ite)
-				cmd->SendMsgToClient(user, UNSET_OPER(user->GetNickname(), user->GetUsername(), cmd->GetCmdName(), _name, IntToString(mode), modeParams->top()));
+		if (toDel->GetNickname() == _founder) // le founder ne peut pas perdre ses droits d'operateur
+		{	
+			cmd->SendOneMsg(user, ERR_NOPRIVILEGES(user->GetNickname()));
+			return;
+		}
+		DelOper(toDel);
+		cmd->SendGroupedMsg(_users, UNSET_OPER(user->GetNickname(), user->GetUsername(), cmd->GetCmdName(), _name, IntToString(mode), modeParams->top()));
 		modeParams->pop();
 	}
 	else if (mode == 'l')
@@ -236,7 +230,6 @@ bool	Channel::HasUser(User *user)
 	std::vector<User *>::iterator it = this->_users.begin();
 	std::vector<User *>::iterator ite = this->_users.end(); 
 	
-	// std::cout << "so quoi?1\n";
 	while (it != ite)
 	{
 		User *usertmp = *it;
@@ -244,6 +237,5 @@ bool	Channel::HasUser(User *user)
 			return (true);
 		it++;
 	}
-	// std::cout << "so quoi?2\n";
 	return (false);
 }

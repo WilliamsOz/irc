@@ -19,6 +19,7 @@ class Channel
 	bool	IsOper(User *toCheck);
 	void	AddUserToInviteList(User *toAdd);
 	bool	IsUserInvited(User *toCheck);
+	void	SetFounder(std::string founderName);
 
 	std::string GetName();
 	std::string GetModes();
@@ -34,6 +35,7 @@ class Channel
 	std::string	IntToString(int number);
 	private:
 
+	std::string			_founder;
 	std::vector<User *>	_users;
 	std::vector<User *>	_opers;
 	std::string			_password;

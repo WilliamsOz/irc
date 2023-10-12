@@ -24,7 +24,8 @@ class Command
 	void						SetUpCommandsContainer();
 	void 						SendToChannel(User *user, Server *server);
 	void 						SendToUser(User *user, Server *server);
-	void						SendMsgToClient(User *recipient, std::string msg);
+	void						SendOneMsg(User *recipient, std::string msg);
+	void						SendGroupedMsg(std::vector<User *> recipients, std::string msg);
 	void						SetModeParams(std::vector<std::string> *param);
 
 	void						printWhoIs(User *user, User *target);
