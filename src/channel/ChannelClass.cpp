@@ -92,8 +92,10 @@ void	Channel::AddUserToInviteList(User *toAdd)
 
 bool	Channel::IsUserInvited(User *toCheck)
 {
-	if (this->_modes.find('i') != std::string::npos)
+	if (this->_modes.find('i') == std::string::npos)
+	{
 		return (true);
+	}
 	else
 	{
 		for (std::vector<User *>::iterator it = this->_invited.begin(); it != this->_invited.end(); it++)
@@ -108,7 +110,12 @@ bool	Channel::IsUserInvited(User *toCheck)
 
 void	Channel::SetModes(std::string modes)
 {
-	this->_modes = modes;
+	std::string	modes_available = "it";
+	for (size_t i = 0; i < modes.size(); i++)
+	{
+		if (modes_available.find(modes[i]) != std::string::npos)
+			this->_modes += modes[i];
+	}
 	return ;
 }
 
