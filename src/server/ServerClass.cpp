@@ -263,14 +263,3 @@ void	Server::LaunchServer()
 
 	return ;
 }
-
-
-void        Server::SendMsgToClient(User* recipient, std::string msg)
-{
-	int			bytes_sent;
-	int 		len = msg.size();
-
-	if ((bytes_sent = send(recipient->GetFd(), msg.c_str(), len, 0 )) != len)
-		return ;
-		// throw std::invalid_argument("send");
-}

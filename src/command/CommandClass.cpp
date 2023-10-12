@@ -58,12 +58,8 @@ void	Command::SetUpCommandsContainer()
 	_commands["JOIN"] = &Command::JOIN;
 	_commands["WHOIS"] = &Command::WHOIS;
 	_commands["INVITE"] = &Command::INVITE;
-
 }
 
-<<<<<<< HEAD
-void	Command::printWhoIs(User *user, User *target)
-=======
 // seulement les membres du channel sont autorise a invite sinon ERR_NOTONCHANNEL
 // si channel est invite-only, server doit replies ERR_CHANOPRIVSNEEDED si user pas operateur
 // si user deja dans channel, reject commande avec replies ERR_USERONCHANNEL
@@ -100,8 +96,7 @@ void	Command::INVITE(User *user, Server *server)
 		SendMsgToClient(user, ERR_NOSUCHCHANNEL(user->GetNickname(), this->_param[1]));				// channel inexistant
 }
 
-void	Command::printWhoIs(User *user)
->>>>>>> origin/join_command
+void	Command::printWhoIs(User *user, User *target)
 {
 	SendMsgToClient(user, RPL_WHOISUSER(target->GetNickname(), target->GetHostname(), target->GetUsername()));
 	SendMsgToClient(user, RPL_ENDOFWHOIS(target->GetNickname()));
@@ -147,12 +142,12 @@ void	Command::JOIN(User *user, Server *server)
 						user->JoinChannel(chan); // ajout du channel dans vector de classe user
 						chan->AddUser(user); // ajout du user dans vector de classe channel
 						chan->AddOper(user); // ajout du user dans vector operator de classe channel
-						server->SendMsgToClient(user, RPL_JOIN(user->GetNickname(), chan->GetName()));
+						SendMsgToClient(user, RPL_JOIN(user->GetNickname(), chan->GetName()));
 						if (chan->GetTopic().empty() == false)
-							server->SendMsgToClient(user, RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic()));
+							SendMsgToClient(user, RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic()));
 						std::string userNickname = "@" + user->GetNickname();
-						server->SendMsgToClient(user, RPL_NAMREPLY(userNickname, chan->GetName(), chan->GetClientList()));
-						server->SendMsgToClient(user, RPL_ENDOFNAMES(user->GetNickname(), chan->GetName()));
+						SendMsgToClient(user, RPL_NAMREPLY(userNickname, chan->GetName(), chan->GetClientList()));
+						SendMsgToClient(user, RPL_ENDOFNAMES(user->GetNickname(), chan->GetName()));
 						newChanCreated = true;
 					}
 				}
@@ -165,16 +160,16 @@ void	Command::JOIN(User *user, Server *server)
 							&& chan->IsUserInvited(user) == true) // password correct et user invited
 						{
 							chan = server->AddUserToChannel(user, this->_param[i]); // ajouter user a map de channel dans classe server
-							server->SendMsgToClient(user, RPL_JOIN(user->GetNickname(), chan->GetName()));
+							SendMsgToClient(user, RPL_JOIN(user->GetNickname(), chan->GetName()));
 							if (chan->GetTopic().empty() == false)
-								server->SendMsgToClient(user, RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic()));
-							server->SendMsgToClient(user, RPL_NAMREPLY(user->GetNickname(), chan->GetName(), chan->GetClientList()));
-							server->SendMsgToClient(user, RPL_ENDOFNAMES(user->GetNickname(), chan->GetName()));
+								SendMsgToClient(user, RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic()));
+							SendMsgToClient(user, RPL_NAMREPLY(user->GetNickname(), chan->GetName(), chan->GetClientList()));
+							SendMsgToClient(user, RPL_ENDOFNAMES(user->GetNickname(), chan->GetName()));
 						}
 						else if (server->IsPassCorrect(this->_param[i], this->_param[i + 1]) == false) // password incorrect
-							server->SendMsgToClient(user, ERR_BADCHANNELKEY(user->GetNickname(), this->_param[i]));
+							SendMsgToClient(user, ERR_BADCHANNELKEY(user->GetNickname(), this->_param[i]));
 						else // user n'est pas invite
-							server->SendMsgToClient(user, ERR_INVITEONLYCHAN(user->GetNickname(), chan->GetName()));
+							SendMsgToClient(user, ERR_INVITEONLYCHAN(user->GetNickname(), chan->GetName()));
 					}
 					else // pas de 2e arg ou bien c'est un mode
 					{
@@ -184,16 +179,16 @@ void	Command::JOIN(User *user, Server *server)
 							chan = server->AddUserToChannel(user, this->_param[i]); // ajouter user a map de channel dans classe server
 							user->JoinChannel(chan);
 							chan->AddUser(user);
-							server->SendMsgToClient(user, RPL_JOIN(user->GetNickname(), chan->GetName()));
+							SendMsgToClient(user, RPL_JOIN(user->GetNickname(), chan->GetName()));
 							if (chan->GetTopic().empty() == false)
-								server->SendMsgToClient(user, RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic()));
-							server->SendMsgToClient(user, RPL_NAMREPLY(user->GetNickname(), chan->GetName(), chan->GetClientList()));
-							server->SendMsgToClient(user, RPL_ENDOFNAMES(user->GetNickname(), chan->GetName()));
+								SendMsgToClient(user, RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic()));
+							SendMsgToClient(user, RPL_NAMREPLY(user->GetNickname(), chan->GetName(), chan->GetClientList()));
+							SendMsgToClient(user, RPL_ENDOFNAMES(user->GetNickname(), chan->GetName()));
 						}
 						else if (server->HasPass(this->_param[i]) == true) // channel a un password
-							server->SendMsgToClient(user, ERR_BADCHANNELKEY(user->GetNickname(), this->_param[i]));
+							SendMsgToClient(user, ERR_BADCHANNELKEY(user->GetNickname(), this->_param[i]));
 						else // user n'est pas invited
-							server->SendMsgToClient(user, ERR_INVITEONLYCHAN(user->GetNickname(), chan->GetName()));
+							SendMsgToClient(user, ERR_INVITEONLYCHAN(user->GetNickname(), chan->GetName()));
 					}
 				}
 				break ;
@@ -337,11 +332,6 @@ void        Command::SendMsgToClient(User* recipient, std::string msg)
 	int			bytes_sent;
 	int 		len = msg.size();
 
-<<<<<<< HEAD
-	// if (len > 4096) // == taille maximum des msg sur internet
-		// throw an error
-=======
->>>>>>> origin/join_command
 	if ((bytes_sent = send(recipient->GetFd(), msg.c_str(), len, 0 )) != len)
 		return ;
 		// throw std::invalid_argument("send");

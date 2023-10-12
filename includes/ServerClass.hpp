@@ -27,7 +27,6 @@ class Server
 	int			GetEpollFd();
 	epoll_event*	GetClientEvent();
 	std::map<int, User *>&	GetUsers();
-	void		SendMsgToClient(User *recipient, std::string msg);
 
 	private:
 
