@@ -45,7 +45,6 @@ void	Command::SetUpCommandsContainer()
 {
     _commands["PASS"] = &Command::PASS;
     _commands["MODE"] = &Command::MODE;
-
     _commands["PING"] = &Command::PING;
     _commands["CAP"] = &Command::CAP;
 	_commands["PRIVMSG"] =&Command::PRIVMSG;
@@ -216,21 +215,31 @@ void	Command::SetModeParams(std::vector<std::string> *param)
 	int j = param->size() - 1;
 
 	_modeParams.push(""); // on push une valeur par defaut au cas ou il n'y a pas d'arg
-	while (j >= i)
+	if (!param->empty())
 	{
-		_modeParams.push((*param)[j]);
-		j--; // on rempli a l'envers car c une stack
+		while (j >= i)
+		{
+			_modeParams.push((*param)[j]);
+			j--; // on rempli a l'envers car c une stack
+		}
 	}
 }
 
 void	Command::MODE(User *user, Server *server)
 {
+	SetModeParams(&_param);
+
+	if (_param[0][0] != '#') // on ne gere que les mode de channel pas ceux des clients
+		return; // fail en silence
+	
 	_param[0].erase(0, 1); //on supprime le hashtag
 	Channel	*channel = server->GetChannelByName(_param[0]); //on supprime le hashtag
 
-	SetModeParams(&_param);
-	if (_param[0][0] != '#') // on ne gere que les mode de channel pas ceux des clients
-		return; // fail en silence
+	if (_param.size() == 1) // qd irssi envoie "MODE #<channel_name>"
+	{	
+		SendOneMsg(user, RPL_CHANNELMODEIS(user->GetNickname(), channel->GetName(), channel->GetModes()));
+		return;
+	}
 	if (!channel)
 	{	
 		SendOneMsg(user, ERR_NOSUCHCHANNEL(user->GetNickname(), _param[0]));
@@ -242,7 +251,7 @@ void	Command::MODE(User *user, Server *server)
 		return;
 	}
 	int i = 0; // index des flag de mode
-
+	
 	if (_param[1][i] == '+')
 		while (_param[1][++i] != '-' && _param[1][i])
 			channel->SetModes(_param[1][i], &_modeParams, server, this, user); // on incremente j quand on a utilisé un param
@@ -337,10 +346,7 @@ void	Command::SendToUser(User *user, Server *server)
 	if (recipient) // si le user appartient bien au server
 		SendOneMsg(recipient, RPL_PRIVMSG_CLIENT(user->GetNickname(), this->GetMsg()));
 	else // le user est inconnu
-	{
-		std::cout << "ERR_NOSUCHNICK\n";
 		SendOneMsg(user, ERR_NOSUCHNICK(user->GetNickname()));
-	}
 }
 
 void	Command::SendToChannel(User *user, Server *server)
@@ -370,7 +376,6 @@ void	Command::PRIVMSG(User *user, Server *server)
 {
 	if (_param.size() < 2)
 	{
-		std::cout << "ERR_NEEDMOREPARAMS\n";
 		SendOneMsg(user, ERR_NEEDMOREPARAMS(user->GetNickname(), this->_name));
 		return;
 	}
@@ -396,11 +401,8 @@ void		Command::SendGroupedMsg(std::vector<User *> recipients, std::string msg)
 	std::vector<User *>::iterator	ite = recipients.end();
 	int 							len = msg.size();
 
-	std::cout << "\nin grouped msg\n";
-	std::cout << "size vector de users = " << recipients.size() << std::endl;
 	while (it != ite)
 	{
-		std::cout << "sending = " << msg << " to = " << (*it)->GetNickname() << std::endl;
 		send((*it)->GetFd(), msg.c_str(), len, 0);
 		it++;
 	}
@@ -411,8 +413,6 @@ void        Command::SendOneMsg(User* recipient, std::string msg)
 {
 	int 		len = msg.size();
 
-	std::cout << "IN ONE MSG\n";
-	std::cout << "sending = " << msg << "to = " << recipient->GetNickname() << std::endl;
 	if ((send(recipient->GetFd(), msg.c_str(), len, 0 )) != len)
 		return ;
 		// throw std::invalid_argument("send");

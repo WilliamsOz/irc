@@ -29,10 +29,9 @@ class Channel
 	std::vector<User *> &GetUsers();
 
 	bool		HasUser(User *user);
-	void		SetModes(int mode, std::stack<std::string> *modeParam, Server *server, Command *cmd, User *user);
+	void		SetModes(char mode, std::stack<std::string> *modeParam, Server *server, Command *cmd, User *user);
 	void		SetModes(std::string modes);
-	void		UnsetModes(int mode, std::stack<std::string> *modeParams, Server *server, Command *cmd, User *user);
-	std::string	IntToString(int number);
+	void		UnsetModes(char mode, std::stack<std::string> *modeParams, Server *server, Command *cmd, User *user);
 	private:
 
 	std::string			_founder;

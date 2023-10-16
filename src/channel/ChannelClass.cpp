@@ -129,14 +129,6 @@ bool	Channel::IsUserInvited(User *toCheck)
 	}
 }
 
-std::string Channel::IntToString(int number)
-{
-    std::ostringstream	oss;
-
-    oss << number;
-    return oss.str();
-}
-
 void	Channel::SetModes(std::string modes)
 {
 	std::string	modes_available = "it";
@@ -148,7 +140,7 @@ void	Channel::SetModes(std::string modes)
 	return ;
 }
 
-void	Channel::SetModes(int mode, std::stack<std::string> *modeParams, Server *server, Command *cmd, User *user)
+void	Channel::SetModes(char mode, std::stack<std::string> *modeParams, Server *server, Command *cmd, User *user)
 {
 	std::string	availableModes = "itkol";
 	std::string	needParam = "kol";
@@ -161,10 +153,10 @@ void	Channel::SetModes(int mode, std::stack<std::string> *modeParams, Server *se
 	if (needParam.find(mode) != std::string::npos && modeParams->top().empty() == true) // on ignore la commande si le param est manquant
 		return ; 
 	if (mode != 'o')
-		if (!_modes.find(mode))
+		if (_modes.find(mode) == std::string::npos)
 		{
 			_modes += mode; // le mode est ajouté a la liste de mode du canal
-			cmd->SendGroupedMsg(_users, SET_CHANEL_MODE(user->GetNickname(), user->GetUsername(), cmd->GetCmdName(), _name, IntToString(mode)));
+			cmd->SendGroupedMsg(_users, SET_CHANEL_MODE(user->GetNickname(), user->GetUsername(), cmd->GetCmdName(), _name, mode));
 		}
 	if (mode == 'k')
 	{
@@ -177,7 +169,7 @@ void	Channel::SetModes(int mode, std::stack<std::string> *modeParams, Server *se
 
 		if (!IsOper(newOper))
 			AddOper(newOper);
-		cmd->SendGroupedMsg(_users, SET_NEWOPER(user->GetNickname(), user->GetUsername(), cmd->GetCmdName(), _name, IntToString(mode), modeParams->top()));
+		cmd->SendGroupedMsg(_users, SET_NEWOPER(user->GetNickname(), user->GetUsername(), cmd->GetCmdName(), _name, mode, modeParams->top()));
 		modeParams->pop();
 	}
 	else if (mode == 'l')
@@ -187,7 +179,7 @@ void	Channel::SetModes(int mode, std::stack<std::string> *modeParams, Server *se
 	}
 }
 
-void	Channel::UnsetModes(int mode, std::stack<std::string> *modeParams, Server *server, Command *cmd, User *user)
+void	Channel::UnsetModes(char mode, std::stack<std::string> *modeParams, Server *server, Command *cmd, User *user)
 {
 	std::string	availableModes = "itkol";
 	
@@ -202,7 +194,7 @@ void	Channel::UnsetModes(int mode, std::stack<std::string> *modeParams, Server *
 	if (i != std::string::npos)
 	{
 		_modes.erase(i, 1);
-		cmd->SendGroupedMsg(_users, UNSET_CHANEL_MODE(user->GetNickname(), user->GetUsername(), cmd->GetCmdName(), _name, IntToString(mode)));
+		cmd->SendGroupedMsg(_users, UNSET_CHANEL_MODE(user->GetNickname(), user->GetUsername(), cmd->GetCmdName(), _name, mode));
 	}
 	if (mode == 'k')
 		_password = "";
@@ -213,12 +205,12 @@ void	Channel::UnsetModes(int mode, std::stack<std::string> *modeParams, Server *
 		User	*toDel = server->GetUserByNickname(modeParams->top());
 
 		if (toDel->GetNickname() == _founder) // le founder ne peut pas perdre ses droits d'operateur
-		{	
-			cmd->SendOneMsg(user, ERR_NOPRIVILEGES(user->GetNickname()));
+		{
+			cmd->SendOneMsg(user, ERR_NOPRIVILEGES(user->GetNickname(), _name));
 			return;
 		}
 		DelOper(toDel);
-		cmd->SendGroupedMsg(_users, UNSET_OPER(user->GetNickname(), user->GetUsername(), cmd->GetCmdName(), _name, IntToString(mode), modeParams->top()));
+		cmd->SendGroupedMsg(_users, UNSET_OPER(user->GetNickname(), user->GetUsername(), cmd->GetCmdName(), _name, mode, modeParams->top()));
 		modeParams->pop();
 	}
 	else if (mode == 'l')
