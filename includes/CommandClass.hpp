@@ -18,6 +18,7 @@ class Command
 	std::vector<std::string>	GetParameters();
 	std::string					GetCmdName();
 	std::string					GetMsg();
+	std::string					GetTopic();
 
 	// utils
 	void						ExecCommand(int clientFd, Server *server);
@@ -41,6 +42,7 @@ class Command
 	void						PRIVMSG(User *user, Server *server);
 	void						WHOIS(User *user, Server *server);
 	void						INVITE(User *user, Server *server);
+	void						TOPIC(User *user, Server *server);
 	
 	private:
 	std::string										_name;

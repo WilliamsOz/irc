@@ -20,6 +20,7 @@ class Channel
 	void	AddUserToInviteList(User *toAdd);
 	bool	IsUserInvited(User *toCheck);
 	void	SetFounder(std::string founderName);
+	void	SetTopic(std::string newTopic);
 
 	std::string GetName();
 	std::string GetModes();

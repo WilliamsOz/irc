@@ -111,6 +111,11 @@ void	Channel::SetFounder(std::string founderName)
 	return ;
 }
 
+void	Channel::SetTopic(std::string newTopic)
+{
+	this->_topic.assign(newTopic);
+}
+
 bool	Channel::IsUserInvited(User *toCheck)
 {
 	if (this->_modes.find('i') == std::string::npos)
@@ -174,8 +179,18 @@ void	Channel::SetModes(char mode, std::stack<std::string> *modeParams, Server *s
 	}
 	else if (mode == 'l')
 	{
-		_limit = atoi(modeParams->top().c_str());
+		int	newLimit = atoi(modeParams->top().c_str());
+
 		modeParams->pop();
+		if (newLimit < 2 || newLimit > INT_MAX)
+		{
+			int i = _modes.find(mode);
+
+			_modes.erase(i, 1);
+			cmd->SendOneMsg(user, ERR_INVALIDLIMIT(user->GetNickname(), _name));
+		}
+		else
+			_limit = newLimit;
 	}
 }
 

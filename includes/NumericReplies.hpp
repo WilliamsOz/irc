@@ -42,6 +42,8 @@
 # define ERR_BANNEDFROMCHAN(client, channel) (":localhost 474 " + client + " " + channel + " :Cannot join channel (+b)\r\n")
 // 481
 # define ERR_NOPRIVILEGES(nickname, channel) (":localhost 482 " + nickname + " #" + channel + " :You cannot destitute the channel funder\r\n") // used
+
+# define ERR_INVALIDLIMIT(nickname, channel) (":localhost 482 " + nickname + " #" + channel + " : The limit you tried to set in unvalid\r\n") // used
 // 482
 # define ERR_CHANOPRIVSNEED(nickname, channel) (":localhost 482 " + nickname + " #" + channel + " :You're not channel operator\r\n") // used
 // 501
@@ -118,7 +120,7 @@
 // 441
 # define ERR_USERNOTINCHANNEL(nickname, concerned_client_nickname, chanel) ((":localhost 441 " + nickname + " " + concerned_client_nickname + " " + chanel + " :They aren't on that channel\r\n")) // used
 // 442
-# define ERR_NOTONCHANNEL(nickname, chanel) (":localhost 442 " + nickname + " " + chanel + " :You're not on that channel\r\n") // used
+# define ERR_NOTONCHANNEL(nickname, chanel) (":localhost 442 " + nickname + " #" + chanel + " :You're not on that channel\r\n") // used
 // 443
 # define ERR_USERONCHANNEL(nickname, channel) (":localhost 443 " + channel + " " + nickname + " :is already on channel\r\n") // used
 
@@ -146,12 +148,12 @@
 #define NOTICE(nickname, username, cmd, dest, msg) (user_id(nickname, username, cmd) + dest + " " + msg + "\r\n")  
 
             /* = = =    TOPIC     = = = */
-#define SET_TOPIC(nickname, username, cmd, chanel, topic) ((user_id(nickname, username, cmd)) + chanel + " " + topic + "\r\n")
+#define SET_TOPIC(nickname, username, cmd, chanel, topic) ((user_id(nickname, username, cmd)) + "#" + chanel + " " + topic + "\r\n")
 // 331
-#define RPL_NOTOPIC(nickname, chanel) (":localhost 331 " + nickname + " " + chanel + " :No topic is set\r\n")
+#define RPL_NOTOPIC(nickname, chanel) (":localhost 331 " + nickname + " #" + chanel + " :No topic is set\r\n")
 // 332
-#define RPL_TOPIC(nickname, chanel, topic) (":localhost 332 " + nickname + " " + chanel + " : " + topic + "\r\n") // used
+#define RPL_TOPIC(nickname, chanel, topic) (":localhost 332 " + nickname + " #" + chanel + " : " + topic + "\r\n") // used
 // 333
-#define ROL_TOPICWHOTIME(nickname, chanel, concerned_client_nickname, time ) (":localhost 333 " + nickname +  + " " + chanel + " " concerned_client_nickname + " " + time + "\r\n")
+#define ROL_TOPICWHOTIME(nickname, chanel, concerned_client_nickname, time ) (":localhost 333 " + nickname +  + " #" + chanel + " " concerned_client_nickname + " " + time + "\r\n")
 
 #endif

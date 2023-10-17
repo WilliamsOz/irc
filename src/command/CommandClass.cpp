@@ -53,6 +53,53 @@ void	Command::SetUpCommandsContainer()
 	_commands["JOIN"] = &Command::JOIN;
 	_commands["WHOIS"] = &Command::WHOIS;
 	_commands["INVITE"] = &Command::INVITE;
+	_commands["TOPIC"] = &Command::TOPIC;
+}
+
+void	Command::TOPIC(User *user, Server *server)
+{
+	Channel		*channel = server->GetChannelByName(_param[0].erase(0, 1));
+
+	if (_param[0] == "")
+	{
+		SendOneMsg(user, ERR_NEEDMOREPARAMS(user->GetNickname(), this->_name));
+		return ;
+	}		
+	if (!channel)
+	{
+		SendOneMsg(user, ERR_NOSUCHCHANNEL(user->GetNickname(), _param[0]));
+		return ;
+	}
+	if (!channel->HasUser(user))
+	{
+		SendOneMsg(user, ERR_NOTONCHANNEL(user->GetNickname(), channel->GetName()));
+		return ;
+	}
+	if (_param.size() == 1) // le user demande quel est le sujet de chan
+	{
+		if (channel->GetTopic() == "")
+			SendOneMsg(user, RPL_NOTOPIC(user->GetNickname(), channel->GetName()));
+		else
+			SendOneMsg(user, RPL_TOPIC(user->GetNickname(), channel->GetName(), channel->GetTopic()));
+	}
+	else // le user veut set un nouveau topic
+	{
+		if (channel->GetModes().find('t') == std::string::npos) // le topic n'est pas protégé
+		{
+			channel->SetTopic(this->GetTopic());
+			SendGroupedMsg(channel->GetUsers(), RPL_TOPIC(user->GetNickname(), channel->GetName(), channel->GetTopic()));
+		}
+		else // le topic est protégé -> seul un operateur peut le modifier
+		{
+			if (channel->IsOper(user))
+			{
+				channel->SetTopic(this->GetTopic());
+				SendGroupedMsg(channel->GetUsers(), RPL_TOPIC(user->GetNickname(), channel->GetName(), channel->GetTopic()));
+			}
+			else
+				SendOneMsg(user, ERR_CHANOPRIVSNEED(user->GetNickname(), channel->GetName()));
+		}
+	}
 }
 
 void	Command::INVITE(User *user, Server *server)
@@ -337,6 +384,20 @@ std::string	Command::GetMsg()
 		i++;
 	}
 	return (msg);
+}
+
+std::string	Command::GetTopic()
+{
+	std::string	topic;
+	size_t 		i = 1;
+
+	while (i < _param.size())
+	{
+		topic += _param[i];
+		topic += " ";
+		i++;
+	}
+	return (topic);
 }
 
 void	Command::SendToUser(User *user, Server *server)
