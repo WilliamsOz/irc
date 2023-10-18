@@ -402,12 +402,28 @@ std::string	Command::GetTopic()
 
 void	Command::SendToUser(User *user, Server *server)
 {
-	User	*recipient = server->GetUserByNickname(_param[0]);
+	size_t	i;
 
-	if (recipient) // si le user appartient bien au server
-		SendOneMsg(recipient, RPL_PRIVMSG_CLIENT(user->GetNickname(), this->GetMsg()));
-	else // le user est inconnu
-		SendOneMsg(user, ERR_NOSUCHNICK(user->GetNickname()));
+	while (_param[0] != "")
+	{
+		i = _param[0].find(",");
+
+		if (i == std::string::npos)
+		{
+			std::cout << "i = npos\n";
+			i = _param[0].size();
+		}
+		std::cout << "_param[0] == " << _param[0] << std::endl;
+		User	*recipient = server->GetUserByNickname(_param[0].substr(0, i));
+		std::cout << "* after substr()\n";
+		std::cout << "_param[0] == " << _param[0] << std::endl;
+		std::cout << "i = " << i << std::endl;
+		if (recipient) // si le user appartient bien au server
+			SendOneMsg(recipient, RPL_PRIVMSG_CLIENT(user->GetNickname(), this->GetMsg()));
+		else // le user est inconnu
+			SendOneMsg(user, ERR_NOSUCHNICK(_param[0].substr(0, i)));
+		_param[0].erase(0, i + 1);
+	}
 }
 
 void	Command::SendToChannel(User *user, Server *server)
