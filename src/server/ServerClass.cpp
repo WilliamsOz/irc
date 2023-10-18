@@ -103,10 +103,6 @@ void	Server::AddUserToChannel(User *user, std::string channel)
 void	Server::RemoveChannel(Channel *toRemove)
 {
 	this->_channels.erase(toRemove->GetName());
-
-	std::cout << "channels in server : " << std::endl;
-	for (std::map<std::string, Channel *>::iterator it = this->_channels.begin(); it != this->_channels.end(); it++)
-		std::cout << it->first << std::endl;
 	return ;
 }
 

@@ -12,15 +12,17 @@ User::~User()
 
 void	User::LeaveChannel(Channel *toLeave)
 {
-	for (std::vector<Channel *>::iterator it = this->_channels.begin(); it != this->_channels.end(); it++)
-	{
-		if (toLeave->GetName() == (*it)->GetName())
-			this->_channels.erase(it);
-	}
+	std::vector<Channel *>::iterator it;
+	it = this->_channels.find(this->_channels.begin(), this->_channels.end(), toLeave);
 
-	std::cout << "Channel in user : " << std::endl;
-	for (size_t i = 0; i < this->_channels.size(); i++)
-		std::cout << this->_channels[i] << std::endl;
+	// for (std::vector<Channel *>::iterator it = this->_channels.begin(); it != this->_channels.end(); it++)
+	// {
+	// 	if (toLeave->GetName() == (*it)->GetName())
+	// 		this->_channels.erase(it);
+	// }
+	// std::cout << "Channel in user : " << std::endl;
+	// for (size_t i = 0; i < this->_channels.size(); i++)
+	// 	std::cout << this->_channels[i] << std::endl;
 	return ;
 }
 
