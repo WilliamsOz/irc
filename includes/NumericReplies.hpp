@@ -13,25 +13,20 @@
 // 004
 # define RPL_MYINFO(nickname, version) (":localhost 004 " + nickname + " localhost " + version + "\r\n")
 
-			/* = = =   CAP   = = = */
-# define CAP_LS() ("CAP * LS :multi-prefix\r\n")
-
-#define CAP_REQ() ("CAP * ACK multi-prefix\r\n")
-
             /* = = =    MODE    = = = */
-# define SET_CLIENT_MODE(nickname, username, cmd, mode) (user_id(nickname, username, cmd) + nickname + " :+" + mode + "\r\n")
+// # define SET_CLIENT_MODE(nickname, username, cmd, mode) (user_id(nickname, username, cmd) + nickname + " :+" + mode + "\r\n")
 
-# define UNSET_CLIENT_MODE(nickname, username, cmd, mode) (user_id(nickname, username, cmd) + nickname + " :-" + mode + "\r\n")
+// # define UNSET_CLIENT_MODE(nickname, username, cmd, mode) (user_id(nickname, username, cmd) + nickname + " :-" + mode + "\r\n")
 
-# define SET_CHANEL_MODE(nickname, username, cmd, chanel, mode) (user_id(nickname, username, cmd) + chanel + " :+" + mode + "\r\n")
+# define SET_CHANEL_MODE(nickname, username, cmd, chanel, mode) (user_id(nickname, username, cmd) + "#" + chanel + " +" + mode + "\r\n") //used
 
-# define UNSET_CHANEL_MODE(nickname, username, cmd, chanel, mode) (user_id(nickname, username, cmd) + chanel + " :-" + mode + "\r\n")
+# define UNSET_CHANEL_MODE(nickname, username, cmd, chanel, mode) (user_id(nickname, username, cmd) + "#" +chanel + " -" + mode + "\r\n") // used
 
-# define SET_OTHER_CLIENT_CHANEL_MODE(nickname, username, cmd, chanel, mode, concerned_client_nickname) ((user_id(nickname, username, cmd) + chanel + " +" + mode  + " " + concerned_client_nickname + "\r\n"))
+# define SET_NEWOPER(nickname, username, cmd, chanel, mode, concerned_client_nickname) ((user_id(nickname, username, cmd) + "#" + chanel + " +" + mode  + " " + concerned_client_nickname + "\r\n")) //used
 
-# define UNSET_OTHER_CLIENT_CHANEL_MODE(nickname, username, cmd, chanel, mode, concerned_client_nickname) ((user_id(nickname, username, cmd) + chanel + " -" + mode  + " " + concerned_client_nickname + "\r\n"))
+# define UNSET_OPER(nickname, username, cmd, chanel, mode, concerned_client_nickname) ((user_id(nickname, username, cmd) + "#" + chanel + " -" + mode  + " " + concerned_client_nickname + "\r\n")) // used
 // 324
-# define RPL_CHANNELMODEIS(nickname, chanel, chanel_mods) (":localhost 324 " + nickname + " " + chanel + " +" chanel_mods + "\r\n")
+# define RPL_CHANNELMODEIS(nickname, chanel, chanel_mods) (":localhost 324 " + nickname + " #" + chanel + " +" + chanel_mods + "\r\n") // used
 // 329
 # define RPL_CREATIONTIME(nickname, chanel, date) (":localhost 329 " + nickname + " " + chanel + " " +date + "\r\n")
 // 368
@@ -41,9 +36,11 @@
 // 474
 # define ERR_BANNEDFROMCHAN(client, channel) (":localhost 474 " + client + " " + channel + " :Cannot join channel (+b)\r\n")
 // 481
-# define ERR_NOPRIVILEGES(nickname) (":localhost 481 " + nickname + " :Permission Denied- You're not an IRC operator\r\n")
+# define ERR_NOPRIVILEGES(nickname, channel) (":localhost 482 " + nickname + " #" + channel + " :You cannot destitute the channel funder\r\n") // used
+
+# define ERR_INVALIDLIMIT(nickname, channel) (":localhost 482 " + nickname + " #" + channel + " : The limit you tried to set in unvalid\r\n") // used
 // 482
-# define ERR_CHANOPRIVSNEED(nickname, chanel) (":localhost 482 " + nickname + " " + chanel + " :You're not chanel operator\r\n")
+# define ERR_CHANOPRIVSNEED(nickname, channel) (":localhost 482 " + nickname + " #" + channel + " :You're not channel operator\r\n") // used
 // 501
 # define ERR_UMODEUNKNOWNFLAG(nickname) (":localhost 501 " + nickname + " :Unknown MODE flag\r\n") 
 
@@ -96,7 +93,6 @@
 # define ERR_BADPING(nickname) (":localhost 513 " + nickname + std::string(RED) + "Error: " + std::string(RESET) + "Wrong password !\r\n")
 
 # define RPL_PONG ":localhost PONG localhost :localhost\r\n" // used
-// a faire check par oscar
 
 # define CMD_PING(token) ("PING :" + token + "\r\n")
 
@@ -110,6 +106,8 @@
 # define RPL_NAMREPLY(nickname, chanel, list_client) (":localhost 353 " + nickname + " = " + chanel + " :" + list_client +"\r\n") // used
 // 366
 # define RPL_ENDOFNAMES(nickname, chanel) (":localhost 366 " + nickname + " " + chanel + " :End of /NAMES list.\r\n")
+// 471
+# define ERR_CHANNELISFULL(nickname, chanel) (":localhost 471 " + nickname + " " + chanel + " :Cannot join channel (+l)\r\n") // used
 // 475
 # define ERR_BADCHANNELKEY(nickname, channel) (":localhost 475 " + nickname + " " + channel + " :\r\n") // used
 // 403
@@ -119,14 +117,14 @@
 // 441
 # define ERR_USERNOTINCHANNEL(nickname, concerned_client_nickname, chanel) ((":localhost 441 " + nickname + " " + concerned_client_nickname + " " + chanel + " :They aren't on that channel\r\n")) // used
 // 442
-# define ERR_NOTONCHANNEL(nickname, chanel) (":localhost 442 " + nickname + " " + chanel + " :You're not on that channel\r\n") // used
+# define ERR_NOTONCHANNEL(nickname, chanel) (":localhost 442 " + nickname + " #" + chanel + " :You're not on that channel\r\n") // used
 // 443
 # define ERR_USERONCHANNEL(nickname, channel) (":localhost 443 " + channel + " " + nickname + " :is already on channel\r\n") // used
 
             /* = = =    PRV MESSAGES     = = = */
-# define RPL_PRIVMSG_CHANEL(nickname, username, cmd, chanel, msg) (user_id(nickname, username, cmd) + chanel + " " + msg + "\r\n") // used
-
-# define RPL_PRIVMSG_CLIENT(nickname, username, cmd, concerned_client_nickname, msg) (user_id(nickname, username, cmd) + concerned_client_nickname + " " + msg + "\r\n")
+# define RPL_PRIVMSG_CHANNEL(nickname, chanel, msg) (":" + nickname + " PRIVMSG #" + chanel + " " + msg + "\r\n") // used
+												
+# define RPL_PRIVMSG_CLIENT(nickname, msg) (nickname + " PRIVMSG " + msg + "\r\n") // used
 
 # define ERR_NOTEXTTOSEND(nickname) (nickname + " :No text to send\r\n") // used
 
@@ -147,12 +145,12 @@
 #define NOTICE(nickname, username, cmd, dest, msg) (user_id(nickname, username, cmd) + dest + " " + msg + "\r\n")  
 
             /* = = =    TOPIC     = = = */
-#define SET_TOPIC(nickname, username, cmd, chanel, topic) ((user_id(nickname, username, cmd)) + chanel + " " + topic + "\r\n")
+#define SET_TOPIC(nickname, username, cmd, chanel, topic) ((user_id(nickname, username, cmd)) + "#" + chanel + " " + topic + "\r\n")
 // 331
-#define RPL_NOTOPIC(nickname, chanel) (":localhost 331 " + nickname + " " + chanel + " :No topic is set\r\n")
+#define RPL_NOTOPIC(nickname, chanel) (":localhost 331 " + nickname + " #" + chanel + " :No topic is set\r\n")
 // 332
-#define RPL_TOPIC(nickname, chanel, topic) (":localhost 332 " + nickname + " " + chanel + " : " + topic + "\r\n") // used
+#define RPL_TOPIC(nickname, chanel, topic) (":localhost 332 " + nickname + " #" + chanel + " : " + topic + "\r\n") // used
 // 333
-#define ROL_TOPICWHOTIME(nickname, chanel, concerned_client_nickname, time ) (":localhost 333 " + nickname +  + " " + chanel + " " concerned_client_nickname + " " + time + "\r\n")
+#define ROL_TOPICWHOTIME(nickname, chanel, concerned_client_nickname, time ) (":localhost 333 " + nickname +  + " #" + chanel + " " concerned_client_nickname + " " + time + "\r\n")
 
 #endif

@@ -82,8 +82,8 @@ void		User::SetNickname(std::string nickname, Server *server)
 {
 	if (IsAvailableNickname(nickname, server) == true)
 		this->_nickname = nickname;
-	// else
-		// error
+	else
+		this->_nickname = "";
 	return ;
 }
 

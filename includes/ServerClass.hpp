@@ -19,10 +19,9 @@ class Server
 	void		AddUserToChannel(User *user, std::string name);
 	void		RemoveChannel(Channel *toRemove);
 
-	bool		IsPassCorrect(std::string channel, std::string password);
-	bool		HasPass(std::string channel);
 	Channel		*GetChannelByName(std::string);
 	int			GetFdByNickName(std::string nickName);
+	User		*GetUserByNickname(std::string nickName);
 	User		*GetUserByFd(int fd);
 	std::string	GetServerPassword( void );
 	int			GetEpollFd();
