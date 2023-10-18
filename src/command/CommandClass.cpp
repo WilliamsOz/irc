@@ -46,7 +46,6 @@ void	Command::SetUpCommandsContainer()
     _commands["PASS"] = &Command::PASS;
     _commands["MODE"] = &Command::MODE;
     _commands["PING"] = &Command::PING;
-    _commands["CAP"] = &Command::CAP;
 	_commands["PRIVMSG"] =&Command::PRIVMSG;
     _commands["USER"] = &Command::USER;
 	_commands["NICK"] = &Command::NICK;
@@ -199,7 +198,7 @@ void	Command::JOIN(User *user, Server *server)
 							if (server->IsPassCorrect(this->_param[i], this->_param[i + 1]) == true
 								&& chan->IsUserInvited(user) == true) // password correct et user invited
 							{
-								chan = server->AddUserToChannel(user, this->_param[i]); // ajouter user a map de channel dans classe server
+								server->AddUserToChannel(user, this->_param[i]); // ajouter user a map de channel dans classe server
 								SendOneMsg(user, RPL_JOIN(user->GetNickname(), chan->GetName()));
 								if (chan->GetTopic().empty() == false)
 									SendOneMsg(user, RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic()));
@@ -227,9 +226,8 @@ void	Command::JOIN(User *user, Server *server)
 						if (server->HasPass(this->_param[i]) == false
 							&& chan->IsUserInvited(user) == true) // si le channel n'a pas de mdp et que l'user est invited
 						{
-							chan = server->AddUserToChannel(user, this->_param[i]); // ajouter user a map de channel dans classe server
+							server->AddUserToChannel(user, this->_param[i]); // ajouter user a map de channel dans classe server
 							user->JoinChannel(chan);
-							chan->AddUser(user);
 							SendOneMsg(user, RPL_JOIN(user->GetNickname(), chan->GetName()));
 							if (chan->GetTopic().empty() == false)
 								SendOneMsg(user, RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic()));
@@ -325,16 +323,6 @@ void	Command::PASS(User *user, Server *server)
 		}
 	}
 }
-	
-void	Command::CAP(User *user, Server *server)
-{
-	(void)server;
-
-	if (this->GetParameters()[0] == "LS") // liste les capacités disponible pour les clients
-		SendOneMsg(user, CAP_LS());
-	if (!(this->GetParameters()[0].compare("REQ"))) // demande l'obtention d'une capacité
-		SendOneMsg(user, CAP_REQ());
-}
 
 void	Command::USER(User *user, Server *server)
 {
@@ -359,6 +347,11 @@ void	Command::NICK(User *user, Server *server)
 		user->SetNickname(this->_param[0], server);
 		if (user->GetNickname().empty() == false)
 			SendOneMsg(user, RPL_WELCOME(user->GetNickname()));
+		else
+		{
+			SendOneMsg(user, ERR_NICKNAMEINUSE(_param[0]));
+			// retirer user du serveur
+		}
 	}
 	return ;
 }

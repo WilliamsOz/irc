@@ -13,11 +13,6 @@
 // 004
 # define RPL_MYINFO(nickname, version) (":localhost 004 " + nickname + " localhost " + version + "\r\n")
 
-			/* = = =   CAP   = = = */
-# define CAP_LS() ("CAP * LS :multi-prefix\r\n")
-
-#define CAP_REQ() ("CAP * ACK multi-prefix\r\n")
-
             /* = = =    MODE    = = = */
 // # define SET_CLIENT_MODE(nickname, username, cmd, mode) (user_id(nickname, username, cmd) + nickname + " :+" + mode + "\r\n")
 
