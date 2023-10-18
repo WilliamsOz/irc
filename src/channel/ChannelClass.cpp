@@ -1,11 +1,11 @@
 # include "irc.hpp"
 
-Channel::Channel() :  _password(""), _modes(""), _topic("")
-{
-	return ;
-}
+// Channel::Channel() :  _password(""), _modes(""), _topic("")
+// {
+// 	return ;
+// }
 
-Channel::Channel(const std::string name) : _name(name), _topic("")
+Channel::Channel(const std::string name) : _name(name), _modes(""), _topic("")
 {
 	return ;
 }
@@ -33,6 +33,37 @@ std::string Channel::GetTopic()
 std::vector<User *>	&Channel::GetUsers()
 {
 	return (this->_users);
+}
+
+bool	Channel::HasPass()
+{
+	if (this->_modes.find('k') == std::string::npos)
+		return (false);
+	else
+		return (true);
+}
+
+bool	Channel::IsPassCorrect(std::string password)
+{
+	if (this->_modes.find('k') != std::string::npos)
+	{
+		if (this->_password == password)
+			return (true);
+		else
+			return (false);
+	}
+	else
+		return (true);
+}
+
+bool	Channel::IsLimitExceeded()
+{
+	if (this->_modes.find('l') != std::string::npos)
+	{
+		if (this->_users.size() >= this->_limit)
+			return (true);
+	}
+	return (false);
 }
 
 bool	Channel::IsOper(User *toCheck)

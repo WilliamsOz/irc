@@ -18,8 +18,6 @@ class Server
 	Channel*	AddChannel(std::string name);
 	void		AddUserToChannel(User *user, std::string name);
 
-	bool		IsPassCorrect(std::string channel, std::string password);
-	bool		HasPass(std::string channel);
 	Channel		*GetChannelByName(std::string);
 	int			GetFdByNickName(std::string nickName);
 	User		*GetUserByNickname(std::string nickName);

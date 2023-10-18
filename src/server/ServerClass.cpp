@@ -57,28 +57,6 @@ std::map<int, User *>&	Server::GetUsers()
 	return (this->_users);
 }
 
-bool	Server::IsPassCorrect(std::string channel, std::string password)
-{
-	std::map<std::string, Channel *>::iterator it;
-	it = this->_channels.find(channel);
-
-	if (it->second->GetPassword() == password)
-		return (true);
-	else
-		return (false);
-}
-
-bool	Server::HasPass(std::string channel)
-{
-	std::map<std::string, Channel *>::iterator it;
-	it = this->_channels.find(channel);
-
-	if (it->second->GetPassword().empty() == false)
-		return (true);
-	else
-		return (false);
-}
-
 bool	Server::HasChannel(std::string name)
 {
 	std::map<std::string, Channel *>::iterator it;
