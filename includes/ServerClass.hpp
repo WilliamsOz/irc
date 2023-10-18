@@ -17,7 +17,7 @@ class Server
 	bool		HasChannel(std::string name);
 	Channel*	AddChannel(std::string name);
 	void		AddUserToChannel(User *user, std::string name);
-
+	std::string HandlePackets(std::string &currentCmd, const std::string &packet);
 	bool		IsPassCorrect(std::string channel, std::string password);
 	bool		HasPass(std::string channel);
 	Channel		*GetChannelByName(std::string);

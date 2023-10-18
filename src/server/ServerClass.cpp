@@ -118,7 +118,13 @@ void	Server::AddUserToChannel(User *user, std::string channel)
 	it = this->_channels.find(channel);
 	chan = it->second;
 
-	chan->AddUser(user);
+	if (chan->GetModes().find('i') == std::string::npos) 
+	{
+		// check si user a l'invitation
+		chan->AddUser(user);
+	}
+	//else
+		// send error ?
 	return ;
 }
 
