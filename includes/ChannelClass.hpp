@@ -9,7 +9,7 @@ class Channel
 {
 	public:
 
-	Channel();
+	// Channel();
 	Channel(const std::string name);
 	~Channel();
 
@@ -34,6 +34,11 @@ class Channel
 	void				SetModes(std::string modes);
 	void				UnsetModes(char mode, std::stack<std::string> *modeParams, Server *server, Command *cmd, User *user);
 	
+	bool				HasPass();
+	bool				IsPassCorrect(std::string password);
+	bool				IsLimitExceeded();
+	bool				HasUser(User *user);
+
 	private:
 
 	std::string			_founder;
@@ -44,7 +49,7 @@ class Channel
 	std::string			_name;
 	std::string			_modes;
 	std::string			_topic;
-	int					_limit;
+	size_t				_limit;
 };	
 
 #endif

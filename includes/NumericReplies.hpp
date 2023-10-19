@@ -106,6 +106,8 @@
 # define RPL_NAMREPLY(nickname, chanel, list_client) (":localhost 353 " + nickname + " = " + chanel + " :" + list_client +"\r\n") // used
 // 366
 # define RPL_ENDOFNAMES(nickname, chanel) (":localhost 366 " + nickname + " " + chanel + " :End of /NAMES list.\r\n")
+// 471
+# define ERR_CHANNELISFULL(nickname, chanel) (":localhost 471 " + nickname + " " + chanel + " :Cannot join channel (+l)\r\n") // used
 // 475
 # define ERR_BADCHANNELKEY(nickname, channel) (":localhost 475 " + nickname + " " + channel + " :\r\n") // used
 // 403

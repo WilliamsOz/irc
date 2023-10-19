@@ -34,11 +34,10 @@ void	Command::ExecCommand(int clientFd, Server *server)
 {
 	if (this->_commands.find(this->_name) != _commands.end())
 	{
-		std::cout << _name << std::endl;
 		(this->*this->_commands[this->_name])(server->GetUserByFd(clientFd), server);
 	}
-	else
-		std::cout << "Unknown command -> [" << this->_name << "]" << "\n";
+	// else
+	// 	std::cout << "Unknown command -> [" << this->_name << "]" << "\n";
 }
 
 void	Command::SetUpCommandsContainer()
@@ -199,39 +198,27 @@ void	Command::JOIN(User *user, Server *server)
 					chan = server->GetChannelByName(this->_param[i]);
 					if (this->_param.size() > 1 && this->_param[i + 1][0] != '+') // si a 2e arg et n'est pas un mode
 					{
-						if (server->IsPassCorrect(this->_param[i], this->_param[i + 1]) == true
-							&& chan->IsUserInvited(user) == true) // password correct et user invited
+						if (chan->IsPassCorrect(this->_param[i + 1]) == true
+							&& chan->IsUserInvited(user) == true && chan->IsLimitExceeded() == false) // password correct, user invited et pas d'exces d'user
 						{
-							if (server->IsPassCorrect(this->_param[i], this->_param[i + 1]) == true
-								&& chan->IsUserInvited(user) == true) // password correct et user invited
-							{
-								server->AddUserToChannel(user, this->_param[i]); // ajouter user a map de channel dans classe server
-								SendOneMsg(user, RPL_JOIN(user->GetNickname(), chan->GetName()));
-								if (chan->GetTopic().empty() == false)
-									SendOneMsg(user, RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic()));
-								SendOneMsg(user, RPL_NAMREPLY(user->GetNickname(), chan->GetName(), chan->GetClientList()));
-								SendOneMsg(user, RPL_ENDOFNAMES(user->GetNickname(), chan->GetName()));
-							}
-							else if (server->IsPassCorrect(this->_param[i], this->_param[i + 1]) == false) // password incorrect
-							{
-								SendOneMsg(user, ERR_BADCHANNELKEY(user->GetNickname(), this->_param[i]));
-								return ;
-							}
-							else // user n'est pas invite
-							{
-								SendOneMsg(user, ERR_INVITEONLYCHAN(user->GetNickname(), chan->GetName()));
-								return ;
-							}
+							server->AddUserToChannel(user, this->_param[i]); // ajouter user a map de channel dans classe server
+							SendOneMsg(user, RPL_JOIN(user->GetNickname(), chan->GetName()));
+							if (chan->GetTopic().empty() == false)
+								SendOneMsg(user, RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic()));
+							SendOneMsg(user, RPL_NAMREPLY(user->GetNickname(), chan->GetName(), chan->GetClientList()));
+							SendOneMsg(user, RPL_ENDOFNAMES(user->GetNickname(), chan->GetName()));
 						}
-						else if (server->IsPassCorrect(this->_param[i], this->_param[i + 1]) == false) // password incorrect
+						else if (chan->IsPassCorrect(this->_param[i + 1]) == false) // password incorrect
 							SendOneMsg(user, ERR_BADCHANNELKEY(user->GetNickname(), this->_param[i]));
-						else // user n'est pas invite
+						else if (chan->IsUserInvited(user) == false) // user n'est pas invite
 							SendOneMsg(user, ERR_INVITEONLYCHAN(user->GetNickname(), chan->GetName()));
+						else // channel a atteint nbr d'user max
+							SendOneMsg(user, ERR_CHANNELISFULL(user->GetNickname(), chan->GetName()));
 					}
 					else // pas de 2e arg ou bien c'est un mode
 					{
-						if (server->HasPass(this->_param[i]) == false
-							&& chan->IsUserInvited(user) == true) // si le channel n'a pas de mdp et que l'user est invited
+						if (chan->HasPass() == false && chan->IsUserInvited(user) == true
+							&& chan->IsLimitExceeded() == false) // chan pas de mdp, user invited, chan limit pas atteinte
 						{
 							server->AddUserToChannel(user, this->_param[i]); // ajouter user a map de channel dans classe server
 							user->JoinChannel(chan);
@@ -241,10 +228,12 @@ void	Command::JOIN(User *user, Server *server)
 							SendOneMsg(user, RPL_NAMREPLY(user->GetNickname(), chan->GetName(), chan->GetClientList()));
 							SendOneMsg(user, RPL_ENDOFNAMES(user->GetNickname(), chan->GetName()));
 						}
-						else if (server->HasPass(this->_param[i]) == true) // channel a un password
+						else if (chan->HasPass() == true) // channel a un password
 							SendOneMsg(user, ERR_BADCHANNELKEY(user->GetNickname(), this->_param[i]));
-						else // user n'est pas invited
+						else if (chan->IsUserInvited(user) == false) // user n'est pas invited
 							SendOneMsg(user, ERR_INVITEONLYCHAN(user->GetNickname(), chan->GetName()));
+						else // channel a atteint nbr d'user max
+							SendOneMsg(user, ERR_CHANNELISFULL(user->GetNickname(), chan->GetName()));
 					}
 				}
 				break ;
