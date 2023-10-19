@@ -271,7 +271,6 @@ void	Server::LaunchServer()
 					std::string input = "";
 					while (1)
 					{
-						std::cout << "packet = " << packet << std::endl;
 						if (input.empty())
 							input = HandlePackets(currentCmd, packet);
 						else
@@ -284,9 +283,6 @@ void	Server::LaunchServer()
 						}
 						if (currentCmd.empty())
 							break ;
-						// reconstituer les lignes de commandes entieres dans input
-						// envoyer les commandes lignes par lignes
-						
 					}
                 }
             }

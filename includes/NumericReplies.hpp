@@ -132,23 +132,17 @@
 
 # define INVITE_CLIENT(nickname, username, cmd, concerned_client_nickname, chanel) (user_id(nickname, username, cmd) + concerned_client_nickname + " :" + chanel + "\r\n") // used
 
-# define NOCTICE_CLIENT_INVITE(nickname, chanel) (nickname + " invites you to " + chanel + "\r\n")
+# define NOCTICE_CLIENT_INVITE(nickname, chanel) (nickname + " invites you to " + chanel + "\r\n") // used
 // 473
 # define ERR_INVITEONLYCHAN(nickname, chanel) (":localhost 473 " +  nickname + " " + chanel + " :Cannot join channel (+i)\r\n") // used
 
             /* = = =    KICK     = = = */
 #define KICK_CLIENT(nickname, username, cmd, chanel, concerned_client_nickname) ((user_id(nickname, username, cmd)) + chanel + " " + concerned_client_nickname + " :\r\n")
 
-            /* = = =    NOTICE     = = = */
-#define NOTICE(nickname, username, cmd, dest, msg) (user_id(nickname, username, cmd) + dest + " " + msg + "\r\n")  
-
             /* = = =    TOPIC     = = = */
-#define SET_TOPIC(nickname, username, cmd, chanel, topic) ((user_id(nickname, username, cmd)) + "#" + chanel + " " + topic + "\r\n")
 // 331
-#define RPL_NOTOPIC(nickname, chanel) (":localhost 331 " + nickname + " #" + chanel + " :No topic is set\r\n")
+#define RPL_NOTOPIC(nickname, chanel) (":localhost 331 " + nickname + " #" + chanel + " :No topic is set\r\n") // used
 // 332
 #define RPL_TOPIC(nickname, chanel, topic) (":localhost 332 " + nickname + " #" + chanel + " : " + topic + "\r\n") // used
-// 333
-#define ROL_TOPICWHOTIME(nickname, chanel, concerned_client_nickname, time ) (":localhost 333 " + nickname +  + " #" + chanel + " " concerned_client_nickname + " " + time + "\r\n")
 
 #endif
