@@ -45,6 +45,7 @@ class Command
 	void						INVITE(User *user, Server *server);
 	void						PART(User *user, Server *server);
 	void						TOPIC(User *user, Server *server);
+	void						KICK(User *user, Server *server);
 	
 	private:
 

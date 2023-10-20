@@ -53,6 +53,15 @@ void	Command::SetUpCommandsContainer()
 	_commands["INVITE"] = &Command::INVITE;
 	_commands["PART"] = &Command::PART;
 	_commands["TOPIC"] = &Command::TOPIC;
+	_commands["KICK"] = &Command::KICK;
+}
+
+// gerer le channel invalide
+// gerer l'user qui n'est pas present sur le channel
+// gerer le privilege op pour kick quelqu'un
+void	Command::KICK(User *user, Server *server)
+{
+	
 }
 
 void	Command::PART(User *user, Server *server)
