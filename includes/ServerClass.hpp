@@ -21,6 +21,7 @@ class Server
 	bool								HasChannel(std::string name);
 	bool								IsPassCorrect(std::string channel, std::string password);
 	bool								HasPass(std::string channel);
+	void								RemoveChannel(Channel *toRemove);
 	
 	//getter
 	Channel								*GetChannelByName(std::string);

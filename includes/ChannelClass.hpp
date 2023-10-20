@@ -37,7 +37,6 @@ class Channel
 	bool				HasPass();
 	bool				IsPassCorrect(std::string password);
 	bool				IsLimitExceeded();
-	bool				HasUser(User *user);
 
 	private:
 

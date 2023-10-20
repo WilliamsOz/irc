@@ -75,7 +75,7 @@ void	Command::PART(User *user, Server *server)
 			{
 				if (chan->GetUsers().size() == 1)
 					server->RemoveChannel(chan);
-				user->LeaveChannel(chan); // segfault
+				user->LeaveChannel(chan);
 				SendOneMsg(user, PART_CHANEL(user->GetNickname(), user->GetUsername(), "PART", chan->GetName()));
 			}
 		}
