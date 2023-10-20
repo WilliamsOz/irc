@@ -11,22 +11,26 @@ class Server
 	Server(int port, const char *password);
 	// ~Server();
 
-	void		AddUser();
-	void		LaunchServer();
-	static void SignalHandler(int);
-	bool		HasChannel(std::string name);
-	Channel*	AddChannel(std::string name);
-	void		AddUserToChannel(User *user, std::string name);
-	void		RemoveChannel(Channel *toRemove);
-
-	Channel		*GetChannelByName(std::string);
-	int			GetFdByNickName(std::string nickName);
-	User		*GetUserByNickname(std::string nickName);
-	User		*GetUserByFd(int fd);
-	std::string	GetServerPassword( void );
-	int			GetEpollFd();
-	epoll_event*	GetClientEvent();
-	std::map<int, User *>&	GetUsers();
+	// utils
+	void								LaunchServer();
+	static void 						SignalHandler(int);
+	void								AddUser();
+	Channel*							AddChannel(std::string name);
+	void								AddUserToChannel(User *user, std::string name);
+	std::string 						HandlePackets(std::string &currentCmd, const std::string &packet);
+	bool								HasChannel(std::string name);
+	bool								IsPassCorrect(std::string channel, std::string password);
+	bool								HasPass(std::string channel);
+	
+	//getter
+	Channel								*GetChannelByName(std::string);
+	int									GetFdByNickName(std::string nickName);
+	User								*GetUserByNickname(std::string nickName);
+	User								*GetUserByFd(int fd);
+	std::string							GetServerPassword( void );
+	int									GetEpollFd();
+	epoll_event*						GetClientEvent();
+	std::map<int, User *>&				GetUsers();
 
 	private:
 

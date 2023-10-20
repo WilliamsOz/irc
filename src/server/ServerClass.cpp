@@ -131,6 +131,26 @@ void	Server::AddUser()
 	return ;
 }
 
+std::string Server::HandlePackets(std::string& currentCmd, const std::string& packet)
+{
+    // Ajouter le paquet à la commande en cours
+    if (packet != "")
+		currentCmd += packet;
+
+    // Vérifier si la commande se termine
+    size_t pos = currentCmd.find("\r\n");
+    if (pos != std::string::npos) {
+        // La commande se termine ici, donc renvoyer la commande complète
+        std::string command = currentCmd.substr(0, pos);
+        // Retirer la commande de la chaîne
+        currentCmd = currentCmd.substr(pos + 2);
+        return command;
+    }
+
+    // Si la commande n'est pas terminée, renvoyer une chaîne vide
+    return "";
+}
+
 void	Server::LaunchServer()
 {
 	int optionVal = 1;	
@@ -202,6 +222,7 @@ void	Server::LaunchServer()
 
 	this->_clientEvent.events = EPOLLIN;
 	int numEvents;
+	std::string	currentCmd;
 	while (!g_signal)
 	{
         numEvents = epoll_wait(this->_epollfd, this->_events, 1, -1); // traite evenement 1 par 1
@@ -219,8 +240,8 @@ void	Server::LaunchServer()
             }
 			else
 			{
-                char buffer[1024];
-                int bytesRead = recv(this->_events[i].data.fd, buffer, sizeof(buffer), 0);
+                char packet[1024];
+                int bytesRead = recv(this->_events[i].data.fd, packet, sizeof(packet), 0);
 				if (bytesRead <= 0) // fermer proprement tout les fd + revoir epoll_ctl 3e argument
 				{
 					// supprimer user du container
@@ -230,14 +251,22 @@ void	Server::LaunchServer()
                 }
 				else
 				{
-                    buffer[bytesRead] = '\0';
-					std::string input = buffer;
-					size_t pos = 0;
-					while ((pos = input.find('\n')) != std::string::npos)
+                    packet[bytesRead] = '\0';
+					std::string input = "";
+					while (1)
 					{
-						Command cmd(input.substr(0, pos - 1));
-						cmd.ExecCommand(this->_events[i].data.fd, this);
-						input.erase(0, pos + 1);
+						if (input.empty())
+							input = HandlePackets(currentCmd, packet);
+						else
+							input = HandlePackets(currentCmd, "");
+						packet[0] = '\0';
+						if (!input.empty())
+						{
+							Command cmd(input);
+							cmd.ExecCommand(this->_events[i].data.fd, this);
+						}
+						if (currentCmd.empty())
+							break ;
 					}
                 }
             }

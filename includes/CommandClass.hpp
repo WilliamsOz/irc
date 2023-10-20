@@ -6,30 +6,32 @@ class User;
 class Server;
 class Command;
 
-typedef void (Command::*CommandFunctionPointer)(User *, Server *);
+typedef void (Command::*CmdFctPtr)(User *, Server *);
 
 class Command
 {
 	public:
+	
 	Command(std::string src);
 	~Command();
 
 	// getter
-	std::vector<std::string>	GetParameters();
-	std::string					GetCmdName();
-	std::string					GetMsg();
-	std::string					GetTopic();
+	std::vector<std::string>			GetParameters();
+	std::string							GetCmdName();
+	std::string							GetMsg();
+	std::string							GetTopic();
 
 	// utils
-	void						ExecCommand(int clientFd, Server *server);
-	void						SetUpCommandsContainer();
-	void 						SendToChannel(User *user, Server *server);
-	void 						SendToUser(User *user, Server *server);
-	void						SendOneMsg(User *recipient, std::string msg);
-	void						SendGroupedMsg(std::vector<User *> recipients, std::string msg);
-	void						SetModeParams(std::vector<std::string> *param);
-
-	void						printWhoIs(User *user, User *target);
+	void								ExecCommand(int clientFd, Server *server);
+	void 								SendToChannel(User *user, Server *server);
+	void 								SendToUser(User *user, Server *server);
+	void								SendOneMsg(User *recipient, std::string msg);
+	void								SendGroupedMsg(std::vector<User *> recipients, std::string msg);
+	void								SetUpCommandsContainer();
+	void								SetModeParams(std::vector<std::string> *param);
+	void								PrintWhoIs(User *user, User *target);
+	bool								CheckErrorTopic(User *user, Channel *channel, std::string chanName);
+	bool								CheckErrorMode(User *user, Channel *channel, std::string chanName);
 
 	// toutes les commandes
 	void						MODE(User *user, Server *server);
@@ -45,10 +47,11 @@ class Command
 	void						TOPIC(User *user, Server *server);
 	
 	private:
-	std::string										_name;
-	std::vector<std::string>						_param;
-	std::stack<std::string>							_modeParams;
-	std::map<std::string, CommandFunctionPointer>	_commands;
+
+	std::string							_name;
+	std::vector<std::string>			_param;
+	std::stack<std::string>				_modeParams;
+	std::map<std::string, CmdFctPtr>	_commands;
 };
 
 #endif

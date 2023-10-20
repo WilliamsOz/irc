@@ -84,25 +84,32 @@ void	Command::PART(User *user, Server *server)
 	return ;
 }
 
-void	Command::TOPIC(User *user, Server *server)
+bool	Command::CheckErrorTopic(User *user, Channel *channel, std::string channelName)
 {
-	Channel		*channel = server->GetChannelByName(_param[0].erase(0, 1));
-
-	if (_param[0] == "")
+	if (channelName == "")
 	{
 		SendOneMsg(user, ERR_NEEDMOREPARAMS(user->GetNickname(), this->_name));
-		return ;
+		return (true);
 	}		
 	if (!channel)
 	{
-		SendOneMsg(user, ERR_NOSUCHCHANNEL(user->GetNickname(), _param[0]));
-		return ;
+		SendOneMsg(user, ERR_NOSUCHCHANNEL(user->GetNickname(), channelName));
+		return (true);
 	}
 	if (!channel->HasUser(user))
 	{
 		SendOneMsg(user, ERR_NOTONCHANNEL(user->GetNickname(), channel->GetName()));
-		return ;
+		return (true);
 	}
+	return (false);
+}
+
+void	Command::TOPIC(User *user, Server *server)
+{
+	Channel		*channel = server->GetChannelByName(_param[0].erase(0, 1));
+
+	if (this->CheckErrorTopic(user, channel, _param[0]))
+		return ;
 	if (_param.size() == 1) // le user demande quel est le sujet de chan
 	{
 		if (channel->GetTopic() == "")
@@ -110,14 +117,14 @@ void	Command::TOPIC(User *user, Server *server)
 		else
 			SendOneMsg(user, RPL_TOPIC(user->GetNickname(), channel->GetName(), channel->GetTopic()));
 	}
-	else // le user veut set un nouveau topic
+	else                   // le user veut set un nouveau topic
 	{
 		if (channel->GetModes().find('t') == std::string::npos) // le topic n'est pas protégé
 		{
 			channel->SetTopic(this->GetTopic());
 			SendGroupedMsg(channel->GetUsers(), RPL_TOPIC(user->GetNickname(), channel->GetName(), channel->GetTopic()));
 		}
-		else // le topic est protégé -> seul un operateur peut le modifier
+		else               // le topic est protégé -> seul un operateur peut le modifier
 		{
 			if (channel->IsOper(user))
 			{
@@ -160,10 +167,10 @@ void	Command::INVITE(User *user, Server *server)
 		}
 	}
 	else
-		SendOneMsg(user, ERR_NOSUCHCHANNEL(user->GetNickname(), this->_param[1]));				// channel inexistant
+		SendOneMsg(user, ERR_NOSUCHCHANNEL(user->GetNickname(), this->_param[1]));				    // channel inexistant
 }
 
-void	Command::printWhoIs(User *user, User *target)
+void	Command::PrintWhoIs(User *user, User *target)
 {
 	SendOneMsg(user, RPL_WHOISUSER(target->GetNickname(), target->GetHostname(), target->GetUsername()));
 	SendOneMsg(user, RPL_ENDOFWHOIS(target->GetNickname()));
@@ -179,7 +186,7 @@ void	Command::WHOIS(User *user, Server *server)
 		int fdToFind = -1;
 		fdToFind = server->GetFdByNickName(this->_param[index]);
 		if (fdToFind != -1)
-			printWhoIs(user, server->GetUserByFd(fdToFind));
+			PrintWhoIs(user, server->GetUserByFd(fdToFind));
 		else
 			SendOneMsg(user, ERR_NOSUCHNICK(this->_param[index]));
 	}
@@ -275,46 +282,53 @@ void	Command::JOIN(User *user, Server *server)
 
 void	Command::SetModeParams(std::vector<std::string> *param)
 {
-	int i = 2; // les parametres de mode sont stocker partir de cet indice (ex: #channel(0) +ok-v(1) mp(2))
+	int i = 2;				// les parametres de mode sont stocké à partir de cet indice (ex: #channel(0) +ok-v(1) mp(2))
 	int j = param->size() - 1;
 
-	_modeParams.push(""); // on push une valeur par defaut au cas ou il n'y a pas d'arg
+	_modeParams.push("");	// on push une valeur par defaut au cas ou il n'y a pas d'arg pour eviter les segfault par la suite
 	if (!param->empty())
 	{
 		while (j >= i)
 		{
 			_modeParams.push((*param)[j]);
-			j--; // on rempli a l'envers car c une stack
+			j--; 			// on rempli a l'envers car c'est une stack
 		}
 	}
+}
+
+bool	Command::CheckErrorMode(User *user, Channel *channel, std::string chanName)
+{
+	if (!channel)
+	{	
+		SendOneMsg(user, ERR_NOSUCHCHANNEL(user->GetNickname(), chanName));
+		return (true);
+	}
+	if (_param.size() == 1) // qd irssi envoie "MODE #<channel_name>"
+	{	
+		SendOneMsg(user, RPL_CHANNELMODEIS(user->GetNickname(), channel->GetName(), channel->GetModes()));
+		return (true);
+	}
+	if (!channel->IsOper(user))
+	{	
+		SendOneMsg(user, ERR_CHANOPRIVSNEED(user->GetNickname(), chanName));
+		return (true);
+	}
+	return (false);
 }
 
 void	Command::MODE(User *user, Server *server)
 {
 	SetModeParams(&_param);
 
-	if (_param[0][0] != '#') // on ne gere que les mode de channel pas ceux des clients
-		return; // fail en silence
+	if (_param[0][0] != '#')	// on ne gere que les mode de channel pas ceux des clients
+		return;					// fail en silence
 	
-	_param[0].erase(0, 1); //on supprime le hashtag
-	Channel	*channel = server->GetChannelByName(_param[0]); //on supprime le hashtag
+	_param[0].erase(0, 1);		//on supprime le hashtag
+	Channel	*channel = server->GetChannelByName(_param[0]);
 
-	if (_param.size() == 1) // qd irssi envoie "MODE #<channel_name>"
-	{	
-		SendOneMsg(user, RPL_CHANNELMODEIS(user->GetNickname(), channel->GetName(), channel->GetModes()));
-		return;
-	}
-	if (!channel)
-	{	
-		SendOneMsg(user, ERR_NOSUCHCHANNEL(user->GetNickname(), _param[0]));
-		return;
-	}
-	if (!channel->IsOper(user))
-	{	
-		SendOneMsg(user, ERR_CHANOPRIVSNEED(user->GetNickname(), _param[0]));
-		return;
-	}
-	int i = 0; // index des flag de mode
+	if (CheckErrorMode(user, channel, _param[0]))
+		return ;
+	int i = 0;					// index des flag de mode
 	
 	if (_param[1][i] == '+')
 		while (_param[1][++i] != '-' && _param[1][i])
@@ -421,15 +435,9 @@ void	Command::SendToUser(User *user, Server *server)
 		i = _param[0].find(",");
 
 		if (i == std::string::npos)
-		{
-			std::cout << "i = npos\n";
 			i = _param[0].size();
-		}
-		std::cout << "_param[0] == " << _param[0] << std::endl;
 		User	*recipient = server->GetUserByNickname(_param[0].substr(0, i));
-		std::cout << "* after substr()\n";
-		std::cout << "_param[0] == " << _param[0] << std::endl;
-		std::cout << "i = " << i << std::endl;
+
 		if (recipient) // si le user appartient bien au server
 			SendOneMsg(recipient, RPL_PRIVMSG_CLIENT(user->GetNickname(), this->GetMsg()));
 		else // le user est inconnu

@@ -18,23 +18,23 @@ class User
 	void		JoinChannel(Channel *toJoin);
 	bool		IsAvailableNickname(std::string nickname, Server *server);
 
-	// SETTER
-	void		SetFd(int fd);
-	void		SetUsername(std::string username);
-	void		SetHostname(std::string hostname);
-	void		SetServername(std::string servername);
-	void		SetRealname(std::vector<std::string> *paramCpy);
-	void		SetNickname( std::string nickname, Server *server);
-	void		SetAuth(bool status);
+	// getter
+	bool					GetAuth();
+	int						GetFd();
+	std::string				GetNickname( void );
+	std::string				GetUsername(void);
+	std::string				GetHostname(void);
+	std::string				GetServername(void);
+	std::string				GetRealname(void);
 
-	// GETTER
-	bool		GetAuth();
-	int			GetFd();
-	std::string	GetNickname( void );
-	std::string	GetUsername(void);
-	std::string	GetHostname(void);
-	std::string	GetServername(void);
-	std::string	GetRealname(void);
+	// setter
+	void					SetFd(int fd);
+	void					SetUsername(std::string username);
+	void					SetHostname(std::string hostname);
+	void					SetServername(std::string servername);
+	void					SetRealname(std::vector<std::string> *paramCpy);
+	void					SetNickname( std::string nickname, Server *server);
+	void					SetAuth(bool status);
 
 	private:
 
