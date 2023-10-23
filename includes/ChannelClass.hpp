@@ -21,7 +21,6 @@ class Channel
 	bool				IsOper(User *toCheck);
 	bool				IsUserInvited(User *toCheck);
 	bool				HasUser(User *user);
-	bool				HasUser(std::string userName);
 
 	std::string 		GetName();
 	std::string 		GetModes();

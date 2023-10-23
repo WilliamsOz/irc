@@ -56,24 +56,26 @@ void	Command::SetUpCommandsContainer()
 	_commands["KICK"] = &Command::KICK;
 }
 
-// /kick #channel user
-// check si possible de se kick soi meme
 void	Command::KICK(User *user, Server *server)
 {
-	Channel		*chan;
+	Channel		*chan = NULL;
 	User		*dest = NULL;
 	std::string	chanStr;
 	bool		hasChan = false;
 
 	for (size_t i = 0; i < this->_param.size(); i++)
 	{
-		if (this->_param[i][0] == '#' && this->_param[i].size() > 1) // si il y a un channel de preciser
+		if (this->_param[i][0] == ':')
+			break;
+		else if (this->_param[i][0] == '#' && this->_param[i].size() > 1) // si il y a un channel de preciser
 		{
 			chanStr.assign(this->_param[i]);
 			chanStr.erase(0, 1);
 			chan = server->GetChannelByName(chanStr);
 			if (!chan)
 				SendOneMsg(user, ERR_NOSUCHCHANNEL(user->GetNickname(), '#' + chanStr));
+			else if (chan->HasUser(user) == false)
+				SendOneMsg(user, ERR_NOTONCHANNEL(user->GetNickname(), chan->GetName()));
 			else if (chan->IsOper(user) == false)
 				SendOneMsg(user, ERR_CHANOPRIVSNEED(user->GetNickname(), chan->GetName()));
 			else
@@ -85,12 +87,12 @@ void	Command::KICK(User *user, Server *server)
 				continue;
 			else
 			{
-				if (chan->HasUser(this->_param[i]) == false)
-					SendOneMsg(user, ERR_NOTONCHANNEL(user->GetNickname(), '#' + chan->GetName()));
+				dest = server->GetUserByNickname(this->_param[i]);
+				if (!dest)
+					SendOneMsg(user, ERR_USERNOTINCHANNEL(user->GetNickname(), this->_param[i], '#' + chan->GetName()));
 				else
 				{
-					dest = server->GetUserByNickname(this->_param[i]);
-					SendOneMsg(dest, KICK_CLIENT(user->GetNickname(), user->GetUsername(), "KICK", chan->GetName(), this->_param[i]));
+					SendOneMsg(dest, KICK_CLIENT(user->GetNickname(), user->GetUsername(), "Kick", chan->GetName(), this->_param[i]));
 					chan->RemoveUser(user);
 					hasChan = false;
 				}

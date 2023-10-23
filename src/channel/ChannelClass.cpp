@@ -278,21 +278,6 @@ bool	Channel::HasUser(User *user)
 	return (false);
 }
 
-bool	Channel::HasUser(std::string userName)
-{
-	std::vector<User *>::iterator it = this->_users.begin();
-	std::vector<User *>::iterator ite = this->_users.end(); 
-	
-	while (it != ite)
-	{
-		User *usertmp = *it;
-		if (usertmp->GetNickname() == userName)
-			return (true);
-		it++;
-	}
-	return (false);
-}
-
 void	Channel::RemoveUser(User *toRemove)
 {
 	User *user = NULL;
