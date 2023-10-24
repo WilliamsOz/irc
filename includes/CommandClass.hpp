@@ -46,6 +46,7 @@ class Command
 	void						PART(User *user, Server *server);
 	void						TOPIC(User *user, Server *server);
 	void						KICK(User *user, Server *server);
+	void						QUIT(User *user, Server *server);
 	
 	private:
 

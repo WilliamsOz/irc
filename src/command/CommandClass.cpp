@@ -36,8 +36,8 @@ void	Command::ExecCommand(int clientFd, Server *server)
 	{
 		(this->*this->_commands[this->_name])(server->GetUserByFd(clientFd), server);
 	}
-	// else
-	// 	std::cout << "Unknown command -> [" << this->_name << "]" << "\n";
+	else
+		std::cout << "Unknown command -> [" << this->_name << "]" << "\n";
 }
 
 void	Command::SetUpCommandsContainer()
@@ -54,6 +54,13 @@ void	Command::SetUpCommandsContainer()
 	_commands["PART"] = &Command::PART;
 	_commands["TOPIC"] = &Command::TOPIC;
 	_commands["KICK"] = &Command::KICK;
+	_commands["QUIT"] = &Command::QUIT;
+}
+
+void	Command::QUIT(User *user, Server *server)
+{
+	(void)user;
+	(void)server;
 }
 
 void	Command::KICK(User *user, Server *server)
