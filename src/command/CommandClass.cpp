@@ -36,8 +36,8 @@ void	Command::ExecCommand(int clientFd, Server *server)
 	{
 		(this->*this->_commands[this->_name])(server->GetUserByFd(clientFd), server);
 	}
-	else
-		std::cout << "Unknown command -> [" << this->_name << "]" << "\n";
+	// else
+	// 	std::cout << "Unknown command -> [" << this->_name << "]" << "\n";
 }
 
 void	Command::SetUpCommandsContainer()
@@ -57,7 +57,6 @@ void	Command::SetUpCommandsContainer()
 	_commands["QUIT"] = &Command::QUIT;
 }
 
-// user quitte tout les channels sur lesquels il est, s'il est seul sur un channel, le chan doit etre supprimer du serveur
 void	Command::QUIT(User *user, Server *server)
 {
 	std::vector<Channel *>	channels;
@@ -66,15 +65,12 @@ void	Command::QUIT(User *user, Server *server)
 	for (size_t i = 0; i < channels.size(); i++)
 	{
 		if (channels[i]->GetUsers().size() == 1)
-		{
-			std::cout << "channel removed : " << channels[i]->GetName() << std::endl;
 			server->RemoveChannel(channels[i]);
-		}
 		else
-			std::cout << "channel : " << channels[i]->GetName() << std::endl;
 		user->LeaveChannel(channels[i]);
-		SendOneMsg(user, PART_CHANEL(user->GetNickname(), user->GetUsername(), "PART", channels[i]->GetName()));
+		channels[i]->RemoveUser(user);
 	}
+	return ;
 }
 
 void	Command::KICK(User *user, Server *server)
@@ -145,6 +141,7 @@ void	Command::PART(User *user, Server *server)
 				if (chan->GetUsers().size() == 1)
 					server->RemoveChannel(chan);
 				user->LeaveChannel(chan);
+				chan->RemoveUser(user);
 				SendOneMsg(user, PART_CHANEL(user->GetNickname(), user->GetUsername(), "PART", chan->GetName()));
 			}
 		}
