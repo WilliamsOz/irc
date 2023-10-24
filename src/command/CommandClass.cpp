@@ -57,10 +57,24 @@ void	Command::SetUpCommandsContainer()
 	_commands["QUIT"] = &Command::QUIT;
 }
 
+// user quitte tout les channels sur lesquels il est, s'il est seul sur un channel, le chan doit etre supprimer du serveur
 void	Command::QUIT(User *user, Server *server)
 {
-	(void)user;
-	(void)server;
+	std::vector<Channel *>	channels;
+
+	channels = user->GetChannels();
+	for (size_t i = 0; i < channels.size(); i++)
+	{
+		if (channels[i]->GetUsers().size() == 1)
+		{
+			std::cout << "channel removed : " << channels[i]->GetName() << std::endl;
+			server->RemoveChannel(channels[i]);
+		}
+		else
+			std::cout << "channel : " << channels[i]->GetName() << std::endl;
+		user->LeaveChannel(channels[i]);
+		SendOneMsg(user, PART_CHANEL(user->GetNickname(), user->GetUsername(), "PART", channels[i]->GetName()));
+	}
 }
 
 void	Command::KICK(User *user, Server *server)

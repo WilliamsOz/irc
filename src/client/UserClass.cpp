@@ -132,3 +132,8 @@ std::string	User::GetRealname()
 {
 	return (this->_realname);
 }
+
+std::vector<Channel *>	&User::GetChannels()
+{
+	return (this->_channels);
+}
