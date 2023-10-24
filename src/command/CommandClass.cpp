@@ -54,6 +54,23 @@ void	Command::SetUpCommandsContainer()
 	_commands["PART"] = &Command::PART;
 	_commands["TOPIC"] = &Command::TOPIC;
 	_commands["KICK"] = &Command::KICK;
+	_commands["QUIT"] = &Command::QUIT;
+}
+
+void	Command::QUIT(User *user, Server *server)
+{
+	std::vector<Channel *>	channels;
+
+	channels = user->GetChannels();
+	for (size_t i = 0; i < channels.size(); i++)
+	{
+		if (channels[i]->GetUsers().size() == 1)
+			server->RemoveChannel(channels[i]);
+		else
+		user->LeaveChannel(channels[i]);
+		channels[i]->RemoveUser(user);
+	}
+	return ;
 }
 
 void	Command::KICK(User *user, Server *server)
@@ -124,6 +141,7 @@ void	Command::PART(User *user, Server *server)
 				if (chan->GetUsers().size() == 1)
 					server->RemoveChannel(chan);
 				user->LeaveChannel(chan);
+				chan->RemoveUser(user);
 				SendOneMsg(user, PART_CHANEL(user->GetNickname(), user->GetUsername(), "PART", chan->GetName()));
 			}
 		}

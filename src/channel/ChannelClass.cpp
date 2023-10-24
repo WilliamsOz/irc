@@ -35,6 +35,11 @@ std::vector<User *>	&Channel::GetUsers()
 	return (this->_users);
 }
 
+std::vector<User *>	&Channel::GetOpers()
+{
+	return (this->_opers);
+}
+
 bool	Channel::HasPass()
 {
 	if (this->_modes.find('k') == std::string::npos)

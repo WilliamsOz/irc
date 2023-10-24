@@ -28,6 +28,7 @@ class Channel
 	std::string			GetClientList();
 	std::string			GetPassword();
 	std::vector<User *> &GetUsers();
+	std::vector<User *>	&GetOpers();
 
 	void				SetFounder(std::string founderName);
 	void				SetTopic(std::string newTopic);

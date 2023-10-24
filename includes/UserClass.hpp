@@ -26,6 +26,7 @@ class User
 	std::string				GetHostname(void);
 	std::string				GetServername(void);
 	std::string				GetRealname(void);
+	std::vector<Channel *>	&GetChannels(void);
 
 	// setter
 	void					SetFd(int fd);
