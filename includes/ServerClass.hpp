@@ -9,7 +9,7 @@ class Server
 	public:
 
 	Server(int port, const char *password);
-	// ~Server();
+	~Server();
 
 	// utils
 	void								LaunchServer();
@@ -22,6 +22,7 @@ class Server
 	bool								IsPassCorrect(std::string channel, std::string password);
 	bool								HasPass(std::string channel);
 	void								RemoveChannel(Channel *toRemove);
+	void								RemoveUser(User *toRemove);
 	
 	//getter
 	Channel								*GetChannelByName(std::string);

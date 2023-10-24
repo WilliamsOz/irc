@@ -9,7 +9,6 @@ class Channel
 {
 	public:
 
-	// Channel();
 	Channel(const std::string name);
 	~Channel();
 

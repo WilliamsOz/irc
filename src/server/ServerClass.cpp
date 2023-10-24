@@ -10,6 +10,16 @@ Server::Server(int port, const char *password): _port(port), _password(password)
 	return ;
 }
 
+Server::~Server()
+{
+	for (std::map<int, User*>::iterator it = this->_users.begin(); it != this->_users.end(); ++it)
+    	delete it->second;
+	this->_users.clear();
+	for (std::map<std::string, Channel*>::iterator it = this->_channels.begin(); it != this->_channels.end(); ++it) 
+    	delete it->second;
+	this->_channels.clear();
+}
+
 int	Server::GetEpollFd()
 {
 	return (this->_epollfd);
@@ -102,8 +112,20 @@ void	Server::AddUserToChannel(User *user, std::string channel)
 
 void	Server::RemoveChannel(Channel *toRemove)
 {
+	std::map<std::string, Channel *>::iterator it;
+	it = this->_channels.find(toRemove->GetName());
+	delete it->second;
 	this->_channels.erase(toRemove->GetName());
+
 	return ;
+}
+
+void	Server::RemoveUser(User *toRemove)
+{
+	std::map<int, User *>::iterator it;
+	it = this->_users.find(toRemove->GetFd());
+	delete it->second;
+	this->_users.erase(toRemove->GetFd());
 }
 
 void	Server::AddUser()
