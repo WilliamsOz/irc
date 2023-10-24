@@ -165,7 +165,7 @@ std::string Server::HandlePackets(std::string& currentCmd, const std::string& pa
         // La commande se termine ici, donc renvoyer la commande complète
         std::string command = currentCmd.substr(0, pos);
         // Retirer la commande de la chaîne
-        currentCmd = currentCmd.substr(pos + 2);
+        currentCmd = currentCmd.erase(0, pos + 2);
         return command;
     }
 
@@ -266,7 +266,6 @@ void	Server::LaunchServer()
                 int bytesRead = recv(this->_events[i].data.fd, packet, sizeof(packet), 0);
 				if (bytesRead <= 0) // fermer proprement tout les fd + revoir epoll_ctl 3e argument
 				{
-					// supprimer user du container
                     close(this->_events[i].data.fd);
                     epoll_ctl(this->_epollfd, EPOLL_CTL_DEL, this->_events[i].data.fd, &this->_clientEvent);
                     std::cout << "Client disconnected." << std::endl;
@@ -275,9 +274,12 @@ void	Server::LaunchServer()
 				{
                     packet[bytesRead] = '\0';
 					std::string input = "";
-					while (1)
+					int i = 0;
+					while (i < 10)
 					{
-						if (input.empty())
+						std::cout <<  "input == [" << input << "]" << std::endl;
+						std::cout <<  "curent cmd == [" << currentCmd << "]" << std::endl;
+						if (input == "")
 							input = HandlePackets(currentCmd, packet);
 						else
 							input = HandlePackets(currentCmd, "");
@@ -287,8 +289,9 @@ void	Server::LaunchServer()
 							Command cmd(input);
 							cmd.ExecCommand(this->_events[i].data.fd, this);
 						}
-						if (currentCmd.empty())
+						if (currentCmd == "")
 							break ;
+						i++;
 					}
                 }
             }
