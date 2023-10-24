@@ -103,20 +103,22 @@ void	Command::KICK(User *user, Server *server)
 
 void	Command::PART(User *user, Server *server)
 {
-	std::string					chanStr;
-	Channel						*chan;
+	Channel		*chan;
+	std::string	chanStr;
 	
 	for (size_t i = 0; i < this->_param.size(); i++)
 	{
-		chanStr.assign(this->_param[i]);
-		if (chanStr[i] == '#' && chanStr.size() > 1)
+		if (this->_param[i][0] == ':')
+			break;
+		if (this->_param[i][0] == '#' && this->_param[i].size() > 1)
 		{
+			chanStr.assign(this->_param[i]);
 			chanStr.erase(0, 1);
 			chan = server->GetChannelByName(chanStr);
 			if (!chan)
 				SendOneMsg(user, ERR_NOSUCHCHANNEL(user->GetNickname(), '#' + chanStr));
 			else if (chan->HasUser(user) == false)
-				SendOneMsg(user, ERR_NOTONCHANNEL(user->GetNickname(), '#' + chan->GetName()));
+				SendOneMsg(user, ERR_NOTONCHANNEL(user->GetNickname(), chan->GetName()));
 			else
 			{
 				if (chan->GetUsers().size() == 1)
