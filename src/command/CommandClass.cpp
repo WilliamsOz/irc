@@ -514,7 +514,7 @@ void	Command::SendToChannel(User *user, Server *server)
 		SendOneMsg(user, ERR_NOTEXTTOSEND(this->_param[0]));
 		return ;
 	}
-	SendGroupedMsg(recipient->GetUsers(), RPL_PRIVMSG_CHANNEL(user->GetNickname(), recipient->GetName(), this->GetMsg()));
+	SendChanMsg(recipient->GetUsers(), user, RPL_PRIVMSG_CHANNEL(user->GetNickname(), recipient->GetName(), this->GetMsg()));
 }
 
 void	Command::PRIVMSG(User *user, Server *server)
@@ -551,7 +551,20 @@ void		Command::SendGroupedMsg(std::vector<User *> recipients, std::string msg)
 		send((*it)->GetFd(), msg.c_str(), len, 0);
 		it++;
 	}
-	// ajouter securité
+}
+
+void		Command::SendChanMsg(std::vector<User *> recipients, User *sender, std::string msg)
+{
+	std::vector<User *>::iterator	it = recipients.begin();
+	std::vector<User *>::iterator	ite = recipients.end();
+	int 							len = msg.size();
+
+	while (it != ite)
+	{
+		if ((*it)->GetNickname() != sender->GetNickname())
+			send((*it)->GetFd(), msg.c_str(), len, 0);
+		it++;
+	}
 }
 
 void        Command::SendOneMsg(User* recipient, std::string msg)
@@ -560,6 +573,4 @@ void        Command::SendOneMsg(User* recipient, std::string msg)
 
 	if ((send(recipient->GetFd(), msg.c_str(), len, 0 )) != len)
 		return ;
-		// throw std::invalid_argument("send");
-	// if ret send() == -1 -> throw error 
 }
