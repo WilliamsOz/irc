@@ -19,6 +19,7 @@ class User
 	bool		IsAvailableNickname(std::string nickname, Server *server);
 
 	// getter
+	bool					GetValidity();
 	bool					GetAuth();
 	int						GetFd();
 	std::string				GetNickname( void );
@@ -36,6 +37,7 @@ class User
 	void					SetRealname(std::vector<std::string> *paramCpy);
 	void					SetNickname( std::string nickname, Server *server);
 	void					SetAuth(bool status);
+	void					SetValidity(bool status);
 
 	private:
 
@@ -47,6 +49,7 @@ class User
 	std::string				_mode;
 	int						_fd;
 	bool					_isAuth;
+	bool					_isValid;
 	std::vector<Channel *>	_channels;
 };
 

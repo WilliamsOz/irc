@@ -1,6 +1,6 @@
 # include "irc.hpp"
 
-User::User() : _isAuth(false)
+User::User() : _isAuth(false), _isValid(false)
 {
 	return ;
 }
@@ -93,9 +93,19 @@ void	User::SetFd(int fd)
 	return ;
 }
 
+void	User::SetValidity(bool status)
+{
+	this->_isValid = status;
+}
+
 void	User::SetAuth(bool status)
 {
 	this->_isAuth = status;
+}
+
+bool	User::GetValidity()
+{
+	return (this->_isValid);
 }
 
 bool	User::GetAuth()

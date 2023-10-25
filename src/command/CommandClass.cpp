@@ -44,32 +44,35 @@ void	Command::ExecCommand(int clientFd, Server *server)
 void	Command::SetUpCommandsContainer()
 {
     _commands["PASS"] = &Command::PASS;
+	_commands["NICK"] = &Command::NICK; 
+    _commands["USER"] = &Command::USER; 
     _commands["MODE"] = &Command::MODE;
     _commands["PING"] = &Command::PING;
 	_commands["PRIVMSG"] =&Command::PRIVMSG;
-    _commands["USER"] = &Command::USER;
-	_commands["NICK"] = &Command::NICK;
 	_commands["JOIN"] = &Command::JOIN;
 	_commands["WHOIS"] = &Command::WHOIS;
 	_commands["INVITE"] = &Command::INVITE;
 	_commands["PART"] = &Command::PART;
-	_commands["TOPIC"] = &Command::TOPIC;
+	_commands["TOPIC"] = &Command::TOPIC; 
 	_commands["KICK"] = &Command::KICK;
 	_commands["QUIT"] = &Command::QUIT;
 }
 
 void	Command::QUIT(User *user, Server *server)
 {
-	std::vector<Channel *>	channels;
-
-	channels = user->GetChannels();
-	for (size_t i = 0; i < channels.size(); i++)
+	if (user->GetValidity() == true)
 	{
-		if (channels[i]->GetUsers().size() == 1)
-			server->RemoveChannel(channels[i]);
-		else
-		user->LeaveChannel(channels[i]);
-		channels[i]->RemoveUser(user);
+		std::vector<Channel *>	channels;
+
+		channels = user->GetChannels();
+		for (size_t i = 0; i < channels.size(); i++)
+		{
+			if (channels[i]->GetUsers().size() == 1)
+				server->RemoveChannel(channels[i]);
+			else
+			user->LeaveChannel(channels[i]);
+			channels[i]->RemoveUser(user);
+		}
 	}
 	return ;
 }
@@ -81,38 +84,41 @@ void	Command::KICK(User *user, Server *server)
 	std::string	chanStr;
 	bool		hasChan = false;
 
-	for (size_t i = 0; i < this->_param.size(); i++)
+	if (user->GetValidity() == true)
 	{
-		if (this->_param[i][0] == ':')
-			break;
-		else if (this->_param[i][0] == '#' && this->_param[i].size() > 1) // si il y a un channel de preciser
+		for (size_t i = 0; i < this->_param.size(); i++)
 		{
-			chanStr.assign(this->_param[i]);
-			chanStr.erase(0, 1);
-			chan = server->GetChannelByName(chanStr);
-			if (!chan)
-				SendOneMsg(user, ERR_NOSUCHCHANNEL(user->GetNickname(), '#' + chanStr));
-			else if (chan->HasUser(user) == false)
-				SendOneMsg(user, ERR_NOTONCHANNEL(user->GetNickname(), chan->GetName()));
-			else if (chan->IsOper(user) == false)
-				SendOneMsg(user, ERR_CHANOPRIVSNEED(user->GetNickname(), chan->GetName()));
-			else
-				hasChan = true;
-		}
-		else
-		{
-			if (hasChan == false)
-				continue;
+			if (this->_param[i][0] == ':')
+				break;
+			else if (this->_param[i][0] == '#' && this->_param[i].size() > 1) // si il y a un channel de preciser
+			{
+				chanStr.assign(this->_param[i]);
+				chanStr.erase(0, 1);
+				chan = server->GetChannelByName(chanStr);
+				if (!chan)
+					SendOneMsg(user, ERR_NOSUCHCHANNEL(user->GetNickname(), '#' + chanStr));
+				else if (chan->HasUser(user) == false)
+					SendOneMsg(user, ERR_NOTONCHANNEL(user->GetNickname(), chan->GetName()));
+				else if (chan->IsOper(user) == false)
+					SendOneMsg(user, ERR_CHANOPRIVSNEED(user->GetNickname(), chan->GetName()));
+				else
+					hasChan = true;
+			}
 			else
 			{
-				dest = server->GetUserByNickname(this->_param[i]);
-				if (!dest)
-					SendOneMsg(user, ERR_USERNOTINCHANNEL(user->GetNickname(), this->_param[i], '#' + chan->GetName()));
+				if (hasChan == false)
+					continue;
 				else
 				{
-					SendOneMsg(dest, KICK_CLIENT(user->GetNickname(), user->GetUsername(), "Kick", chan->GetName(), this->_param[i]));
-					chan->RemoveUser(user);
-					hasChan = false;
+					dest = server->GetUserByNickname(this->_param[i]);
+					if (!dest)
+						SendOneMsg(user, ERR_USERNOTINCHANNEL(user->GetNickname(), this->_param[i], '#' + chan->GetName()));
+					else
+					{
+						SendOneMsg(dest, KICK_CLIENT(user->GetNickname(), user->GetUsername(), "Kick", chan->GetName(), this->_param[i]));
+						chan->RemoveUser(user);
+						hasChan = false;
+					}
 				}
 			}
 		}
@@ -124,28 +130,31 @@ void	Command::PART(User *user, Server *server)
 	Channel		*chan;
 	std::string	chanStr;
 	
-	for (size_t i = 0; i < this->_param.size(); i++)
+	if (user->GetValidity() == true)
 	{
-		if (this->_param[i][0] == ':')
-			break;
-		if (this->_param[i][0] == '#' && this->_param[i].size() > 1)
+		for (size_t i = 0; i < this->_param.size(); i++)
 		{
-			chanStr.assign(this->_param[i]);
-			chanStr.erase(0, 1);
-			chan = server->GetChannelByName(chanStr);
-			if (!chan)
-				SendOneMsg(user, ERR_NOSUCHCHANNEL(user->GetNickname(), '#' + chanStr));
-			else if (chan->HasUser(user) == false)
-				SendOneMsg(user, ERR_NOTONCHANNEL(user->GetNickname(), chan->GetName()));
-			else
+			if (this->_param[i][0] == ':')
+				break;
+			if (this->_param[i][0] == '#' && this->_param[i].size() > 1)
 			{
-				if (chan->GetUsers().size() == 1)
-					server->RemoveChannel(chan);
-				user->LeaveChannel(chan);
-				chan->RemoveUser(user);
-				SendOneMsg(user, PART_CHANEL(user->GetNickname(), user->GetUsername(), "PART", chan->GetName()));
+				chanStr.assign(this->_param[i]);
+				chanStr.erase(0, 1);
+				chan = server->GetChannelByName(chanStr);
+				if (!chan)
+					SendOneMsg(user, ERR_NOSUCHCHANNEL(user->GetNickname(), '#' + chanStr));
+				else if (chan->HasUser(user) == false)
+					SendOneMsg(user, ERR_NOTONCHANNEL(user->GetNickname(), chan->GetName()));
+				else
+				{
+					if (chan->GetUsers().size() == 1)
+						server->RemoveChannel(chan);
+					user->LeaveChannel(chan);
+					chan->RemoveUser(user);
+					SendOneMsg(user, PART_CHANEL(user->GetNickname(), user->GetUsername(), "PART", chan->GetName()));
+				}
 			}
-		}
+	}
 	}
 	
 	return ;
@@ -173,33 +182,36 @@ bool	Command::CheckErrorTopic(User *user, Channel *channel, std::string channelN
 
 void	Command::TOPIC(User *user, Server *server)
 {
-	Channel		*channel = server->GetChannelByName(_param[0].erase(0, 1));
+	if (user->GetValidity() == true)
+	{
+		Channel		*channel = server->GetChannelByName(_param[0].erase(0, 1));
 
-	if (this->CheckErrorTopic(user, channel, _param[0]))
-		return ;
-	if (_param.size() == 1) // le user demande quel est le sujet de chan
-	{
-		if (channel->GetTopic() == "")
-			SendOneMsg(user, RPL_NOTOPIC(user->GetNickname(), channel->GetName()));
-		else
-			SendOneMsg(user, RPL_TOPIC(user->GetNickname(), channel->GetName(), channel->GetTopic()));
-	}
-	else                   // le user veut set un nouveau topic
-	{
-		if (channel->GetModes().find('t') == std::string::npos) // le topic n'est pas protégé
+		if (this->CheckErrorTopic(user, channel, _param[0]))
+			return ;
+		if (_param.size() == 1) // le user demande quel est le sujet de chan
 		{
-			channel->SetTopic(this->GetTopic());
-			SendGroupedMsg(channel->GetUsers(), RPL_TOPIC(user->GetNickname(), channel->GetName(), channel->GetTopic()));
+			if (channel->GetTopic() == "")
+				SendOneMsg(user, RPL_NOTOPIC(user->GetNickname(), channel->GetName()));
+			else
+				SendOneMsg(user, RPL_TOPIC(user->GetNickname(), channel->GetName(), channel->GetTopic()));
 		}
-		else               // le topic est protégé -> seul un operateur peut le modifier
+		else                   // le user veut set un nouveau topic
 		{
-			if (channel->IsOper(user))
+			if (channel->GetModes().find('t') == std::string::npos) // le topic n'est pas protégé
 			{
 				channel->SetTopic(this->GetTopic());
 				SendGroupedMsg(channel->GetUsers(), RPL_TOPIC(user->GetNickname(), channel->GetName(), channel->GetTopic()));
 			}
-			else
-				SendOneMsg(user, ERR_CHANOPRIVSNEED(user->GetNickname(), channel->GetName()));
+			else               // le topic est protégé -> seul un operateur peut le modifier
+			{
+				if (channel->IsOper(user))
+				{
+					channel->SetTopic(this->GetTopic());
+					SendGroupedMsg(channel->GetUsers(), RPL_TOPIC(user->GetNickname(), channel->GetName(), channel->GetTopic()));
+				}
+				else
+					SendOneMsg(user, ERR_CHANOPRIVSNEED(user->GetNickname(), channel->GetName()));
+			}
 		}
 	}
 }
@@ -210,31 +222,34 @@ void	Command::INVITE(User *user, Server *server)
 	User	*target = NULL;
 	std::string tmp;
 
-	if (this->_param.size() < 2)
-		return ;
-
-	tmp.assign(this->_param[1]);
-	if (this->_param[1].find('#') != std::string::npos) // si contient un '#', supprimer
-		this->_param[1].erase(0, 1);
-	if (server->HasChannel(this->_param[1]) == true) // channel exist
+	if (user->GetValidity() == true)
 	{
-		chan = server->GetChannelByName(this->_param[1]);
-		target = server->GetUserByFd(server->GetFdByNickName(this->_param[0]));
-		if (chan->HasUser(user) == false) 															// le user est pas membre du channel
-			SendOneMsg(user, ERR_NOTONCHANNEL(user->GetNickname(), tmp));
-		else if (chan->IsOper(user) == false && chan->GetModes().find('i') != std::string::npos)	// user pas op et channel en invite only
-			SendOneMsg(user, ERR_CHANOPRIVSNEED(user->GetNickname(), tmp));
-		else if (chan->HasUser(target))																// user target est deja dans channel
-			SendOneMsg(user, ERR_USERONCHANNEL(target->GetNickname(), this->_param[1]));
-		else																						// inviter le client
+		if (this->_param.size() < 2)
+			return ;
+
+		tmp.assign(this->_param[1]);
+		if (this->_param[1].find('#') != std::string::npos) // si contient un '#', supprimer
+			this->_param[1].erase(0, 1);
+		if (server->HasChannel(this->_param[1]) == true) // channel exist
 		{
-			SendOneMsg(user, RPL_INVITING(user->GetNickname(), target->GetNickname(), chan->GetName()));
-			SendOneMsg(target, INVITE_CLIENT(user->GetNickname(), user->GetUsername(), "Invite", target->GetNickname(), chan->GetName()));
-			chan->AddUserToInviteList(target);
+			chan = server->GetChannelByName(this->_param[1]);
+			target = server->GetUserByFd(server->GetFdByNickName(this->_param[0]));
+			if (chan->HasUser(user) == false) 															// le user est pas membre du channel
+				SendOneMsg(user, ERR_NOTONCHANNEL(user->GetNickname(), tmp));
+			else if (chan->IsOper(user) == false && chan->GetModes().find('i') != std::string::npos)	// user pas op et channel en invite only
+				SendOneMsg(user, ERR_CHANOPRIVSNEED(user->GetNickname(), tmp));
+			else if (chan->HasUser(target))																// user target est deja dans channel
+				SendOneMsg(user, ERR_USERONCHANNEL(target->GetNickname(), this->_param[1]));
+			else																						// inviter le client
+			{
+				SendOneMsg(user, RPL_INVITING(user->GetNickname(), target->GetNickname(), chan->GetName()));
+				SendOneMsg(target, INVITE_CLIENT(user->GetNickname(), user->GetUsername(), "Invite", target->GetNickname(), chan->GetName()));
+				chan->AddUserToInviteList(target);
+			}
 		}
+		else
+			SendOneMsg(user, ERR_NOSUCHCHANNEL(user->GetNickname(), this->_param[1]));				    // channel inexistant
 	}
-	else
-		SendOneMsg(user, ERR_NOSUCHCHANNEL(user->GetNickname(), this->_param[1]));				    // channel inexistant
 }
 
 void	Command::PrintWhoIs(User *user, User *target)
@@ -246,16 +261,19 @@ void	Command::PrintWhoIs(User *user, User *target)
 
 void	Command::WHOIS(User *user, Server *server)
 {
-	if (user->GetAuth() == false)
-		return ;
-	for (size_t index = 0 ; index < this->_param.size() ; index++)
+	if (user->GetValidity() == true)
 	{
-		int fdToFind = -1;
-		fdToFind = server->GetFdByNickName(this->_param[index]);
-		if (fdToFind != -1)
-			PrintWhoIs(user, server->GetUserByFd(fdToFind));
-		else
-			SendOneMsg(user, ERR_NOSUCHNICK(this->_param[index]));
+		if (user->GetAuth() == false)
+			return ;
+		for (size_t index = 0 ; index < this->_param.size() ; index++)
+		{
+			int fdToFind = -1;
+			fdToFind = server->GetFdByNickName(this->_param[index]);
+			if (fdToFind != -1)
+				PrintWhoIs(user, server->GetUserByFd(fdToFind));
+			else
+				SendOneMsg(user, ERR_NOSUCHNICK(this->_param[index]));
+		}
 	}
 	return ;
 }
@@ -269,80 +287,83 @@ void	Command::JOIN(User *user, Server *server)
 	size_t		len;
 	bool		newChanCreated = false;
 
-	for (unsigned long i = 0; i < this->_param.size(); i++)
+	if (user->GetValidity() == true)
 	{
-		switch (this->_param[i][0])
+		for (unsigned long i = 0; i < this->_param.size(); i++)
 		{
-			case '#':
-				this->_param[i].erase(0, 1); // enlever le '#' du nom du channel
-				if (server->HasChannel(this->_param[i]) == false) // channel inexistant
-				{
-					chan = server->AddChannel(this->_param[i]); // ajouter channel dans classe server
-					user->JoinChannel(chan); // ajout du channel dans vector de classe user
-					chan->AddUser(user); // ajout du user dans vector de classe channel
-					chan->AddOper(user); // ajout du user dans vector operator de classe channel
-					chan->SetFounder(user->GetNickname()); // set le user en tant que fondateur du channel
-					SendOneMsg(user, RPL_JOIN(user->GetNickname(), chan->GetName()));
-					if (chan->GetTopic().empty() == false)
-						SendOneMsg(user, RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic()));
-					std::string userNickname = "@" + user->GetNickname();
-					SendOneMsg(user, RPL_NAMREPLY(userNickname, chan->GetName(), chan->GetClientList()));
-					SendOneMsg(user, RPL_ENDOFNAMES(user->GetNickname(), chan->GetName()));
-					newChanCreated = true;
-				}
-				else // channel existant
-				{
-					chan = server->GetChannelByName(this->_param[i]);
-					if (this->_param.size() > 1 && this->_param[i + 1][0] != '+') // si a 2e arg et n'est pas un mode
+			switch (this->_param[i][0])
+			{
+				case '#':
+					this->_param[i].erase(0, 1); // enlever le '#' du nom du channel
+					if (server->HasChannel(this->_param[i]) == false) // channel inexistant
 					{
-						if (chan->IsPassCorrect(this->_param[i + 1]) == true
-							&& chan->IsUserInvited(user) == true && chan->IsLimitExceeded() == false) // password correct, user invited et pas d'exces d'user
-						{
-							server->AddUserToChannel(user, this->_param[i]); // ajouter user a map de channel dans classe server
-							SendOneMsg(user, RPL_JOIN(user->GetNickname(), chan->GetName()));
-							if (chan->GetTopic().empty() == false)
-								SendOneMsg(user, RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic()));
-							SendOneMsg(user, RPL_NAMREPLY(user->GetNickname(), chan->GetName(), chan->GetClientList()));
-							SendOneMsg(user, RPL_ENDOFNAMES(user->GetNickname(), chan->GetName()));
-						}
-						else if (chan->IsPassCorrect(this->_param[i + 1]) == false) // password incorrect
-							SendOneMsg(user, ERR_BADCHANNELKEY(user->GetNickname(), this->_param[i]));
-						else if (chan->IsUserInvited(user) == false) // user n'est pas invite
-							SendOneMsg(user, ERR_INVITEONLYCHAN(user->GetNickname(), chan->GetName()));
-						else // channel a atteint nbr d'user max
-							SendOneMsg(user, ERR_CHANNELISFULL(user->GetNickname(), chan->GetName()));
+						chan = server->AddChannel(this->_param[i]); // ajouter channel dans classe server
+						user->JoinChannel(chan); // ajout du channel dans vector de classe user
+						chan->AddUser(user); // ajout du user dans vector de classe channel
+						chan->AddOper(user); // ajout du user dans vector operator de classe channel
+						chan->SetFounder(user->GetNickname()); // set le user en tant que fondateur du channel
+						SendOneMsg(user, RPL_JOIN(user->GetNickname(), chan->GetName()));
+						if (chan->GetTopic().empty() == false)
+							SendOneMsg(user, RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic()));
+						std::string userNickname = "@" + user->GetNickname();
+						SendOneMsg(user, RPL_NAMREPLY(userNickname, chan->GetName(), chan->GetClientList()));
+						SendOneMsg(user, RPL_ENDOFNAMES(user->GetNickname(), chan->GetName()));
+						newChanCreated = true;
 					}
-					else // pas de 2e arg ou bien c'est un mode
+					else // channel existant
 					{
-						if (chan->HasPass() == false && chan->IsUserInvited(user) == true
-							&& chan->IsLimitExceeded() == false) // chan pas de mdp, user invited, chan limit pas atteinte
+						chan = server->GetChannelByName(this->_param[i]);
+						if (this->_param.size() > 1 && this->_param[i + 1][0] != '+') // si a 2e arg et n'est pas un mode
 						{
-							server->AddUserToChannel(user, this->_param[i]); // ajouter user a map de channel dans classe server
-							user->JoinChannel(chan);
-							SendOneMsg(user, RPL_JOIN(user->GetNickname(), chan->GetName()));
-							if (chan->GetTopic().empty() == false)
-								SendOneMsg(user, RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic()));
-							SendOneMsg(user, RPL_NAMREPLY(user->GetNickname(), chan->GetName(), chan->GetClientList()));
-							SendOneMsg(user, RPL_ENDOFNAMES(user->GetNickname(), chan->GetName()));
+							if (chan->IsPassCorrect(this->_param[i + 1]) == true
+								&& chan->IsUserInvited(user) == true && chan->IsLimitExceeded() == false) // password correct, user invited et pas d'exces d'user
+							{
+								server->AddUserToChannel(user, this->_param[i]); // ajouter user a map de channel dans classe server
+								SendOneMsg(user, RPL_JOIN(user->GetNickname(), chan->GetName()));
+								if (chan->GetTopic().empty() == false)
+									SendOneMsg(user, RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic()));
+								SendOneMsg(user, RPL_NAMREPLY(user->GetNickname(), chan->GetName(), chan->GetClientList()));
+								SendOneMsg(user, RPL_ENDOFNAMES(user->GetNickname(), chan->GetName()));
+							}
+							else if (chan->IsPassCorrect(this->_param[i + 1]) == false) // password incorrect
+								SendOneMsg(user, ERR_BADCHANNELKEY(user->GetNickname(), this->_param[i]));
+							else if (chan->IsUserInvited(user) == false) // user n'est pas invite
+								SendOneMsg(user, ERR_INVITEONLYCHAN(user->GetNickname(), chan->GetName()));
+							else // channel a atteint nbr d'user max
+								SendOneMsg(user, ERR_CHANNELISFULL(user->GetNickname(), chan->GetName()));
 						}
-						else if (chan->HasPass() == true) // channel a un password
-							SendOneMsg(user, ERR_BADCHANNELKEY(user->GetNickname(), this->_param[i]));
-						else if (chan->IsUserInvited(user) == false) // user n'est pas invited
-							SendOneMsg(user, ERR_INVITEONLYCHAN(user->GetNickname(), chan->GetName()));
-						else // channel a atteint nbr d'user max
-							SendOneMsg(user, ERR_CHANNELISFULL(user->GetNickname(), chan->GetName()));
+						else // pas de 2e arg ou bien c'est un mode
+						{
+							if (chan->HasPass() == false && chan->IsUserInvited(user) == true
+								&& chan->IsLimitExceeded() == false) // chan pas de mdp, user invited, chan limit pas atteinte
+							{
+								server->AddUserToChannel(user, this->_param[i]); // ajouter user a map de channel dans classe server
+								user->JoinChannel(chan);
+								SendOneMsg(user, RPL_JOIN(user->GetNickname(), chan->GetName()));
+								if (chan->GetTopic().empty() == false)
+									SendOneMsg(user, RPL_TOPIC(user->GetNickname(), chan->GetName(), chan->GetTopic()));
+								SendOneMsg(user, RPL_NAMREPLY(user->GetNickname(), chan->GetName(), chan->GetClientList()));
+								SendOneMsg(user, RPL_ENDOFNAMES(user->GetNickname(), chan->GetName()));
+							}
+							else if (chan->HasPass() == true) // channel a un password
+								SendOneMsg(user, ERR_BADCHANNELKEY(user->GetNickname(), this->_param[i]));
+							else if (chan->IsUserInvited(user) == false) // user n'est pas invited
+								SendOneMsg(user, ERR_INVITEONLYCHAN(user->GetNickname(), chan->GetName()));
+							else // channel a atteint nbr d'user max
+								SendOneMsg(user, ERR_CHANNELISFULL(user->GetNickname(), chan->GetName()));
+						}
 					}
-				}
-				break ;
-			case '+':
-				if (this->_param[i].size() > 1 && newChanCreated == true) // si ne contient pas seulement '+' et que un nouveau chan a ete creer
-				{
-					pos = 1;
-					len = (this->_param[i].length()) - 1;
-					modes = this->_param[i].substr(pos, len);
-					chan->SetModes(modes);
-				}
-				break;
+					break ;
+				case '+':
+					if (this->_param[i].size() > 1 && newChanCreated == true) // si ne contient pas seulement '+' et que un nouveau chan a ete creer
+					{
+						pos = 1;
+						len = (this->_param[i].length()) - 1;
+						modes = this->_param[i].substr(pos, len);
+						chan->SetModes(modes);
+					}
+					break;
+			}
 		}
 	}
 }
@@ -385,24 +406,28 @@ bool	Command::CheckErrorMode(User *user, Channel *channel, std::string chanName)
 
 void	Command::MODE(User *user, Server *server)
 {
-	SetModeParams(&_param);
+	if (user->GetValidity() == true)
+	{
+		SetModeParams(&_param);
 
-	if (_param[0][0] != '#')	// on ne gere que les mode de channel pas ceux des clients
-		return;					// fail en silence
-	
-	_param[0].erase(0, 1);		//on supprime le hashtag
-	Channel	*channel = server->GetChannelByName(_param[0]);
+		if (_param[0][0] != '#')	// on ne gere que les mode de channel pas ceux des clients
+			return;					// fail en silence
+		
+		_param[0].erase(0, 1);		//on supprime le hashtag
+		Channel	*channel = server->GetChannelByName(_param[0]);
 
-	if (CheckErrorMode(user, channel, _param[0]))
-		return ;
-	int i = 0;					// index des flag de mode
-	
-	if (_param[1][i] == '+')
-		while (_param[1][++i] != '-' && _param[1][i])
-			channel->SetModes(_param[1][i], &_modeParams, server, this, user); // on incremente j quand on a utilisé un param
-	if (_param[1][i] == '-')
-		while (_param[1][++i])
-			channel->UnsetModes(_param[1][i], &_modeParams, server, this, user);
+		if (CheckErrorMode(user, channel, _param[0]))
+			return ;
+		int i = 0;					// index des flag de mode
+		
+		if (_param[1][i] == '+')
+			while (_param[1][++i] != '-' && _param[1][i])
+				channel->SetModes(_param[1][i], &_modeParams, server, this, user); // on incremente j quand on a utilisé un param
+		if (_param[1][i] == '-')
+			while (_param[1][++i])
+				channel->UnsetModes(_param[1][i], &_modeParams, server, this, user);
+	}
+	return ;
 }
 
 void	Command::PASS(User *user, Server *server)
@@ -411,11 +436,10 @@ void	Command::PASS(User *user, Server *server)
 	{
 		if (this->_param.size() != 1 || (this->_param[0] != server->GetServerPassword()))
 		{
-			// std::map<int, User*>::iterator it = (server->GetUsers()).find(user->GetFd());
 			SendOneMsg(user, ERR_PASSWDMISMATCH(user->GetNickname()));
             epoll_ctl(server->GetEpollFd(), EPOLL_CTL_DEL, user->GetFd(), server->GetClientEvent());
-			// (server->GetUsers()).erase(it); // -> segfault, a mettre dans destructeur
 			close(user->GetFd());
+			server->RemoveUser(user);
 		}
 		else 
 		{
@@ -424,44 +448,48 @@ void	Command::PASS(User *user, Server *server)
 	}
 }
 
-void	Command::USER(User *user, Server *server)
-{
-	(void)server;
-
-	if (user->GetAuth() == true && this->_param.size() == 3)
-	{
-		user->SetUsername(this->_param[0]);
-		user->SetHostname(this->_param[1]);
-		user->SetServername(this->_param[2]);
-		user->SetRealname(&_param);
-	}
-	return ;
-}
-
 void	Command::NICK(User *user, Server *server)
 {
-	(void)server;
-
 	if (user->GetAuth() == true)
 	{
 		user->SetNickname(this->_param[0], server);
-		if (user->GetNickname().empty() == false)
-			SendOneMsg(user, RPL_WELCOME(user->GetNickname()));
-		else
+		if (user->GetNickname().empty() == true)
 		{
 			SendOneMsg(user, ERR_NICKNAMEINUSE(_param[0]));
-			// retirer user du serveur
+			epoll_ctl(server->GetEpollFd(), EPOLL_CTL_DEL, user->GetFd(), server->GetClientEvent());
+			close(user->GetFd());
+			server->RemoveUser(user);
 		}
 	}
 	return ;
 }
 
-void	Command::PING(User *user, Server *server)
+void	Command::USER(User *user, Server *server)
 {
 	(void)server;
 
-	if (user->GetAuth())
-		SendOneMsg(user, RPL_PONG);
+	if (user->GetAuth() == true && this->_param.size() >= 4 && user->GetNickname().empty() == false)
+	{
+		user->SetUsername(this->_param[0]);
+		user->SetHostname(this->_param[1]);
+		user->SetServername(this->_param[2]);
+		user->SetRealname(&_param);
+		user->SetValidity(true);
+		SendOneMsg(user, RPL_WELCOME(user->GetNickname()));
+	}
+	return ;
+}SetValidity
+
+
+void	Command::PING(User *user, Server *server)
+{
+	if (user->GetValidity() == true)
+	{
+		(void)server;
+
+		if (user->GetAuth())
+			SendOneMsg(user, RPL_PONG);
+	}
 	return ;
 }
 
@@ -538,15 +566,19 @@ void	Command::SendToChannel(User *user, Server *server)
 
 void	Command::PRIVMSG(User *user, Server *server)
 {
-	if (_param.size() < 2)
+	if (user->GetValidity() == true)
 	{
-		SendOneMsg(user, ERR_NEEDMOREPARAMS(user->GetNickname(), this->_name));
-		return;
+		if (_param.size() < 2)
+		{
+			SendOneMsg(user, ERR_NEEDMOREPARAMS(user->GetNickname(), this->_name));
+			return;
+		}
+		if (this->GetParameters()[0][0] == '#')
+			this->SendToChannel(user, server);
+		else
+			this->SendToUser(user, server);
 	}
-	if (this->GetParameters()[0][0] == '#')
-		this->SendToChannel(user, server);
-	else
-		this->SendToUser(user, server);
+	return ;
 }
 
 std::string	Command::GetCmdName()

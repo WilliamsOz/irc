@@ -233,7 +233,8 @@ void	Server::LaunchServer()
         if (numEvents == -1)
 		{
             std::cerr << "Error : Unable to wait for events." << std::endl;
-			// ajouter close des fd ouverts
+			close(this->_socketServer);
+			close(this->_epollfd);
             return ;
         }
         for (int i = 0; i < numEvents; i++)
@@ -248,8 +249,10 @@ void	Server::LaunchServer()
                 int bytesRead = recv(this->_events[i].data.fd, packet, sizeof(packet), 0);
 				if (bytesRead <= 0) // fermer proprement tout les fd + revoir epoll_ctl 3e argument
 				{
-                    close(this->_events[i].data.fd);
                     epoll_ctl(this->_epollfd, EPOLL_CTL_DEL, this->_events[i].data.fd, &this->_clientEvent);
+                    close(this->_events[i].data.fd);
+					close(this->_socketServer);
+					close(this->_epollfd);
                     std::cout << "Client disconnected." << std::endl;
                 }
 				else
@@ -264,7 +267,6 @@ void	Server::LaunchServer()
 					if (!input.empty() && input.find('\n') == std::string::npos)
                     {
 						tmp.assign(input);
-                        std::cout << "ctrl+d input =" << input << std::endl;
                     }
                     else
 					{
