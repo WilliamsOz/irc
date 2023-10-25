@@ -35,7 +35,7 @@ class Server
 	std::map<int, User *>&				GetUsers();
 
 	private:
-
+	std::string							_buffer;
 	int									_port;
 	std::string							_password;
 	int									_socketServer;

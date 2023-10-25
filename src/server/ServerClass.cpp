@@ -153,26 +153,6 @@ void	Server::AddUser()
 	return ;
 }
 
-std::string Server::HandlePackets(std::string& currentCmd, const std::string& packet)
-{
-    // Ajouter le paquet à la commande en cours
-    if (packet != "")
-		currentCmd += packet;
-
-    // Vérifier si la commande se termine
-    size_t pos = currentCmd.find("\r\n");
-    if (pos != std::string::npos) {
-        // La commande se termine ici, donc renvoyer la commande complète
-        std::string command = currentCmd.substr(0, pos);
-        // Retirer la commande de la chaîne
-        currentCmd = currentCmd.erase(0, pos + 2);
-        return command;
-    }
-
-    // Si la commande n'est pas terminée, renvoyer une chaîne vide
-    return "";
-}
-
 void	Server::LaunchServer()
 {
 	int optionVal = 1;	
@@ -245,6 +225,8 @@ void	Server::LaunchServer()
 	this->_clientEvent.events = EPOLLIN;
 	int numEvents;
 	std::string	currentCmd;
+	std::string	tmp = "";
+
 	while (!g_signal)
 	{
         numEvents = epoll_wait(this->_epollfd, this->_events, 1, -1); // traite evenement 1 par 1
@@ -272,26 +254,30 @@ void	Server::LaunchServer()
                 }
 				else
 				{
+					std::string	input;
                     packet[bytesRead] = '\0';
-					std::string input = "";
-					int i = 0;
-					while (i < 10)
+					if (tmp != "")
+						input = tmp + packet;
+					else
+					 	input = packet;
+					
+					if (!input.empty() && input.find('\n') == std::string::npos)
+                    {
+						tmp.assign(input);
+                        std::cout << "ctrl+d input =" << input << std::endl;
+                    }
+                    else
 					{
-						std::cout <<  "input == [" << input << "]" << std::endl;
-						std::cout <<  "curent cmd == [" << currentCmd << "]" << std::endl;
-						if (input == "")
-							input = HandlePackets(currentCmd, packet);
-						else
-							input = HandlePackets(currentCmd, "");
-						packet[0] = '\0';
-						if (!input.empty())
+						while (input != "")
 						{
-							Command cmd(input);
+							int 		pos = input.find("\n");
+							std::string	output = input.substr(0, pos);
+							Command		cmd(output);
+
+							input.erase(0, pos + 1);
 							cmd.ExecCommand(this->_events[i].data.fd, this);
+							tmp = "";
 						}
-						if (currentCmd == "")
-							break ;
-						i++;
 					}
                 }
             }

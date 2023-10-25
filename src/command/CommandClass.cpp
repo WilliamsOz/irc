@@ -34,10 +34,11 @@ void	Command::ExecCommand(int clientFd, Server *server)
 {
 	if (this->_commands.find(this->_name) != _commands.end())
 	{
+		std::cout << _name << std::endl;
 		(this->*this->_commands[this->_name])(server->GetUserByFd(clientFd), server);
 	}
-	// else
-	// 	std::cout << "Unknown command -> [" << this->_name << "]" << "\n";
+	else
+		std::cout << "Unknown command -> [" << this->_name << "]" << "\n";
 }
 
 void	Command::SetUpCommandsContainer()
@@ -408,7 +409,7 @@ void	Command::PASS(User *user, Server *server)
 {
 	if (user->GetAuth() == false)
 	{
-		if (this->_param[0] != server->GetServerPassword())
+		if (this->_param.size() != 1 || (this->_param[0] != server->GetServerPassword()))
 		{
 			// std::map<int, User*>::iterator it = (server->GetUsers()).find(user->GetFd());
 			SendOneMsg(user, ERR_PASSWDMISMATCH(user->GetNickname()));
@@ -416,7 +417,7 @@ void	Command::PASS(User *user, Server *server)
 			// (server->GetUsers()).erase(it); // -> segfault, a mettre dans destructeur
 			close(user->GetFd());
 		}
-		else
+		else 
 		{
 			user->SetAuth(true);
 		}
@@ -427,7 +428,7 @@ void	Command::USER(User *user, Server *server)
 {
 	(void)server;
 
-	if (user->GetAuth() == true)
+	if (user->GetAuth() == true && this->_param.size() == 3)
 	{
 		user->SetUsername(this->_param[0]);
 		user->SetHostname(this->_param[1]);
