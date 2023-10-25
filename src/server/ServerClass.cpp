@@ -78,6 +78,7 @@ bool	Server::HasChannel(std::string name)
 		return (false);
 }
 
+
 Channel	*Server::GetChannelByName(std::string name)
 {
 	std::map<std::string, Channel *>::iterator it;
@@ -222,6 +223,7 @@ void	Server::LaunchServer()
 
 	signal(SIGINT, Server::SignalHandler);
 
+
 	this->_clientEvent.events = EPOLLIN;
 	int numEvents;
 	std::string	currentCmd;
@@ -251,8 +253,7 @@ void	Server::LaunchServer()
 				{
                     epoll_ctl(this->_epollfd, EPOLL_CTL_DEL, this->_events[i].data.fd, &this->_clientEvent);
                     close(this->_events[i].data.fd);
-					close(this->_socketServer);
-					close(this->_epollfd);
+					RemoveUser(GetUserByFd(this->_events[i].data.fd));
                     std::cout << "Client disconnected." << std::endl;
                 }
 				else
@@ -263,17 +264,17 @@ void	Server::LaunchServer()
 						input = tmp + packet;
 					else
 					 	input = packet;
-					
 					if (!input.empty() && input.find('\n') == std::string::npos)
-                    {
 						tmp.assign(input);
-                    }
                     else
 					{
 						while (input != "")
 						{
 							int 		pos = input.find("\n");
 							std::string	output = input.substr(0, pos);
+
+							if (output.find("\r") != std::string::npos)
+								output.erase(output.length() - 1, 1);
 							Command		cmd(output);
 
 							input.erase(0, pos + 1);

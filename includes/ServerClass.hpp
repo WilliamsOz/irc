@@ -40,10 +40,10 @@ class Server
 	std::string							_password;
 	int									_socketServer;
 	int									_epollfd;
-	sockaddr_in							_serverAddress; // a mettre dans LaunchServer()
-	epoll_event							_serverEvent; // a mettre dans LaunchServer()
-	epoll_event							_clientEvent; // a mettre dans LaunchServer()
-	epoll_event 						_events[MAX_EVENTS]; // a mettre dans LaunchServer()
+	sockaddr_in							_serverAddress;
+	epoll_event							_serverEvent;
+	epoll_event							_clientEvent;
+	epoll_event 						_events[MAX_EVENTS];
 	std::map<int, User *>				_users;
 	std::map<std::string, Channel *>	_channels;
 };

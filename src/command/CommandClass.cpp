@@ -34,11 +34,9 @@ void	Command::ExecCommand(int clientFd, Server *server)
 {
 	if (this->_commands.find(this->_name) != _commands.end())
 	{
-		std::cout << _name << std::endl;
+		std::cout << this->_name << std::endl;
 		(this->*this->_commands[this->_name])(server->GetUserByFd(clientFd), server);
 	}
-	else
-		std::cout << "Unknown command -> [" << this->_name << "]" << "\n";
 }
 
 void	Command::SetUpCommandsContainer()
@@ -450,6 +448,8 @@ void	Command::PASS(User *user, Server *server)
 
 void	Command::NICK(User *user, Server *server)
 {
+	if (!user)
+		return;
 	if (user->GetAuth() == true)
 	{
 		user->SetNickname(this->_param[0], server);
@@ -468,6 +468,8 @@ void	Command::USER(User *user, Server *server)
 {
 	(void)server;
 
+	if (!user)
+		return ;
 	if (user->GetAuth() == true && this->_param.size() >= 4 && user->GetNickname().empty() == false)
 	{
 		user->SetUsername(this->_param[0]);
@@ -477,8 +479,14 @@ void	Command::USER(User *user, Server *server)
 		user->SetValidity(true);
 		SendOneMsg(user, RPL_WELCOME(user->GetNickname()));
 	}
+	else
+	{
+		epoll_ctl(server->GetEpollFd(), EPOLL_CTL_DEL, user->GetFd(), server->GetClientEvent());
+		close(user->GetFd());
+		server->RemoveUser(user);
+	}
 	return ;
-}SetValidity
+}
 
 
 void	Command::PING(User *user, Server *server)
@@ -622,6 +630,6 @@ void        Command::SendOneMsg(User* recipient, std::string msg)
 {
 	int 		len = msg.size();
 
-	if ((send(recipient->GetFd(), msg.c_str(), len, 0 )) != len)
+	if ((send(recipient->GetFd(), msg.c_str(), len, 0)) != len)
 		return ;
 }

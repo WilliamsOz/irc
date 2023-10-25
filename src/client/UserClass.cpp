@@ -81,9 +81,13 @@ bool	User::IsAvailableNickname(std::string nickname, Server *server)
 void		User::SetNickname(std::string nickname, Server *server)
 {
 	if (IsAvailableNickname(nickname, server) == true)
+	{
 		this->_nickname = nickname;
+	}
 	else
+	{
 		this->_nickname = "";
+	}
 	return ;
 }
 

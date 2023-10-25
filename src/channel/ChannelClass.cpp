@@ -1,10 +1,5 @@
 # include "irc.hpp"
 
-// Channel::Channel() :  _password(""), _modes(""), _topic("")
-// {
-// 	return ;
-// }
-
 Channel::Channel(const std::string name) : _name(name), _modes(""), _topic("")
 {
 	return ;
